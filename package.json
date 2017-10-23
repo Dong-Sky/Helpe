@@ -1,0 +1,40 @@
+{
+  "name": "easygo",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "test": "jest"
+  },
+  "dependencies": {
+    "ac-qrcode": "^1.0.1",
+    "react": "16.0.0-alpha.6",
+    "react-native": "0.44.0",
+    "react-native-camera": "git+https://github.com/lwansbrough/react-native-camera.git",
+    "react-native-easy-toast": "^1.0.8",
+    "react-native-elements": "^0.12.0",
+    "react-native-gifted-chat": "^0.1.4",
+    "react-native-image-crop-picker": "^0.14.1",
+    "react-native-image-picker": "^0.26.3",
+    "react-native-maps": "^0.15.2",
+    "react-native-modal-datetime-picker": "^4.11.0",
+    "react-native-modal-dropdown": "^0.5.0",
+    "react-native-scrollable-tab-view": "^0.6.7",
+    "react-native-storage": "^0.2.1",
+    "react-native-swiper": "^1.5.13",
+    "react-native-textinput-effects": "^0.3.1",
+    "react-native-vector-icons": "^4.1.1",
+    "react-native-viewpager": "^0.2.13",
+    "react-navigation": "^1.0.0-beta.9"
+  },
+  "devDependencies": {
+    "babel-jest": "20.0.0",
+    "babel-preset-react-native": "1.9.1",
+    "jest": "20.0.0",
+    "react-native-qrcode": "^0.2.3",
+    "react-test-renderer": "16.0.0-alpha.6"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}
