@@ -12,6 +12,7 @@ import {
   FlatList,
   Keyboard,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import {
   StackNavigator,
@@ -27,6 +28,17 @@ import Service from '../common/service';
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
+function isRealNum(val){
+    // isNaN()函数 把空串 空格 以及NUll 按照0来处理 所以先去除
+    if(val === "" || val ==null){
+        return false;
+    }
+    if(!isNaN(val)){
+        return true;
+    }else{
+        return false;
+    }
+};
 
  class buy extends Component {
    constructor(props) {
@@ -39,6 +51,7 @@ const height = Dimensions.get('window').height;
       //modal控制
       addressModalVisible: false,
       newAddressModalVisible: false,
+      markModalVisible: false,
       //商品信息
       defaultImg: '',
       itemId: null,
@@ -56,10 +69,12 @@ const height = Dimensions.get('window').height;
       address: null,
       info: null,
       //订单信息
-      num: 0,
+      num: '1',
       aid: null,
       mark: null,
-      changeprice: 0,
+      changeprice: '0',
+      //
+      loading: false
     };
   };
 
@@ -93,10 +108,16 @@ const height = Dimensions.get('window').height;
      this.setState({ region });
   };
 
+  //打开备注窗口
+  setMarkModalVisible(visible){
+    this.setState({markModalVisible: visible});
+  };
+
   //获取商品详细数据
   getItemInfo = () => {
     const { token,uid,itemId } = this.state;
-    const url = Service.BaseUrl+`?a=item&m=info&v=${Service.version}&token=${token}&uid=${uid}&id=${itemId}`
+    const url = Service.BaseUrl+`?a=item&m=info&v=${Service.version}&token=${token}&uid=${uid}&id=${itemId}`;
+    this.setState({loading: true})
     fetch(url)
     .then(response => response.json())
     .then(responseJson => {
@@ -115,6 +136,7 @@ const height = Dimensions.get('window').height;
     .then(uid => {
       console.log(uid);
       console.log(this.state);
+      this.setState({loading: false})
     })
     .catch(error => console.log(error));
   };
@@ -181,19 +203,68 @@ const height = Dimensions.get('window').height;
    .catch(error => console.log(error))
   };
 
+
+  //定义详情描述窗口
+  renderMarkModal = () => {
+       return(
+        <Modal
+          animationType={"slide"}
+          transparent={false}
+          visible={this.state.markModalVisible}
+          onRequestClose={() => {console.log("Modal has been closed.")}}
+          >
+         <View style={styles.container}>
+           <View style={styles.StatusBar}>
+           </View>
+           <View style={styles.header}>
+             <Text
+               style={{marginLeft:20,color:'#5c492b'}}
+               onPress={() => this.setMarkModalVisible(!this.state.markModalVisible)}>
+               返回
+             </Text>
+             <View style={{flex:1,}}>
+             </View>
+             <Text
+               style={{marginRight:20,color:'#5c492b'}}
+               onPress={Keyboard.dismiss}>
+               完成
+             </Text>
+           </View>
+           <ScrollView
+             style={styles.contact_modal_body}
+             showsVerticalScrollIndicator={true}
+             >
+             <TextInput
+               style={{flex: 1,height: 1500,fontSize: 16,fontWeight: '500'}}
+               autoCapitalize='none'
+               placeholder='请详细描述您的服务'
+               multiline={true}
+               onChangeText={(mark) => this.setState({mark})}
+               value={this.state.mark}
+             />
+             <Text style={{ marginTop: 10,marginBottom: 10,height: 40,fontSize: 12,fontWeight: '500',alignSelf: 'center'}}>
+               不能再添加更多内容
+             </Text>
+           </ScrollView>
+           </View>
+        </Modal>
+      );
+  };
+
+
   //定义下单方法
   buy = () => {
-    const { token,uid,aid,itemId } = this.state;
+    const { token,uid,aid,itemId,changeprice,num,mark } = this.state;
     const url = Service.BaseUrl;
-    const v = Service.version;
     const url1 = Service.BaseUrl+`?a=buy&v=${Service.version}&token=${token}&uid=${uid}&id=${itemId}&aid=${aid}`
     console.log(url1);
+    this.setState({loading: true})
     fetch(url,{
         method:'POST',
         headers:{
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: 'a=buy&token='+token+'&uid='+uid+'&aid='+aid+'&id='+itemId+'&v='+Service.version,
+        body: 'a=buy&token='+token+'&uid='+uid+'&aid='+aid+'&id='+itemId+'&v='+Service.version+'&num='+Number(num)+'&changeprice='+Number(changeprice)+'&mark='+mark,
       })
       .then(response => response.json())
       .then(responseJson =>{
@@ -205,12 +276,30 @@ const height = Dimensions.get('window').height;
           alert(responseJson.err);
         }
       })
+      .then(() => this.setState({loading: false}))
       .catch(error => console.log(error));
   };
 
-  calculate = () => {
-    var price = this.state.price;
-  };
+  total = () => {
+    const { price } = this.state.item;
+    const num = Number(this.state.num);
+    const changeprice = Number(this.state.changeprice);
+    if(isNaN(num)){
+      return -1;
+    }
+    else if(isNaN(changeprice)){
+      return -1;
+    }
+    else if(!Number.isInteger(num)){
+      return -1;
+    }
+    else if(!Number.isInteger(changeprice)){
+      return -1;
+    }
+    else{
+      return price*num+changeprice;
+    }
+  }
 
   //页面元素
   //定义地址列表窗口
@@ -367,7 +456,22 @@ const height = Dimensions.get('window').height;
          </TouchableOpacity>
        );
      }
-   }
+   };
+
+   //加载器
+   showLoading = () => {
+     if(!this.state.loading){
+       return null;
+     }
+     else{
+       return(
+         <View
+         >
+           <ActivityIndicator animating size="large" />
+         </View>
+       );
+     }
+   };
 
 
   render() {
@@ -379,6 +483,7 @@ const height = Dimensions.get('window').height;
         </View>
         <View style={styles.header}>
         </View>
+        {this.showLoading()}
         <ScrollView>
           <TouchableOpacity style={styles.item_pic}>
             {this.returnPhoto()}
@@ -387,6 +492,7 @@ const height = Dimensions.get('window').height;
             <ListItem
               titleStyle={styles.title}
               title='价格'
+              rightIcon={<View></View>}
               rightTitle={this.state.item.price}
             />
             <ListItem
@@ -394,18 +500,33 @@ const height = Dimensions.get('window').height;
               title='数量'
               rightIcon={<View></View>}
               textInput={true}
-              onChangeText={(num) => this.setState({num})}
-              value={this.state.num}
-              clearButtonMode='while-editing'
+              textInputStyle={styles.textInput}
+              textInputOnChangeText={(num) => this.setState({num})}
+              textInputValue={this.state.num}
+              clearButtonMode='always'
+              keyboardType='phone-pad'
             />
             <ListItem
               titleStyle={styles.title}
               title='补差价'
               rightIcon={<View></View>}
               textInput={true}
-              onChangeText={(changeprice) => this.setState({changeprice})}
-              value={this.state.changeprice}
-              clearButtonMode='while-editing'
+              textInputOnChangeText={(changeprice) => this.setState({changeprice})}
+              textInputValue={this.state.changeprice}
+              clearButtonMode='always'
+              keyboardType='phone-pad'
+            />
+          </List>
+          <List>
+            <ListItem
+              titleStyle={styles.title}
+              title='线下支付'
+              rightTitle={this.state.item.paytp>=1?'支持':'不支持'}
+            />
+            <ListItem
+              titleStyle={styles.title}
+              title='线上支付'
+              rightTitle={this.state.item.paytp!=1?'支持':'不支持'}
             />
           </List>
           <List>
@@ -418,25 +539,33 @@ const height = Dimensions.get('window').height;
             <ListItem
               titleStyle={styles.title}
               title='备注'
-              rightTitle={this.state.item.mark==null?'未编辑':'已编辑'}
+              rightTitle={this.state.mark==null?'未编辑':'已编辑'}
+              onPress={() => this.setMarkModalVisible(true)}
             />
           </List>
           <List>
             <ListItem
               titleStyle={styles.title}
               title='总价'
-              rightTitle={this.state.item.price}
+              rightTitle={this.total()<0?'输入不合法':this.total().toString()}
             />
           </List>
         </ScrollView>
-        <View style={styles.bottom}>
-          <Button
-            style={styles.button}
-            onPress={() => this.buy()}
-            backgroundColor='#5c492b'
-            title='确认提交' />
-        </View>
+        <Button
+          style={styles.button}
+          buttonStyle={{marginTop:5,marginBottom:5,}}
+          onPress={() => {
+            if(this.total()<0){
+              alert('输入合法的数量与差价（仅能为整数)');
+            }
+            else {
+              this.buy();
+            }
+          }}
+          backgroundColor='#f3456d'
+          title='确认提交' />
         {this.renderAddressModal()}
+        {this.renderMarkModal()}
       </View>
     );
   }
@@ -451,7 +580,7 @@ const styles = StyleSheet.create({
   },
   StatusBar:  {
       height:22,
-      backgroundColor:'#fbe994',
+      backgroundColor:'#f3456d',
   },
   map: {
     ...StyleSheet.absoluteFillObject,
@@ -461,7 +590,7 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fbe994',
+    backgroundColor: '#f3456d',
   },
   item_pic: {
     height: 200,
@@ -470,7 +599,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    color: '#5c492b',
+    color: '#333333',
     fontWeight: '500',
   },
   bottom: {
@@ -479,9 +608,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'stretch' ,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#f4eede',
     borderTopWidth: 1,
-    borderColor: '#e5e5e5',
+    borderColor: '#FFFFFF',
   },
   icon: {
      width: 25,
@@ -489,7 +618,6 @@ const styles = StyleSheet.create({
   },
   button: {
     alignSelf:'center',
-    marginTop:15,
     width:280,
     height:50,
   },

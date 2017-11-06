@@ -40,15 +40,19 @@ import setting from './page/setting';
 import scanner from './page/scanner';
 import myItem from './page/myItem';
 import myOrder from './page/myOrder';
+import mySale from './page/mySale';
 import myAdress from './page/myAdress';
-import myItemDetail from './page/myItemDetail';
-import itemDetail from './page/itemDetail';
+import myItemDetail_Service from './page/myItemDetail_Service';
+import itemDetail_Service from './page/itemDetail_Service';
+import itemDetail_Ask from './page/itemDetail_Ask';
 import chatroom from './page/chatroom';
 import payment from './page/payment';
 import publish_Service from './page/publish_Service';
 import publish_Ask from './page/publish_Ask';
 import buy from './page/buy';
 import online from './page/online';
+import mySaleDetail_Service from './page/mySaleDetail_Service';
+import myOrderDetail_Service from './page/myOrderDetail_Service';
 var storage = new Storage({
   // 最大容量，默认值1000条数据循环存储
   size: 1000,
@@ -123,7 +127,7 @@ const main = TabNavigator({
   swipeEnabled: false, // 禁止左右滑动
   backBehavior: 'none', // 按 back 键是否跳转到第一个 Tab， none 为不跳转
   tabBarOptions: {
-      activeTintColor: '#f0b913', // 文字和图片选中颜色
+      activeTintColor: '#f3456d', // 文字和图片选中颜色
       inactiveTintColor: '#595959', // 文字和图片默认颜色
       showIcon: true, // android 默认不显示 icon, 需要设置为 true 才会显示
       showLabel: false,
@@ -150,14 +154,18 @@ const easygo = StackNavigator({
     scanner:  { screen: scanner },
     myItem: { screen: myItem },
     myOrder: { screen: myOrder },
-    myItemDetail: { screen: myItemDetail },
-    itemDetail: { screen: itemDetail  },
+    mySale: { screen: mySale },
+    myItemDetail_Service: { screen: myItemDetail_Service },
+    itemDetail_Service: { screen: itemDetail_Service  },
+    itemDetail_Ask: { screen: itemDetail_Ask },
     chatroom: { screen: chatroom },
     payment:  { screen: payment },
     publish_Service:  { screen: publish_Service },
     publish_Ask:  { screen: publish_Ask  },
     buy:  { screen: buy },
     online: { screen: online },
+    mySaleDetail_Service: { screen: mySaleDetail_Service },
+    myOrderDetail_Service: { screen: myOrderDetail_Service },
 }, {
     initialRouteName: 'main', // 默认显示界面
     navigationOptions: {// 屏幕导航的默认选项, 也可以在组件内用 static navigationOptions 设置(会覆盖此处的设置)

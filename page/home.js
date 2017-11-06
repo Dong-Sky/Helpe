@@ -12,6 +12,7 @@ import {
   StatusBar,
   Modal,
   Dimensions,
+  NativeModules,
 } from 'react-native';
 import {
   StackNavigator,
@@ -22,7 +23,9 @@ import Geolocation from 'Geolocation' ;
 import { List, ListItem,Icon,Button,Avatar,SearchBar } from 'react-native-elements';
 import MapView from 'react-native-maps';
 import ModalDropdown from 'react-native-modal-dropdown';
+
 import Service from '../common/service';
+
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
@@ -156,6 +159,7 @@ class home1 extends Component {
          },
          error => {
            console.log("获取位置失败："+ error);
+           alert('获取位置失败');
          },
      );
 
@@ -243,7 +247,7 @@ class home1 extends Component {
 
   controlChooseBarStyle = (tp) => {
     if(this.state.tp==tp){
-      return {backgroundColor: '#5c492b'};
+      return {backgroundColor: '#f4eede'};
     }
     else{
       return {};
@@ -252,15 +256,17 @@ class home1 extends Component {
 
   controlFontStyle = (tp) => {
     if(this.state.tp==tp){
-      return {color: '#FFFFFF'};
+      return {color: '#f3456d'};
     }
     else{
-      return {};
+      return {color: '#f4eede'};
     }
   };
 
+
   render() {
     console.log(this.state);
+    //this.getLanguage();
     const {params} = this.props.navigation.state;
     const {navigate} = this.props.navigation;
     return (
@@ -270,12 +276,12 @@ class home1 extends Component {
           <View style={styles.header}>
             <Text
               onPress={() => this.getItemList()}
-              style={{marginLeft:10,}}
+              style={{marginLeft: 10,color: '#FFFFFF'}}
               >
-              搜索
+              返回
             </Text>
             <View style={{flex:1,alignItems: 'center'}}>
-              <View style={{width: 120,height: 30,borderWidth: 2, borderColor: '#5c492b',flexDirection: 'row'}}>
+              <View style={{width: 120,height: 30,borderWidth: 2, borderColor: '#f4eede',flexDirection: 'row'}}>
                 <TouchableOpacity style={[styles.choosebar,this.controlChooseBarStyle(0)]} onPress={() => this.reget(0)}>
                   <Text style={[this.controlFontStyle(0)]}>
                     Service
@@ -294,7 +300,7 @@ class home1 extends Component {
                 uid: this.state.uid,
                 islogin: this.state.islogin,
               })}
-              style={{marginRight:10,}}
+              style={{marginRight: 10,color: '#FFFFFF'}}
               >
               列表
             </Text>
@@ -319,7 +325,7 @@ class home1 extends Component {
                 <Icon
                   name={'my-location'}
                   size={35}
-                  color='#fbe994'
+                  color='#f3456d'
                   style={{alignSelf:'flex-start',marginRight:10,marginTop:10,padding:5}}
                   onPress={() => this.getLocation()}
                  />
@@ -365,7 +371,7 @@ class itemList extends Component {
         longitudeDelta: 0.004999999999881766,
       },
       //列表控制
-      tp: 0,
+      tp: null,
       cid: null,
       searchtp: 2,
       loading: false,
@@ -446,13 +452,21 @@ class itemList extends Component {
   };
 
   makeRemoteRequest = () => {
-    const { token,uid,page,searchtp,region,tp } = this.state;
+    const { token,uid,page,searchtp,region,tp,cid } = this.state;
+    const lat = region.latitude;
+    const lng = region.longitude;
     const minlat = region.latitude-20.0;
     const maxlat = region.latitude+20.0;
     const minlng = region.longitude-20.0;
     const maxlng = region.longitude+20.0;
+    var url;
+    if(searchtp==2){
+      url = Service.BaseUrl+`?a=item&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&searchtp=${searchtp}&lat=${lat}&lng=${lng}&tp=${tp}&cid=${cid}`;
+    }
+    else{
+      url = Service.BaseUrl+`?a=item&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&searchtp=${searchtp}&tp=${tp}&cid=${cid}`;
+    }
 
-    const url = Service.BaseUrl+`?a=item&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&searchtp=${searchtp}&minlat=${minlat}&maxlat=${maxlat}&minlng=${minlng}&maxlng=${maxlng}&tp=${tp}`;
     console.log(url);
     this.setState({ loading: true, });
     fetch(url)
@@ -516,14 +530,8 @@ class itemList extends Component {
 
   renderHeader = () => {
     return (
-      <View style={{marginBottom: 2,}}>
-        <SearchBar
-            round
-            lightTheme
-            placeholder="input something plz"
-            containerStyle={{marginBottom: 0}}
-            inputStyle={{backgroundColor: '#f2f2f2',color: '#333333'}}
-          />
+      <View style={{marginBottom: 2,height: 44}}>
+
           <View style={styles.choosebar2}>
             <ModalDropdown
               style={styles.Dropdown}
@@ -533,6 +541,14 @@ class itemList extends Component {
               options={this.state.DropTp}
               defaultValue={this.state.DropTp[0]}
               defaultIndex={0}
+              onSelect={(DropTp) => {
+                console.log(DropTp);
+                if(DropTp==0){ this.state.tp = null; }
+                else if(DropTp==1){ this.state.tp = 0 ;}
+                else if(DropTp==2){ this.state.tp = 1; }
+                this.state.page = 1;
+                this.makeRemoteRequest();
+              }}
             />
             <ModalDropdown
               style={styles.Dropdown}
@@ -542,6 +558,13 @@ class itemList extends Component {
               options={this.state.type}
               defaultValue={this.state.type[0]}
               defaultIndex={0}
+              onSelect={(type) => {
+                console.log(type);
+                if(type==0){ this.state.cid = null; }
+                else{ this.state.cid = type; }
+                this.state.page = 1;
+                this.makeRemoteRequest();
+              }}
             />
             <ModalDropdown
               style={styles.Dropdown}
@@ -551,6 +574,13 @@ class itemList extends Component {
               options={this.state.sorttp}
               defaultValue={this.state.sorttp[0]}
               defaultIndex={0}
+              onSelect={(sorttp) => {
+                console.log(sorttp);
+                if(sorttp==0){ this.state.searchtp = 2; }
+                else { this.state. searchtp = sorttp-1; }
+                this.state.page = 1;
+                this.makeRemoteRequest();
+              }}
             />
             <ModalDropdown
               style={styles.Dropdown}
@@ -587,8 +617,14 @@ class itemList extends Component {
     const { params } = this.props.navigation.state;
     return (
       <View style={styles.container}>
-        <List containerStyle={{ borderTopWidth: 0, borderBottomWidth: 0,flex:1, }}>
+        <View style={styles.StatusBar}>
+        </View>
+        <View style={styles.header}>
+        </View>
+        {this.renderHeader()}
+        <List containerStyle={{ borderTopWidth: 0,flex:1,backgroundColor: '#FFFFFF' ,marginTop: 0}}>
           <FlatList
+            style={{marginTop: 0,borderWidth: 0}}
             data={this.state.data}
             renderItem={({ item }) => (
               <View>
@@ -597,23 +633,31 @@ class itemList extends Component {
                 roundAvatar
                 key={item.id}
                 title={item.name}
-                subtitle={'开始:'+formatDate(item.t)+'\n'+'相距:'+getDisance(this.state.region.latitude,this.state.region.longitude,item.lat,item.lng)+'m'}
+                subtitle={'开始:'+formatDate(item.t)+'\n'+'相距:'+(item.juli)+'m'}
                 rightTitle={item.u=='""'||item.u==null? item.price+'圆':item.price+'圆/'+item.u}
                 avatar={{ uri:Service.BaseUri+item.img  }}
-                avatarStyle ={{height:74,width:74}}
-                containerStyle={{ borderBottomWidth: 0 }}
-                onPress={() => navigate('itemDetail',{
-                  token: this.state.token,
-                  uid: this.state.uid,
-                  islogin: this.state.islogin,
-                  itemId: item.id,
-                })}
+                avatarStyle ={{height:60,width:60}}
+                containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF'}}
+                onPress={() => {
+                  const params = {
+                    token: this.state.token,
+                    uid: this.state.uid,
+                    islogin: this.state.islogin,
+                    itemId: item.id,
+                  };
+                  if(item.tp==0){
+                    navigate('itemDetail_Service',params);
+                  }
+                  else if(item.tp==1){
+                    navigate('itemDetail_Ask',params);
+                  }
+                }}
               />
               </View>
             )}
             keyExtractor={item => item.id}
             ItemSeparatorComponent={this.renderSeparator}
-            ListHeaderComponent={this.renderHeader}
+            //ListHeaderComponent={this.renderHeader}
             ListFooterComponent={this.renderFooter}
             onRefresh={this.handleRefresh}
             refreshing={this.state.refreshing}
@@ -650,21 +694,22 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         //justifyContent: 'center',
-        alignItems: 'stretch'
+        alignItems: 'stretch',
+        backgroundColor: '#FFFFFF'
   },
   map: {
     ...StyleSheet.absoluteFillObject,
   },
   StatusBar:  {
     height:22,
-    backgroundColor:'#fbe994',
+    backgroundColor:'#f3456d',
   },
   header: {
     height: 44,
     alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fbe994',
+    backgroundColor: '#f3456d',
   },
   choosebar: {
     flex:1,
@@ -678,14 +723,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignSelf: 'center',
     alignItems: 'center',
-    marginTop: 0
+    marginTop: 0,
+    borderWidth: 0,
+    backgroundColor: '#f3456d'
   },
   Dropdown: {
     alignSelf: 'center',
     height: 22,
-    borderWidth: 2,
-    borderColor: '#e1e8e2',
+    borderWidth: 0,
+    borderColor: '#f3456d',
     width: '25%',
+    backgroundColor: '#FFFFFF'
   },
   Dropdown2: {
     width: width/4,
@@ -697,7 +745,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   highlight: {
-    color: '#fbe994'
+    color: '#f3456d'
   },
   instructions: {
     textAlign: 'center',

@@ -11,6 +11,7 @@ import {
   TouchableHightlight,
   FlatList,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import {
   StackNavigator,
@@ -41,16 +42,23 @@ class myOrder extends Component {
        <View style={styles.header}>
        </View>
        <ScrollableTabView
-         tabBarUnderlineStyle={{backgroundColor:'#5c492b'}}
-         tabBarActiveTextColor='#5c492b'
+         tabBarUnderlineStyle={{backgroundColor:'#f3456d'}}
+         tabBarActiveTextColor='#f3456d'
          >
-        <ServicePage
-          tabLabel="Service"
+        <Order1
+          tabLabel="待接受"
           state={this.props.navigation.state.params}
+          navigation={this.props.navigation}
         />
-        <AskPage
-          tabLabel="Ask"
+        <Order2
+          tabLabel="进行中"
           state={this.props.navigation.state.params}
+          navigation={this.props.navigation}
+        />
+        <Order3
+          tabLabel="已结束"
+          state={this.props.navigation.state.params}
+          navigation={this.props.navigation}
         />
       </ScrollableTabView>
      </View>
@@ -59,7 +67,7 @@ class myOrder extends Component {
 }
 
 //服务页面
-class ServicePage extends Component {
+class Order1 extends Component {
   constructor(props) {
       super(props);
       this.state = {
@@ -67,7 +75,7 @@ class ServicePage extends Component {
         uid:null,
         islogin:false,
         //列表数据
-        tp: 0,
+        tp: null,
         loading: false,
         data: [],
         page: 1,
@@ -163,6 +171,7 @@ class ServicePage extends Component {
   };
 
   render() {
+    const { navigate } = this.props.navigation;
     return (
       <List containerStyle={{ borderTopWidth: 0, borderBottomWidth: 0,flex:1,marginTop: 0 }}>
         <FlatList
@@ -172,10 +181,21 @@ class ServicePage extends Component {
               component={TouchableOpacity}
               roundAvatar
               key={item.itemid}
-              title={item.itemid}
+              title={'商品号: '+item.itemid}
+              subtitle={'订单号: '+item.id}
               avatarStyle ={{height:60,width:60}}
               containerStyle={{ borderBottomWidth: 0 }}
-              onPress={() => console.log(this.state.data)}
+              onPress={() => {
+                const params = {
+                  token: this.state.token,
+                  uid: this.state.uid,
+                  islogin: this.state.islogin,
+                  order: item,
+                };
+                if(item.tp==0){
+                  navigate('myOrderDetail_Service',params);
+                }
+              }}
             />
           )}
           keyExtractor={item => item.id}
@@ -191,8 +211,7 @@ class ServicePage extends Component {
   }
 }
 
-//求助页面
-class AskPage extends Component {
+class Order2 extends Component {
   constructor(props) {
       super(props);
       this.state = {
@@ -200,7 +219,7 @@ class AskPage extends Component {
         uid:null,
         islogin:false,
         //列表数据
-        tp: 1,
+        tp: null,
         loading: false,
         data: [],
         page: 1,
@@ -220,7 +239,7 @@ class AskPage extends Component {
 
   makeRemoteRequest = () => {
     const { token,uid,page,seed,tp } = this.state;
-    const url = Service.BaseUrl+`?a=order&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&tp=${tp}`;
+    const url = Service.BaseUrl+`?a=order&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&tp=${tp}&status=10,20,30`;
     console.log(url);
     this.setState({ loading: true, });
     fetch(url)
@@ -296,6 +315,7 @@ class AskPage extends Component {
   };
 
   render() {
+    const { navigate } = this.props.navigation;
     return (
       <List containerStyle={{ borderTopWidth: 0, borderBottomWidth: 0,flex:1,marginTop: 0  }}>
         <FlatList
@@ -305,10 +325,21 @@ class AskPage extends Component {
               component={TouchableOpacity}
               roundAvatar
               key={item.itemid}
-              title={item.itemid}
+              title={'商品号: '+item.itemid}
+              subtitle={'订单号: '+item.id}
               avatarStyle ={{height:60,width:60}}
               containerStyle={{ borderBottomWidth: 0 }}
-              onPress={() => console.log(this.state.data)}
+              onPress={() => {
+                const params = {
+                  token: this.state.token,
+                  uid: this.state.uid,
+                  islogin: this.state.islogin,
+                  order: item,
+                };
+                if(item.tp==0){
+                  navigate('mySaleDetail_Service',params);
+                }
+              }}
             />
           )}
           keyExtractor={item => item.id}
@@ -324,6 +355,149 @@ class AskPage extends Component {
   }
 }
 
+class Order3 extends Component {
+  constructor(props) {
+      super(props);
+      this.state = {
+        token:null,
+        uid:null,
+        islogin:false,
+        //列表数据
+        tp: null,
+        loading: false,
+        data: [],
+        page: 1,
+        seed: 1,
+        error: null,
+        refreshing: false,
+      }
+  };
+
+  componentDidMount() {
+    this.state.token = this.props.state.token;
+    this.state.uid = this.props.state.uid;
+    this.state.islogin = this.props.state.islogin;
+    this.makeRemoteRequest();
+    console.log(this.state);
+  };
+
+  makeRemoteRequest = () => {
+    const { token,uid,page,seed,tp } = this.state;
+    const url = Service.BaseUrl+`?a=order&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&tp=${tp}&status=40,50,60`;
+    console.log(url);
+    this.setState({ loading: true, });
+    fetch(url)
+      .then(res => res.json())
+      .then(
+        res => {
+          console.log(res.data);
+        this.setState({
+          data: page === 1 ? res.data.data : [...this.state.data, ...res.data.data],
+          error: res.error || null,
+          loading: false,
+          refreshing: false
+        });
+      })
+      .then(() => console.log(this.state.data))
+      .catch(error => {
+        this.setState({ error, loading: false });
+      });
+  };
+
+  handleRefresh = () => {
+    this.setState(
+      {
+        page: 1,
+        seed: this.state.seed + 1,
+        refreshing: true
+      },
+      () => {
+        this.makeRemoteRequest();
+      }
+    );
+  };
+
+  handleLoadMore = () => {
+    this.setState(
+      {
+        page: this.state.page + 1
+      },
+      () => {
+        this.makeRemoteRequest();
+      }
+    );
+  };
+
+  renderSeparator = () => {
+    return (
+      <View
+        style={{
+          height: 1,
+          width: "86%",
+          backgroundColor: "#e5e5e5",
+          marginLeft: "14%"
+        }}
+      />
+    );
+  };
+
+
+  renderFooter = () => {
+    if (!this.state.loading) return null;
+
+    return (
+      <View
+        style={{
+          paddingVertical: 20,
+          borderTopWidth: 1,
+          borderColor: "#CED0CE"
+        }}
+      >
+        <ActivityIndicator animating size="large" />
+      </View>
+    );
+  };
+
+  render() {
+    const { navigate } = this.props.navigation;
+    return (
+      <List containerStyle={{ borderTopWidth: 0, borderBottomWidth: 0,flex:1,marginTop: 0  }}>
+        <FlatList
+          data={this.state.data}
+          renderItem={({ item }) => (
+            <ListItem
+              component={TouchableOpacity}
+              roundAvatar
+              key={item.itemid}
+              title={'商品号: '+item.itemid}
+              subtitle={'订单号: '+item.id}
+              avatarStyle ={{height:60,width:60}}
+              containerStyle={{ borderBottomWidth: 0 }}
+              onPress={() => {
+                const params = {
+                  token: this.state.token,
+                  uid: this.state.uid,
+                  islogin: this.state.islogin,
+                  order: item,
+                };
+                if(item.tp==0){
+                  navigate('mySaleDetail_Service',params);
+                }
+              }}
+            />
+          )}
+          keyExtractor={item => item.id}
+          ItemSeparatorComponent={this.renderSeparator}
+          ListFooterComponent={this.renderFooter}
+          onRefresh={this.handleRefresh}
+          refreshing={this.state.refreshing}
+          onEndReached={this.handleLoadMore}
+          onEndReachedThreshold={50}
+        />
+      </List>
+    );
+  }
+}
 
 
 const styles = StyleSheet.create({
@@ -336,14 +510,14 @@ const styles = StyleSheet.create({
   },
   StatusBar:  {
       height:22,
-      backgroundColor:'#fbe994',
+      backgroundColor:'#f3456d',
   },
   header: {
     height: 44,
     alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fbe994',
+    backgroundColor: '#f3456d',
   },
   icon: {
      width: 25,

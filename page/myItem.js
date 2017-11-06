@@ -129,7 +129,7 @@ class ServicePage extends Component {
         refreshing: true
       },
       () => {
-        this.makeRemoteRequest();
+        this.getMyItem();
       }
     );
   };
@@ -140,7 +140,7 @@ class ServicePage extends Component {
         page: this.state.page + 1
       },
       () => {
-        this.makeRemoteRequest();
+        this.getMyItem();
       }
     );
   };
@@ -193,16 +193,17 @@ class ServicePage extends Component {
               avatarStyle ={{height:60,width:60}}
               containerStyle={{ borderBottomWidth: 0 }}
               onPress={() => {
-                if(this.state.islogin){
-                  navigate('myItemDetail',{
-                    token: this.state.token,
-                    uid: this.state.uid,
-                    islogin: this.state.uid,
-                    itemId: item.id,
-                  });
+                const params = {
+                  token: this.state.token,
+                  uid: this.state.uid,
+                  islogin: this.state.uid,
+                  itemId: item.id,
+                };
+                if(item.tp==0){
+                  navigate('myItemDetail_Service',params);
                 }
-                else{
-                  alert('请登录!')
+                else if(item.tp==1){
+                  navigate('myItemDetail_Ask',params)
                 }
               }}
             />

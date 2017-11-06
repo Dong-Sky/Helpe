@@ -21,7 +21,7 @@ import { Icon,Button } from 'react-native-elements';
      tabBarIcon: ({ tintColor }) => (
        <Icon
          name='add-circle'
-         color='#f0b913'
+         color='#f3456d'
          size={40} />
      ),
    };
@@ -40,7 +40,7 @@ import { Icon,Button } from 'react-native-elements';
    };
 
    componentDidMount() {
-     
+
    };
 
    getLoginState = () => {

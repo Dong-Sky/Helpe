@@ -50,8 +50,8 @@ var options = {
     skipBackup: true,
     path: 'images'
   },
-  maxWidth: 2000,
-  maxHeight: 2000,
+  maxWidth: 2400,
+  maxHeight: 1600,
 };
 
 function isRealNum(val){
@@ -127,6 +127,7 @@ function isRealNum(val){
     this.getItemCategory();
     this.getLocation();
   };
+
   //打开详情描述窗口
   setMarkModalVisible(visible){
     this.setState({markModalVisible: visible});
@@ -414,7 +415,7 @@ function isRealNum(val){
           style={{
             height: 1,
             width: "95%",
-            backgroundColor: "#e1e8e2",//CED0CE
+            backgroundColor: "#e5e5e5",//CED0CE
             marginLeft: "5%"
           }}
         />
@@ -427,7 +428,7 @@ function isRealNum(val){
           style={{
             paddingVertical: 20,
             borderTopWidth: 1,
-            borderColor: "#e1e8e2"
+            borderColor: "#e5e5e5"
           }}
         >
         </View>
@@ -824,22 +825,7 @@ function isRealNum(val){
     }
   }
 
-  returnLoadingMoadl = () => {
-    return(
-      <Modal
-        animationType={"slide"}
-        transparent={true}
-        visible={this.state.loading}
-      >
-        <View style={styles.container}>
-          <View style={{alignSelf: 'center'}}>
-            <ActivityIndicator animating size="small" />
-          </View>
-        </View>
-      </Modal>
-    );
-  };
-
+  //加载器
   showLoading = () => {
     if(!this.state.loading){
       return null;
@@ -858,6 +844,38 @@ function isRealNum(val){
   };
 
   render() {
+    const a = [
+      {
+        item: (
+          <ListItem
+            titleStyle={styles.title}
+            title='线下支付'
+            rightIcon={
+              <Switch
+                value={this.state.underline}
+                onValueChange={(underline) => this.setState({underline})}
+                onTintColor='#5c492b'
+              />
+            }
+          />
+        ),
+      },
+      {
+        item: (
+          <ListItem
+            titleStyle={styles.title}
+            title='线下支付'
+            rightIcon={
+              <Switch
+                value={this.state.underline}
+                onValueChange={(underline) => this.setState({underline})}
+                onTintColor='#5c492b'
+              />
+            }
+          />
+        ),
+      }
+    ];
     return (
         <View style={styles.container}>
           <View style={styles.StatusBar}>
@@ -873,19 +891,23 @@ function isRealNum(val){
             </TouchableOpacity>
             <List containerStyle={{ borderTopWidth: 0,marginTop:0,marginBottom: 0,}}>
                   <ListItem
-                      rightIcon={<TextInput
-                      style={{ marginLeft:0,flex:1,fontSize:16,}}
-                      titleStyle={styles.title}
-                      placeholder='请在这里输入服务名称'
-                      clearButtonMode='while-editing'
-                      multiline={true}
-                      onChangeText={(name) => this.setState({name})}
-                      value={this.state.name}
-                    />}
+                    rightIcon={
+                      <TextInput
+                          style={{ marginLeft:0,flex:1,fontSize:16}}
+                          titleStyle={styles.title}
+                          placeholder='请在这里输入服务名称'
+                          clearButtonMode='while-editing'
+                          multiline={true}
+                          onChangeText={(name) => this.setState({name})}
+                          value={this.state.name}
+                      />
+                    }
                     titleStyle={styles.title}
                     key={1}
                     title='服务'
+                    containerStyle={styles.listContainerStyle}
                   />
+                  {this.renderSeparator()}
                   <ListItem
                     titleStyle={styles.title}
                     rightIcon={<View></View>}
@@ -894,7 +916,9 @@ function isRealNum(val){
                     textInput={true}
                     textInputOnChangeText={(price) => this.setState({price})}
                     textInputValue={this.state.price}
+                    containerStyle={styles.listContainerStyle}                
                   />
+                  {this.renderSeparator()}
                   <ListItem
                     titleStyle={styles.title}
                     rightIcon={<View></View>}
@@ -903,6 +927,7 @@ function isRealNum(val){
                     textInput={true}
                     textInputOnChangeText={(u) => this.setState({u})}
                     textInputValue={this.state.u}
+                    containerStyle={styles.listContainerStyle}
                   />
             </List>
             <List>
@@ -916,7 +941,9 @@ function isRealNum(val){
                     onTintColor='#5c492b'
                   />
                 }
+                containerStyle={styles.listContainerStyle}
               />
+              {this.renderSeparator()}
               <ListItem
                 titleStyle={styles.title}
                 title='线上支付'
@@ -927,6 +954,7 @@ function isRealNum(val){
                     onTintColor='#5c492b'
                   />
                 }
+                containerStyle={styles.listContainerStyle}
               />
             </List>
             <List containerStyle={{marginBottom: 0,}}>
@@ -936,38 +964,47 @@ function isRealNum(val){
                 rightTitle='请选择'
                 rightTitle={this.state.category[this.state.cid].name}
                 onPress={() => this.setCategoryModalVisible(true)}
+                containerStyle={styles.listContainerStyle}
               />
+              {this.renderSeparator()}
               <ListItem
                 titleStyle={styles.title}
                 title='我的地址'
                 rightTitle={this.state.address? this.state.address:'请选择'}
                 onPress={() => this.setAddressModalVisible(true)}
+                containerStyle={styles.listContainerStyle}
               />
+              {this.renderSeparator()}
               <ListItem
                 titleStyle={styles.title}
                 title='联系方式'
                 rightTitle={this.state.contact==null?'未编辑':'已编辑'}
                 onPress={() => this.setContactModalVisible(true)}
+                containerStyle={styles.listContainerStyle}
               />
             </List>
-
             <List>
               <ListItem
                 titleStyle={styles.title}
                 title='相册'
                 rightTitle='去添加'
                 onPress={() => this.setAddPhotoModalVisible(true)}
+                containerStyle={styles.listContainerStyle}
               />
+              {this.renderSeparator()}
               <ListItem
                 titleStyle={styles.title}
                 title='详细描述'
                 rightTitle={this.state.mark==null?'未编辑':'已编辑'}
                 onPress={() => this.setMarkModalVisible(true)}
+                containerStyle={styles.listContainerStyle}
               />
+              {this.renderSeparator()}
               <ListItem
                 titleStyle={styles.title}
                 rightTitle={this.state.deadline==null?'未选择':this.state.deadline}
                 onPress={() => this.setDateTimePicker(true)}
+                containerStyle={styles.listContainerStyle}
                 title='有效期限'
               />
             </List>
@@ -1090,7 +1127,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    color: '#5c492b',
+    color: '#333333',
     fontWeight: '500',
   },
   icon: {
@@ -1119,6 +1156,10 @@ const styles = StyleSheet.create({
     color: '#5c492b',
     fontSize: 12,
     fontWeight: '500',
-  }
+  },
+   listContainerStyle:{
+     borderBottomWidth: 0,
+     backgroundColor: '#FFFFFF'
+   },
 });
 export default publish_Service;

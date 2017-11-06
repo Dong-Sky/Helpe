@@ -72,7 +72,11 @@ class account1 extends Component {
 
  onPressHeader = (islogin) => {
     if(islogin){
-      this.props.navigation.navigate('personal')
+      this.props.navigation.navigate('personal',{
+        token: this.state.token,
+        uid: this.state.uid,
+        islogin: this.state.islogin,
+      })
     }
     else{
       alert('请先登录！');
@@ -80,17 +84,25 @@ class account1 extends Component {
  };
 
  //一下定义页面元素
- renderSeparator = () => {
-    return (
-      <View
-        style={{
-          height: 1,
-          width: "86%",
-          backgroundColor: "#CED0CE",
-          marginLeft: "14%"
-        }}
-      />
-    );
+ renderSeparator = (bool) => {
+   if(!bool){
+     return (
+       <View
+         style={{
+           height: 1,
+           width: "95%",
+           backgroundColor: "#e5e5e5",
+           marginLeft: "5%"
+         }}
+       />
+     );
+   }
+   else {
+     return (
+       <View>
+       </View>
+     );
+   }
   };
 
   returnAvatar = () => {
@@ -144,6 +156,7 @@ class account1 extends Component {
 
     const list1 = [
       {
+        id: 1,
         title: '我的钱包',
         icon : (
           <Image
@@ -151,33 +164,11 @@ class account1 extends Component {
           style={styles.account_icon}
         />
       ),
-        icon_color:'#5c492b',
+        icon_color:'#f3456d',
         x:2,
       },
       {
-        title: '我的订单',
-        icon : (
-          <Image
-          source={require('../icon/account/订单.png')}
-          style={styles.account_icon}
-        />
-      ),
-        icon_color:'#5c492b',
-        x:2,
-        press(state){
-          if(state.islogin){
-            navigate('myOrder',{
-              token: state.token,
-              uid: state.uid,
-              islogin: state.islogin,
-            })
-          }
-          else{
-            alert('请登录！');
-          }
-        },
-      },
-      {
+        id: 2,
         title: '我的发布',
         icon : (
           <Image
@@ -185,7 +176,7 @@ class account1 extends Component {
           style={styles.account_icon}
         />
       ),
-        icon_color:'#5c492b',
+        icon_color:'#f3456d',
         x:2,
         press(state){
           if(state.islogin){
@@ -201,8 +192,59 @@ class account1 extends Component {
         },
       },
     ];
-    const list2 = [
+    const list2 =[
+      {
+        id: 1,
+        title: '我的订单',
+        icon : (
+          <Image
+          source={require('../icon/account/订单.png')}
+          style={styles.account_icon}
+        />
+      ),
+        icon_color:'#f3456d',
+        x:2,
+        press(state){
+          if(state.islogin){
+            navigate('myOrder',{
+              token: state.token,
+              uid: state.uid,
+              islogin: state.islogin,
+            })
+          }
+          else{
+            alert('请登录！');
+          }
+        },
+      },
+      {
+        id: 2,
+        title: '我的出售',
+        icon : (
+          <Image
+          source={require('../icon/account/订单.png')}
+          style={styles.account_icon}
+        />
+      ),
+        icon_color:'#f3456d',
+        x:2,
+        press(state){
+          if(state.islogin){
+            navigate('mySale',{
+              token: state.token,
+              uid: state.uid,
+              islogin: state.islogin,
+            })
+          }
+          else{
+            alert('请登录！');
+          }
+        },
+      },
+    ];
+    const list3 = [
   {
+    id: 1,
     title: '收藏',
     icon : (
       <Image
@@ -210,7 +252,7 @@ class account1 extends Component {
       style={styles.account_icon}
     />
   ),
-    icon_color:'#5c492b',
+    icon_color:'#f3456d',
     x:2,
     press(islogin){
       if(islogin) navigate('personal')
@@ -220,6 +262,7 @@ class account1 extends Component {
     },
   },
   {
+    id: 2,
     title: '我的地址',
     icon: (
       <Image
@@ -227,7 +270,7 @@ class account1 extends Component {
       style={styles.account_icon}
     />
   ),
-    icon_color:'#5c492b',
+    icon_color:'#f3456d',
     x:7,
     press(state){
       if(state.islogin){
@@ -239,6 +282,7 @@ class account1 extends Component {
     },
   },
   {
+    id: 3,
     title: '我的评价',
     icon: (
       <Image
@@ -246,11 +290,12 @@ class account1 extends Component {
       style={styles.account_icon}
     />
   ),
-    icon_color:'#5c492b',
+    icon_color:'#f3456d',
     x:7,
     press(){alert('hi');},
   },
   {
+    id: 4,
     title: '订阅',
     icon: (
       <Image
@@ -258,14 +303,15 @@ class account1 extends Component {
       style={styles.account_icon}
     />
   ),
-    icon_color:'#5c492b',
+    icon_color:'#f3456d',
     x:5,
     press(){
       alert('hi');}
   },
   ];
-   const list3 = [
+   const list4 = [
      {
+       id: 1,
        title: '设置',
        icon: (
          <Image
@@ -273,7 +319,7 @@ class account1 extends Component {
          style={styles.account_icon}
        />
      ),
-       icon_color:'#5c492b',
+       icon_color:'#f3456d',
        x:5,
        press(state){
          console.log(state);
@@ -348,48 +394,79 @@ class account1 extends Component {
              </TouchableOpacity>
            </View>
          </View>
-         <List containerStyle={{marginTop:10}} ItemSeparatorComponent={this.renderSeparator}>
+         <List containerStyle={{marginTop:10}}>
            {
             list1.map((item, i) => (
-              <ListItem
-                component={TouchableOpacity}
-                key={i}
-                title={item.title}
-                leftIcon={item.icon}
-                rightIcon={{name: 'chevron-right',color:'#5c492b',}}
-                onPress={() => item.press(this.state)}
-                titleStyle={styles.title}
-              />
+              <View key={i}>
+                <ListItem
+                  component={TouchableOpacity}
+                  key={i}
+                  title={item.title}
+                  leftIcon={item.icon}
+                  rightIcon={{name: 'chevron-right',color:'#f3456d',}}
+                  onPress={() => item.press(this.state)}
+                  titleStyle={styles.title}
+                  containerStyle={styles.listContainerStyle}
+                />
+                {this.renderSeparator(i==list1.length-1)}
+              </View>
             ))
           }
          </List>
          <List containerStyle={{marginTop:10}}>
            {
             list2.map((item, i) => (
-              <ListItem
-                component={TouchableOpacity}
-                key={i}
-                title={item.title}
-                leftIcon={item.icon}
-                rightIcon={{name: 'chevron-right',color:'#5c492b',}}
-                onPress={() => item.press(this.state)}
-                titleStyle={styles.title}
-              />
+              <View key={i}>
+                <ListItem
+                  component={TouchableOpacity}
+                  key={i}
+                  title={item.title}
+                  leftIcon={item.icon}
+                  rightIcon={{name: 'chevron-right',color:'#f3456d',}}
+                  onPress={() => item.press(this.state)}
+                  titleStyle={styles.title}
+                  containerStyle={styles.listContainerStyle}
+                />
+                {this.renderSeparator(i==list2.length-1)}
+              </View>
             ))
           }
          </List>
-         <List containerStyle={{marginTop:10,}}>
+         <List containerStyle={{marginTop:10}} >
            {
             list3.map((item, i) => (
-              <ListItem
-                component={TouchableOpacity}
-                key={i}
-                title={item.title}
-                leftIcon={item.icon}
-                rightIcon={{name: 'chevron-right',color:'#5c492b',}}
-                onPress={() => item.press(this.state)}
-                titleStyle={styles.title}
-              />
+              <View key={i}>
+                <ListItem
+                  component={TouchableOpacity}
+                  key={i}
+                  title={item.title}
+                  leftIcon={item.icon}
+                  rightIcon={{name: 'chevron-right',color:'#f3456d',}}
+                  onPress={() => item.press(this.state)}
+                  titleStyle={styles.title}
+                  containerStyle={styles.listContainerStyle}
+                />
+                {this.renderSeparator(i==list3.length-1)}
+              </View>
+            ))
+          }
+         </List>
+         <List containerStyle={{marginTop:10}}>
+           {
+            list4.map((item, i) => (
+              <View key={i}>
+                <ListItem
+                  component={TouchableOpacity}
+                  key={i}
+                  title={item.title}
+                  leftIcon={item.icon}
+                  rightIcon={{name: 'chevron-right',color:'#f3456d',}}
+                  onPress={() => item.press(this.state)}
+                  titleStyle={styles.title}
+                  containerStyle={styles.listContainerStyle}
+                />
+                {this.renderSeparator(i==list4.length-1)}
+              </View>
             ))
           }
          </List>
@@ -459,14 +536,14 @@ const styles = StyleSheet.create({
   },
   StatusBar:  {
       height:22,
-      backgroundColor:'#fbe994',
+      backgroundColor:'#f3456d',
   },
   header: {
     height: 44,
     alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fbe994',
+    backgroundColor: '#f3456d',
   },
   userInfo: {
         height: 180,
@@ -515,15 +592,19 @@ const styles = StyleSheet.create({
       fontSize:18,
       marginLeft:10,
   },
+  listContainerStyle:{
+    borderBottomWidth: 0,
+    backgroundColor: '#FFFFFF'
+  },
   title: {
     fontSize: 16,
     marginLeft: 8,
     color: '#333333',
   },
   account_icon: {
-      tintColor:'#5c492b',
-      width:25,
-      height:25,
+      tintColor: '#5c492b',
+      width: 25,
+      height: 25,
   },
   container1: {
         flex: 1,

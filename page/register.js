@@ -27,6 +27,7 @@ class register extends Component{
             username: null,
             password: null,
             nickname: null,
+            loading: false,
       }
 
     }
@@ -36,8 +37,15 @@ class register extends Component{
     const url = Service.BaseUrl+`?a=oauth&v=${Service.version}&m=up&username=${username}&password=${password}&nickname=${nickname}`;
     console.log(url);
     fetch(url)
-    .then((response) => console.log(response))
-    .then((responseJson) => console.log(responseJson))
+    .then((response) => response.json())
+    .then((responseJson) => {
+      if(!responseJson){
+        alert('注册成功，请返回登录!');
+      }
+      else{
+        alert('注册失败\n原因: '+responseJson.err)
+      }
+    })
     .catch((error) => console.log(error))
   }
 
