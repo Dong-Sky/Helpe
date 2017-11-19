@@ -12,6 +12,7 @@ import {
   FlatList,
   Modal,
   Alert,
+  CameraRoll,
 } from 'react-native';
 import {
   StackNavigator,
@@ -21,10 +22,30 @@ import {
 import { List, ListItem, Avatar} from 'react-native-elements';
 import { Icon,Button } from 'react-native-elements';
 import DateTimePicker from 'react-native-modal-datetime-picker';
+import ImagePicker from 'react-native-image-picker';
 import Service from '../common/service.js';
 
+//图片选择器参数设置
+var options = {
+  title: '请选择',
+  cancelButtonTitle:'取消',
+  takePhotoButtonTitle:'拍摄头像',
+  chooseFromLibraryButtonTitle:'从相册中选择',
+  customButtons: [
+    {name: 'default', title: '默认头像'},
+    {name: 'look', title: '查看头像'},
+  ],
+  storageOptions: {
+    skipBackup: true,
+    path: 'images'
+  },
+  maxWidth: 2400,
+  maxHeight: 1600,
+};
 
-export default class compass extends Component {
+
+
+export default class personal extends Component {
   static navigationOptions = {
    title: '个人信息',
    headerTitleStyle:{color:'#333333',fontWeight:'bold'}
@@ -84,6 +105,8 @@ export default class compass extends Component {
    .catch(err => alert('网络请求错误\n错误类型: '+err.name+'\n具体内容: '+err.message))
  };
 
+
+
  //修改用户信息
  UpdateInfo = () => {
    const { name,value } = this.state.Update;
@@ -126,6 +149,66 @@ export default class compass extends Component {
    .then(() => this.getUserInfo())
    .then(() => {})
    .catch(err =>  alert('网络请求错误\n错误类型: '+err.name+'\n具体内容: '+err.message))
+ };
+
+ ChooseFace = () => {
+   ImagePicker.showImagePicker(options, (response) => {
+     console.log('Response = ', response);
+
+     if (response.didCancel) {
+       console.log('cancel!');
+     }
+     else if (response.error) {
+       alert("ImagePickerError: " + response.error);
+     }
+     else if (response.customButton=='look') {
+       alert('查看头像');
+     }
+     else if (response.customButton=='default') {
+       this.saveImg(Service.BaseUri+this.state.user.face);
+     }
+     else {
+       console.log(response);
+       let file = {uri: response.uri, type: 'multipart/form-data', name: 'face'};
+       this.updateFace(file);
+     }
+   });
+ };
+
+
+ updateFace = (file) => {
+   console.log(file);
+
+   const { token,uid } = this.state;
+   const url = Service.BaseUrl+`?a=user&m=face&v=${Service.version}&token=${token}&uid=${uid}`;
+
+   let formData = new FormData();
+   formData.append('face',file);
+   console.log(formData);
+   this.setState({loading: true,})
+   fetch(url,{
+       method:'POST',
+       headers:{
+           'Content-Type':'multipart/form-data',
+       },
+       body: formData,
+     })
+     .then(response => response.json())
+     .then(responseJson => {
+       console.log(responseJson);
+       this.setState({ loading: false });
+       if(!responseJson.status){
+         alert('上传成功!');
+       }
+       else {
+         alert('上传失败!');
+       }
+     })
+     .then(() => this.setState({loading: false}))
+     .then(() => this.getUserInfo())
+     .catch(error => alert('发生错误: '+err.name+'\n详情: '+err.message));
+
+
  };
 
  //修改生日
@@ -228,6 +311,19 @@ export default class compass extends Component {
      );
  };
 
+ returnAvatarSource = () => {
+   var source = require('../icon/person/default_avatar.png');
+   if(this.state.user.face==''||this.state.user.face==null){
+
+   }
+   else{
+     source = {uri: Service.BaseUri+this.state.user.face};
+   }
+
+   console.log(source);
+   return source;
+ }
+
  render() {
    const { navigate } = this.props.navigation;
    const { params } = this.props.navigation.state;
@@ -296,21 +392,11 @@ export default class compass extends Component {
      },
      {
        id: 2,
-       title:'学校',
-       value: this.state.user.school==''?'未填写':this.state.user.school,
-       rightIcon: false,
-       press: () => {
-         var Update = {title: '学校',name: 'school',value: this.state.user.school};
-         this.setState({Update: Update, UpdateInfoModalVisible: true});
-       }
-     },
-     {
-       id: 3,
-       title:'工作单位',
+       title:'学校/工作单位',
        value: this.state.user.work==''?'未填写':this.state.user.work,
        rightIcon: false,
        press: () => {
-         var Update = {title: '工作单位',name: 'work',value: this.state.user.work};
+         var Update = {title: '学校/工作单位',name: 'work',value: this.state.user.work};
          this.setState({Update: Update, UpdateInfoModalVisible: true});
        }
      }
@@ -343,7 +429,7 @@ export default class compass extends Component {
        value: '查看',
        rightIcon: false,
      },
-   ]
+   ];
    return (
      <View style={styles.container}>
        <View style={styles.StatusBar}>
@@ -352,14 +438,14 @@ export default class compass extends Component {
        </View>
        <ScrollView>
          <View style={styles.banner}>
-           <TouchableOpacity>
+           <TouchableOpacity onPress={() => this.ChooseFace()}>
              <Image
                style={styles.avatar}
-               source={{uri: "https://s3.amazonaws.com/uifaces/faces/twitter/brynn/128.jpg"}}
+               source={this.returnAvatarSource()}
              />
            </TouchableOpacity>
          </View>
-         <List containerStyle={{ borderTopWidth: 0,flex:1,backgroundColor: '#FFFFFF' ,marginTop: 0}}>
+         <List containerStyle={[styles.list,{marginTop: 0}]}>
            <FlatList
              roundAvatar
              data={list1}
@@ -379,7 +465,7 @@ export default class compass extends Component {
              ItemSeparatorComponent={this.renderSeparator}
            />
          </List>
-         <List>
+         <List containerStyle={styles.list}>
            <FlatList
              data={list2}
              renderItem={({ item }) => (
@@ -397,7 +483,7 @@ export default class compass extends Component {
              ItemSeparatorComponent={this.renderSeparator}
            />
          </List>
-         <List>
+         <List containerStyle={styles.list}>
            <FlatList
              data={list3}
              renderItem={({ item }) => (
@@ -440,14 +526,14 @@ const styles = StyleSheet.create({
     },
     StatusBar:  {
       height:22,
-      backgroundColor:'#f3456d',
+      backgroundColor:'#FFFFFF',
     },
     header: {
       height: 44,
       alignSelf: 'stretch',
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: '#f3456d',
+      backgroundColor: '#FFFFFF',
     },
     banner: {
       height: 120,
@@ -455,7 +541,7 @@ const styles = StyleSheet.create({
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: '#f4eede',
+      backgroundColor: '#f1a073',
     },
     avatar: {
       height: 80,
@@ -478,5 +564,10 @@ const styles = StyleSheet.create({
       marginTop: 5,
       width: 280,
       height: 50,
+    },
+    list: {
+      marginTop:10,
+      borderWidth: 1,
+      borderColor: '#e5e5e5'
     },
 });

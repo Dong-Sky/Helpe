@@ -23,7 +23,10 @@ import { Icon,Button,Avatar } from 'react-native-elements';
 import ScrollableTabView from 'react-native-scrollable-tab-view';
 import Service from '../common/service';
 
-
+//时间戳转换字符
+function formatDate(t){
+  return new Date(parseInt(t) * 1000).toLocaleDateString().replace(/\//g, "-");
+}
 
 class myOrder extends Component {
   constructor(props) {
@@ -95,7 +98,7 @@ class Order1 extends Component {
 
   makeRemoteRequest = () => {
     const { token,uid,page,seed,tp } = this.state;
-    const url = Service.BaseUrl+`?a=order&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&tp=${tp}`;
+    const url = Service.BaseUrl+`?a=order&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&tp=${tp}&status=0`;
     console.log(url);
     this.setState({ loading: true, });
     fetch(url)
@@ -180,7 +183,7 @@ class Order1 extends Component {
             <ListItem
               component={TouchableOpacity}
               roundAvatar
-              key={item.itemid}
+              key={item.oid}
               title={'商品号: '+item.itemid}
               subtitle={'订单号: '+item.id}
               avatarStyle ={{height:60,width:60}}
@@ -198,7 +201,7 @@ class Order1 extends Component {
               }}
             />
           )}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item.oid}
           ItemSeparatorComponent={this.renderSeparator}
           ListFooterComponent={this.renderFooter}
           onRefresh={this.handleRefresh}
@@ -337,7 +340,7 @@ class Order2 extends Component {
                   order: item,
                 };
                 if(item.tp==0){
-                  navigate('mySaleDetail_Service',params);
+                  navigate('myOrderDetail_Service',params);
                 }
               }}
             />
@@ -481,7 +484,7 @@ class Order3 extends Component {
                   order: item,
                 };
                 if(item.tp==0){
-                  navigate('mySaleDetail_Service',params);
+                  navigate('myOrderDetail_Service',params);
                 }
               }}
             />

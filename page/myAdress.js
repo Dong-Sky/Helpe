@@ -12,6 +12,7 @@ import {
   TouchableHighlight,
   FlatList,
   Keyboard,
+  Alert,
 } from 'react-native';
 import ReactNative from 'react-native';
 import {
@@ -139,6 +140,7 @@ class myAdress extends Component {
   //删除地址方法
   deleteAddress(id){
     const body = 'a=addr&m=del&v='+Service.version+'&token='+this.state.token+'&uid='+this.state.uid+'&id='+id;
+    this.setState({loading: true})
     fetch(Service.BaseUrl,{
       method: 'POST',
       headers: {
@@ -150,6 +152,7 @@ class myAdress extends Component {
     .then(responseJson => {
       console.log(responseJson);
     })
+    .then(() => this.setState({loading: false}))
     .then(() => this.getAddress())
     .catch(error => console.log(error))
   };
@@ -213,16 +216,16 @@ class myAdress extends Component {
   };
 
   renderSeparator = () => {
-    return (
-      <View
-        style={{
-          height: 1,
-          width: "100%",
-          backgroundColor: "#CED0CE",
-          marginLeft: "0%"
-        }}
-      />
-    );
+      return (
+        <View
+          style={{
+            height: 1,
+            width: "95%",
+            backgroundColor: "#e5e5e5",//CED0CE
+            marginLeft: "5%"
+          }}
+        />
+      );
   };
 
   render() {
@@ -239,18 +242,33 @@ class myAdress extends Component {
               添加
           </Text>
         </View>
+        <List containerStyle={{borderWidth: 1,borderColor: '#e5e5e5',marginTop: 0}}>
           <FlatList
             data={this.state.data}
             renderItem={({ item }) => (
               <ListItem
-                title={<Text style={styles.title}>{item.info}</Text>}
-                containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF'}}
+                title={item.info}
+                titleStyle={styles.title}
+                containerStyle={styles.listContainerStyle}
                 keyExtractor={item => item.id}
-                rightIcon={<Text onPress={() => this.deleteAddress(item.id)}>删除</Text>}
+                onPress={() => {
+                  Alert.alert(
+                    '请选择',
+                    '',
+                    [
+                      {text: '修改', onPress: () => console.log('Ask me later pressed')},
+                      {text: '取消', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                      {text: '删除', onPress: () => this.deleteAddress(item.id)},
+                    ],
+                    { cancelable: false }
+                  );
+                }}
               />
             )}
             ItemSeparatorComponent={this.renderSeparator}
           />
+        </List>
+
           {this.rendermodal()}
       </View>
     );
@@ -301,8 +319,12 @@ const styles = StyleSheet.create({
     height: 25,
   },
   title: {
-    color: '#5c492b',
+    color: '#333333',
     fontSize: 16,
+  },
+  listContainerStyle:{
+    borderBottomWidth: 0,
+    backgroundColor: '#FFFFFF'
   },
 });
 export default myAdress;

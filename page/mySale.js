@@ -238,7 +238,7 @@ class Sale2 extends Component {
 
   makeRemoteRequest = () => {
     const { token,uid,page,seed,tp } = this.state;
-    const url = Service.BaseUrl+`?a=order&m=sale&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&tp=${tp}status=10,20,30`;
+    const url = Service.BaseUrl+`?a=order&m=sale&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&tp=${tp}&status=10,20,30`;
     console.log(url);
     this.setState({ loading: true, });
     fetch(url)
@@ -382,7 +382,7 @@ class Sale3 extends Component {
 
   makeRemoteRequest = () => {
     const { token,uid,page,seed,tp } = this.state;
-    const url = Service.BaseUrl+`?a=order&m=sale&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&tp=${tp}status=40,50,60`;
+    const url = Service.BaseUrl+`?a=order&m=sale&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&tp=${tp}&status=40,50,60`;
     console.log(url);
     this.setState({ loading: true, });
     fetch(url)

@@ -19,6 +19,7 @@ import {
 import { List, ListItem } from 'react-native-elements';
 import { Icon,Button,Avatar } from 'react-native-elements';
 import QRCode from 'react-native-qrcode';
+import Service from '../common/service';
 
 
 
@@ -39,6 +40,7 @@ class account1 extends Component {
         token: null,
         uid: null,
         islogin: false,
+        user: {},
       }
   };
 
@@ -64,9 +66,28 @@ class account1 extends Component {
         console.log(ret);
       }
     )
+    .then()
     .catch(error => {
       console.log(error);
     })
+    .then(() => this.getUserInfo())
+  };
+
+  getUserInfo = () => {
+    const { token,uid } = this.state;
+    const url = Service.BaseUrl+`?a=user&m=info&token=${token}&uid=${uid}&id=${uid}&v=${Service.version}`;
+    console.log(url);
+    fetch(url)
+    .then(response => response.json())
+    .then(responseJson => {
+      if(!responseJson.status){
+        this.setState({user: responseJson.data.user});
+      }
+      else{
+        console.log(responseJson.err);
+      }
+    })
+    .catch(err => console.log(err))
   };
 
 
@@ -107,36 +128,35 @@ class account1 extends Component {
 
   returnAvatar = () => {
     const {navigate} = this.props.navigation;
-    if(this.state.islogin){
-      return (
-        <Avatar
-          large
-          rounded
-          source={{uri:"https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg"}}
-          onPress={() => console.log("Works!")}
-          activeOpacity={0.7}
-          containerStyle={{marginTop:5,marginLeft:5,}}
-        />
-      );
+    var source = require('../icon/person/default_avatar.png');
+    if(this.state.user.face==''||this.state.user.face==null||this.state.user.face==undefined){
+
     }
     else{
-      return(
-        <Avatar
-          large
-          rounded
-          icon={{name: 'person'}}
-          onPress={() =>
+      source = {uri: Service.BaseUri+this.state.user.face};
+    }
+    return(
+      <TouchableOpacity
+        style={{marginTop: 10,marginLeft: 15}}
+        onPress={() => {
+          if(!this.state.islogin){
             navigate('login',{
             token:this.state.token,
             uid:this.state.uid,
             islogin:this.state.islogin,
             })
           }
-            activeOpacity={0.7}
-            containerStyle={{ marginTop: 5,marginLeft:5,}}
-          />
+          else{
+            alert('已经登录!');
+          }
+        }}
+        >
+        <Image
+          style={styles.avatar}
+          source={source}
+        />
+      </TouchableOpacity>
       );
-    }
   };
 
  render() {
@@ -160,11 +180,11 @@ class account1 extends Component {
         title: '我的钱包',
         icon : (
           <Image
-          source={require('../icon/account/钱包.png')}
+          source={require('../icon/account/money.png')}
           style={styles.account_icon}
         />
       ),
-        icon_color:'#f3456d',
+        icon_color:'#f1a073',
         x:2,
       },
       {
@@ -172,11 +192,11 @@ class account1 extends Component {
         title: '我的发布',
         icon : (
           <Image
-          source={require('../icon/account/我发布的.png')}
+          source={require('../icon/account/myItem.png')}
           style={styles.account_icon}
         />
       ),
-        icon_color:'#f3456d',
+        icon_color:'#f1a073',
         x:2,
         press(state){
           if(state.islogin){
@@ -198,7 +218,7 @@ class account1 extends Component {
         title: '我的订单',
         icon : (
           <Image
-          source={require('../icon/account/订单.png')}
+          source={require('../icon/account/order.png')}
           style={styles.account_icon}
         />
       ),
@@ -222,11 +242,11 @@ class account1 extends Component {
         title: '我的出售',
         icon : (
           <Image
-          source={require('../icon/account/订单.png')}
+          source={require('../icon/account/order.png')}
           style={styles.account_icon}
         />
       ),
-        icon_color:'#f3456d',
+        icon_color:'#f1a073',
         x:2,
         press(state){
           if(state.islogin){
@@ -248,14 +268,18 @@ class account1 extends Component {
     title: '收藏',
     icon : (
       <Image
-      source={require('../icon/account/收藏.png')}
+      source={require('../icon/account/fav.png')}
       style={styles.account_icon}
     />
   ),
-    icon_color:'#f3456d',
+    icon_color:'#f1a073',
     x:2,
-    press(islogin){
-      if(islogin) navigate('personal')
+    press(state){
+      if(state.islogin) navigate('fav',{
+        uid: state.uid,
+        token: state.token,
+        islogin: state.islogin,
+      })
       else{
         alert('请登录！');
       }
@@ -266,11 +290,11 @@ class account1 extends Component {
     title: '我的地址',
     icon: (
       <Image
-      source={require('../icon/account/地址.png')}
+      source={require('../icon/account/address.png')}
       style={styles.account_icon}
     />
   ),
-    icon_color:'#f3456d',
+    icon_color:'#f1a073',
     x:7,
     press(state){
       if(state.islogin){
@@ -286,11 +310,11 @@ class account1 extends Component {
     title: '我的评价',
     icon: (
       <Image
-      source={require('../icon/account/评价.png')}
+      source={require('../icon/account/content.png')}
       style={styles.account_icon}
     />
   ),
-    icon_color:'#f3456d',
+    icon_color:'#f1a073',
     x:7,
     press(){alert('hi');},
   },
@@ -299,11 +323,11 @@ class account1 extends Component {
     title: '订阅',
     icon: (
       <Image
-      source={require('../icon/account/订阅.png')}
+      source={require('../icon/account/ord.png')}
       style={styles.account_icon}
     />
   ),
-    icon_color:'#f3456d',
+    icon_color:'#f1a073',
     x:5,
     press(){
       alert('hi');}
@@ -315,11 +339,11 @@ class account1 extends Component {
        title: '设置',
        icon: (
          <Image
-         source={require('../icon/account/设置.png')}
+         source={require('../icon/account/setting.png')}
          style={styles.account_icon}
        />
      ),
-       icon_color:'#f3456d',
+       icon_color:'#f1a073',
        x:5,
        press(state){
          console.log(state);
@@ -338,25 +362,27 @@ class account1 extends Component {
        <View style={styles.StatusBar}>
        </View>
        <View style={styles.header}>
-         <View style={{flex: 1}}>
+         <View style={{flex: 1,}}>
          </View>
-         <Text style={{fontSize: 16,fontWeight: '500', color: '#333333',}}>
-           我
-         </Text>
-         <View style={{flex: 1}}>
+         <View style={{flex: 1,}}>
+           <Text style={{alignSelf: 'center',fontSize: 16,color: '#333333'}}>
+             我
+           </Text>
+         </View>
+         <View style={{flex: 1,}}>
          </View>
        </View>
        <ScrollView>
          <View style={styles.userInfo}>
             <TouchableOpacity style={styles.user} onPress={() => this.onPressHeader(this.state.islogin)}>
               {this.returnAvatar()}
-              <Text style={{marginTop:50,marginLeft:100,}}>
-                用户信息
+              <Text style={{marginTop:40,marginLeft: 15,fontSize: 16,color: '#333333'}}>
+                {this.state.islogin?this.state.user.name+'的个人主页':'去登录'}
               </Text>
             </TouchableOpacity>
            <View style={styles.order}>
              <TouchableOpacity
-               style={{flex:1,borderWidth:1,borderColor: '#e5e5e5',flexDirection: 'column',justifyContent: 'center', alignItems: 'center',}}
+               style={{flex:1,borderRightWidth:1,borderColor: '#e5e5e5',flexDirection: 'column',justifyContent: 'center', alignItems: 'center',}}
                onPress={() => {
                  if(this.state.islogin){
                  navigate('myQRcode',{
@@ -371,49 +397,49 @@ class account1 extends Component {
            }
                >
               <Image
-                   source={require('../icon/account/收钱.png')}
+                   source={require('../icon/account/getmoney.png')}
                    style={{width:40,height:40}}
                   />
               <Text
-                style={{color:'#5c492b',fontWeight:'500',fontSize:14,}}
+                style={{color:'#333333',fontWeight:'500',fontSize:14,}}
                 >
                 收钱
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={{flex:1,borderWidth:1,borderColor: '#e5e5e5',flexDirection: 'column', justifyContent: 'center',alignItems: 'center',}}
+              style={{flex:1,borderLeftWidth:1,borderColor: '#e5e5e5',flexDirection: 'column', justifyContent: 'center',alignItems: 'center',}}
               onPress={() => navigate('scanner')}
               >
                <Image
-               source={require('../icon/account/付款.png')}
+               source={require('../icon/account/qrcode.png')}
                style={{width:40,height:40}}
              />
-               <Text  style={{color:'#5c492b',fontWeight:'500',fontSize:14,}}>
+               <Text  style={{color:'#333333',fontWeight:'500',fontSize:14,}}>
                  付款
                </Text>
              </TouchableOpacity>
            </View>
          </View>
-         <List containerStyle={{marginTop:10}}>
-           {
-            list1.map((item, i) => (
-              <View key={i}>
-                <ListItem
-                  component={TouchableOpacity}
-                  key={i}
-                  title={item.title}
-                  leftIcon={item.icon}
-                  rightIcon={{name: 'chevron-right',color:'#f3456d',}}
-                  onPress={() => item.press(this.state)}
-                  titleStyle={styles.title}
-                  containerStyle={styles.listContainerStyle}
-                />
-                {this.renderSeparator(i==list1.length-1)}
-              </View>
-            ))
-          }
+         <List containerStyle={styles.list}>
+           <ListItem
+             component={TouchableOpacity}
+             title={list1[0].title}
+             leftIcon={list1[0].icon}
+             onPress={() => list1[0].press(this.state)}
+             titleStyle={styles.title}
+             containerStyle={styles.listContainerStyle}
+           />
+           {this.renderSeparator(false)}
+           <ListItem
+             component={TouchableOpacity}
+             title={list1[1].title}
+             leftIcon={list1[1].icon}
+             onPress={() => list1[1].press(this.state)}
+             titleStyle={styles.title}
+             containerStyle={styles.listContainerStyle}
+           />
          </List>
-         <List containerStyle={{marginTop:10}}>
+         <List containerStyle={styles.list}>
            {
             list2.map((item, i) => (
               <View key={i}>
@@ -422,7 +448,6 @@ class account1 extends Component {
                   key={i}
                   title={item.title}
                   leftIcon={item.icon}
-                  rightIcon={{name: 'chevron-right',color:'#f3456d',}}
                   onPress={() => item.press(this.state)}
                   titleStyle={styles.title}
                   containerStyle={styles.listContainerStyle}
@@ -432,7 +457,7 @@ class account1 extends Component {
             ))
           }
          </List>
-         <List containerStyle={{marginTop:10}} >
+         <List containerStyle={styles.list} >
            {
             list3.map((item, i) => (
               <View key={i}>
@@ -441,7 +466,6 @@ class account1 extends Component {
                   key={i}
                   title={item.title}
                   leftIcon={item.icon}
-                  rightIcon={{name: 'chevron-right',color:'#f3456d',}}
                   onPress={() => item.press(this.state)}
                   titleStyle={styles.title}
                   containerStyle={styles.listContainerStyle}
@@ -451,7 +475,7 @@ class account1 extends Component {
             ))
           }
          </List>
-         <List containerStyle={{marginTop:10}}>
+         <List containerStyle={styles.list}>
            {
             list4.map((item, i) => (
               <View key={i}>
@@ -460,7 +484,6 @@ class account1 extends Component {
                   key={i}
                   title={item.title}
                   leftIcon={item.icon}
-                  rightIcon={{name: 'chevron-right',color:'#f3456d',}}
                   onPress={() => item.press(this.state)}
                   titleStyle={styles.title}
                   containerStyle={styles.listContainerStyle}
@@ -536,24 +559,25 @@ const styles = StyleSheet.create({
   },
   StatusBar:  {
       height:22,
-      backgroundColor:'#f3456d',
+      backgroundColor:'#FFFFFF',
   },
   header: {
     height: 44,
     alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f3456d',
+    backgroundColor: '#FFFFFF',
   },
   userInfo: {
-        height: 180,
+        height: 160,
         backgroundColor: '#f2f2f2',
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'stretch',
-        borderWidth:1,
-        borderBottomWidth:3,
+        borderWidth: 0,
+        borderBottomWidth: 1,
         borderColor: '#e5e5e5',
+        marginTop: 10,
     },
     //header内元素
   user: {
@@ -570,7 +594,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFFFF',
         flexDirection: 'row',
         justifyContent: 'center',
-        alignItems: 'stretch'
+        alignItems: 'stretch',
+        borderWidth: 0
     },
     //
   body: {
@@ -585,6 +610,11 @@ const styles = StyleSheet.create({
   icon: {
      width: 25,
      height: 25,
+  },
+  list: {
+    marginTop:10,
+    borderWidth: 1,
+    borderColor: '#e5e5e5'
   },
   listTitleStyle: {
       color:'#5c492b',
@@ -602,7 +632,7 @@ const styles = StyleSheet.create({
     color: '#333333',
   },
   account_icon: {
-      tintColor: '#5c492b',
+    //  tintColor: '#5c492b',
       width: 25,
       height: 25,
   },
@@ -619,6 +649,13 @@ const styles = StyleSheet.create({
         margin: 10,
         borderRadius: 5,
         padding: 5,
-  }
+  },
+  avatar: {
+    height: 60,
+    width: 60,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: '#FFFFFF',
+  },
 });
 export default account;

@@ -22,6 +22,7 @@ import {
 import { Icon,Button,Card, ListItem,SocialIcon,List,CheckBox  } from 'react-native-elements';
 import MapView, { marker,Callout,} from 'react-native-maps';
 import Toast, {DURATION} from 'react-native-easy-toast';
+import Modalbox from 'react-native-modalbox';
 import Service from '../common/service';
 
 //获取屏幕宽高
@@ -256,7 +257,9 @@ function isRealNum(val){
   buy = () => {
     const { token,uid,aid,itemId,changeprice,num,mark } = this.state;
     const url = Service.BaseUrl;
-    const url1 = Service.BaseUrl+`?a=buy&v=${Service.version}&token=${token}&uid=${uid}&id=${itemId}&aid=${aid}`
+    const url1 = Service.BaseUrl+`?a=buy&v=${Service.version}&token=${token}&uid=${uid}&id=${itemId}&aid=${aid}`;
+    body =  'a=buy&token='+token+'&uid='+uid+'&aid='+aid+'&id='+itemId+'&v='+Service.version+'&num='+Number(num)+'&changeprice='+Number(changeprice)+'&mark='+mark;
+    console.log(body);
     console.log(url1);
     this.setState({loading: true})
     fetch(url,{
@@ -460,19 +463,40 @@ function isRealNum(val){
 
    //加载器
    showLoading = () => {
-     if(!this.state.loading){
-       return null;
-     }
-     else{
-       return(
-         <View
+     return(
+       <Modalbox
+         style={{height: 60, width: 60,backgroundColor: '#FFFFFF',opacity: 0.4,}}
+         position='center'
+         isOpen={this.state.loading}
+         backdropOpacity={0}
+         backdropPressToClose={false}
+         swipeToClose={false}
+         swipeThreshold={200}
+         swipeArea={0}
+         animationDuration={0}
+         backdropColor='#FFFFFF'
          >
-           <ActivityIndicator animating size="large" />
-         </View>
-       );
-     }
+           <ActivityIndicator
+             animating={true}
+             style={{alignSelf: 'center',height: 50}}
+             color='#333333'
+             size="large" />
+       </Modalbox>
+     );
    };
 
+   renderSeparator = () => {
+       return (
+         <View
+           style={{
+             height: 1,
+             width: "95%",
+             backgroundColor: "#e5e5e5",//CED0CE
+             marginLeft: "5%"
+           }}
+         />
+       );
+   };
 
   render() {
     const { navigate } = this.props.navigation;
@@ -483,18 +507,20 @@ function isRealNum(val){
         </View>
         <View style={styles.header}>
         </View>
-        {this.showLoading()}
+
         <ScrollView>
           <TouchableOpacity style={styles.item_pic}>
             {this.returnPhoto()}
           </TouchableOpacity>
-          <List containerStyle={{marginBottom: 0,borderTopWidth: 0,marginTop:0,}}>
+          <View style={{marginBottom: 0,borderTopWidth: 0,marginTop:0,borderTopWidth: 1,borderColor: '#e5e5e5'}}>
             <ListItem
               titleStyle={styles.title}
               title='价格'
               rightIcon={<View></View>}
               rightTitle={this.state.item.price}
+              containerStyle={styles.listContainerStyle}
             />
+            {this.renderSeparator()}
             <ListItem
               titleStyle={styles.title}
               title='数量'
@@ -505,7 +531,9 @@ function isRealNum(val){
               textInputValue={this.state.num}
               clearButtonMode='always'
               keyboardType='phone-pad'
+              containerStyle={styles.listContainerStyle}
             />
+            {this.renderSeparator()}
             <ListItem
               titleStyle={styles.title}
               title='补差价'
@@ -515,41 +543,49 @@ function isRealNum(val){
               textInputValue={this.state.changeprice}
               clearButtonMode='always'
               keyboardType='phone-pad'
+              containerStyle={styles.listContainerStyle}
             />
-          </List>
-          <List>
+          </View>
+          <View style={styles.list}>
             <ListItem
               titleStyle={styles.title}
               title='线下支付'
               rightTitle={this.state.item.paytp>=1?'支持':'不支持'}
+              containerStyle={styles.listContainerStyle}
             />
+            {this.renderSeparator()}
             <ListItem
               titleStyle={styles.title}
               title='线上支付'
               rightTitle={this.state.item.paytp!=1?'支持':'不支持'}
+              containerStyle={styles.listContainerStyle}
             />
-          </List>
-          <List>
+          </View>
+          <View style={styles.list}>
             <ListItem
               titleStyle={styles.title}
               title='我的地址'
               rightTitle={this.state.address? this.state.address:'请选择'}
               onPress={() => this.setAddressModalVisible(true)}
+              containerStyle={styles.listContainerStyle}
             />
+            {this.renderSeparator()}
             <ListItem
               titleStyle={styles.title}
               title='备注'
               rightTitle={this.state.mark==null?'未编辑':'已编辑'}
               onPress={() => this.setMarkModalVisible(true)}
+              containerStyle={styles.listContainerStyle}
             />
-          </List>
-          <List>
+          </View>
+          <View style={styles.list}>
             <ListItem
               titleStyle={styles.title}
               title='总价'
               rightTitle={this.total()<0?'输入不合法':this.total().toString()}
+              containerStyle={styles.listContainerStyle}
             />
-          </List>
+          </View>
         </ScrollView>
         <Button
           style={styles.button}
@@ -566,7 +602,9 @@ function isRealNum(val){
           title='确认提交' />
         {this.renderAddressModal()}
         {this.renderMarkModal()}
+        {this.showLoading()}
       </View>
+
     );
   }
 }
@@ -626,6 +664,15 @@ const styles = StyleSheet.create({
     height: 200,
     width: '100%',
     //alignSelf: 'center'
+  },
+  list: {
+    marginTop:10,
+    borderWidth: 1,
+    borderColor: '#e5e5e5',
+  },
+  listContainerStyle:{
+    borderBottomWidth: 0,
+    backgroundColor: '#FFFFFF',
   },
 });
 

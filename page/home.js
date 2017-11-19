@@ -27,8 +27,11 @@ import ModalDropdown from 'react-native-modal-dropdown';
 import Service from '../common/service';
 
 
+//获取屏幕尺寸
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
+
+//计算距离常量
 var EARTH_RADIUS = 6378137.0;    //单位M
 var PI = Math.PI;
 
@@ -219,7 +222,10 @@ class home1 extends Component {
           <Image
             style={styles.bubble}
             source={{ uri: uri }}
+            resizeMode="cover"
           />
+
+
         </MapView.Marker>
       );
     }
@@ -247,7 +253,7 @@ class home1 extends Component {
 
   controlChooseBarStyle = (tp) => {
     if(this.state.tp==tp){
-      return {backgroundColor: '#f4eede'};
+      return {backgroundColor: '#f1a073'};
     }
     else{
       return {};
@@ -256,58 +262,66 @@ class home1 extends Component {
 
   controlFontStyle = (tp) => {
     if(this.state.tp==tp){
-      return {color: '#f3456d'};
+      return {color: '#FFFFFF'};
     }
     else{
-      return {color: '#f4eede'};
+      return {color: '#f1a073'};
     }
   };
 
 
   render() {
     console.log(this.state);
-    //this.getLanguage();
+    console.log(I18n.t('home.Service'));
+    console.log(I18n.t('home.Ask'));
+    console.log(I18n.t('home.search'));
+    console.log(I18n);
     const {params} = this.props.navigation.state;
     const {navigate} = this.props.navigation;
     return (
         <View style = {styles.container}>
           <View style={styles.StatusBar}>
           </View>
-          <View style={styles.header}>
-            <Text
-              onPress={() => this.getItemList()}
-              style={{marginLeft: 10,color: '#FFFFFF'}}
-              >
-              返回
-            </Text>
+          <View style={[styles.header,{height: 44}]}>
+            <View style={{flex: 1,flexDirection: 'row',alignSelf: 'stretch',alignItems: 'center',marginLeft: 10}}>
+              <Icon
+                style={{}}
+                name='search'
+                color='#f1a073'
+                size={32}
+                onPress={() => this.getItemList()}
+              />
+            </View>
             <View style={{flex:1,alignItems: 'center'}}>
-              <View style={{width: 120,height: 30,borderWidth: 2, borderColor: '#f4eede',flexDirection: 'row'}}>
+              <View style={{width: 120,height: 30,borderWidth: 2, borderColor: '#f1a073',flexDirection: 'row'}}>
                 <TouchableOpacity style={[styles.choosebar,this.controlChooseBarStyle(0)]} onPress={() => this.reget(0)}>
                   <Text style={[this.controlFontStyle(0)]}>
-                    Service
+                    {I18n.t('home.Service')}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.choosebar,this.controlChooseBarStyle(1)]} onPress={() => this.reget(1)}>
                   <Text style={[this.controlFontStyle(1)]}>
-                    Ask
+                    {I18n.t('home.Ask')}
                   </Text>
                 </TouchableOpacity>
               </View>
             </View>
-            <Text
-              onPress={() => navigate('itemList',{
-                token:this.state.token,
-                uid: this.state.uid,
-                islogin: this.state.islogin,
-              })}
-              style={{marginRight: 10,color: '#FFFFFF'}}
-              >
-              列表
-            </Text>
+            <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end',marginRight: 10}}>
+              <Text
+                onPress={() => navigate('itemList',{
+                  token:this.state.token,
+                  uid: this.state.uid,
+                  islogin: this.state.islogin,
+                })}
+                style={{color: '#f1a073',fontSize: 14}}
+                >
+                {I18n.t('home.More')}
+              </Text>
+            </View>
           </View>
           <View style={{flex:1}}>
             <MapView
-              style={[styles.map,{flexDirection: 'row',justifyContent:'flex-start'}]}
+              style={[styles.map,{flexDirection: 'column',justifyContent:'flex-start',alignItems: 'flex-start'}]}
               region={this.state.region}
               onRegionChange={this.onRegionChange}
               showsUserLocation={true}
@@ -321,16 +335,30 @@ class home1 extends Component {
               scrollEnabled={true}
               onPanDrag={() => console.log('onPanDrag')}
             >
-              <TouchableOpacity style={{marginLeft:5}}>
+              {/*<TouchableOpacity style={{marginLeft:10,marginTop: 10}}>
                 <Icon
                   name={'my-location'}
                   size={35}
                   color='#f3456d'
-                  style={{alignSelf:'flex-start',marginRight:10,marginTop:10,padding:5}}
+                  style={{padding: 5,marginLeft: 10,marginRight: 10}}
                   onPress={() => this.getLocation()}
                  />
+              </TouchableOpacity>*/}
+              <TouchableOpacity style={{height: 50,width: 50,}} onPress={() => this.getLocation()}>
+                <Image
+                  source={require('../icon/tarbar/locate.png')}
+                  style={{height: 50,width: 50}}
+                />
               </TouchableOpacity>
-
+              {/*<TouchableOpacity style={{marginLeft: 10,flexDirection: 'column',justifyContent: 'center',height: 50,width: 50, }}>
+                <Icon
+                  name={'my-location'}
+                  size={35}
+                  color='#f1a073'
+                  style={{paddingVertical: 10}}
+                  onPress={() => this.getLocation()}
+                 />
+              </TouchableOpacity>*/}
                <MapView.Marker coordinate={this.state.myLocation}/>
                {this.returnBubble()}
             </MapView>
@@ -620,6 +648,23 @@ class itemList extends Component {
         <View style={styles.StatusBar}>
         </View>
         <View style={styles.header}>
+          <View style={{flexDirection: 'row',alignSelf: 'stretch',alignItems: 'center',borderColor: '#e5e5e5',borderTopWidth: 1,borderBottomWidth: 1,}}>
+            <Icon
+              style={{marginLeft: 5}}
+              name='chevron-left'
+              color='#f1a073'
+              size={32}
+              onPress={() => this.props.navigation.goBack()}
+            />
+          </View>
+          <View style={{flex: 1}}>
+            <SearchBar
+              containerStyle={{backgroundColor: '#FFFFFF',borderWidth: 0}}
+              inputStyle={{backgroundColor: '#e5e5e5'}}
+              lightTheme
+              placeholder='Type Here...' >
+            </SearchBar>
+          </View>
         </View>
         {this.renderHeader()}
         <List containerStyle={{ borderTopWidth: 0,flex:1,backgroundColor: '#FFFFFF' ,marginTop: 0}}>
@@ -636,7 +681,8 @@ class itemList extends Component {
                 subtitle={'开始:'+formatDate(item.t)+'\n'+'相距:'+(item.juli)+'m'}
                 rightTitle={item.u=='""'||item.u==null? item.price+'圆':item.price+'圆/'+item.u}
                 avatar={{ uri:Service.BaseUri+item.img  }}
-                avatarStyle ={{height:60,width:60}}
+                avatarContainerStyle={{height:60,width:60}}
+                avatarStyle={{height:60,width:60}}
                 containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF'}}
                 onPress={() => {
                   const params = {
@@ -702,14 +748,16 @@ const styles = StyleSheet.create({
   },
   StatusBar:  {
     height:22,
-    backgroundColor:'#f3456d',
+    backgroundColor:'#FFFFFF',
   },
   header: {
-    height: 44,
+    //height: 44,
     alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f3456d',
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderColor: '#e5e5e5'
   },
   choosebar: {
     flex:1,
@@ -723,15 +771,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignSelf: 'center',
     alignItems: 'center',
-    marginTop: 0,
-    borderWidth: 0,
-    backgroundColor: '#f3456d'
+    marginTop: 5,
+    borderWidth: 1,
+    borderTopWidth: 0,
+    borderColor: '#e5e5e5',
+
   },
   Dropdown: {
     alignSelf: 'center',
     height: 22,
     borderWidth: 0,
-    borderColor: '#f3456d',
+    borderRightWidth: 0,
+    borderLeftWidth: 0,
+    borderColor: '#e5e5e5',
     width: '25%',
     backgroundColor: '#FFFFFF'
   },
@@ -745,7 +797,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   highlight: {
-    color: '#f3456d'
+    color: '#f1a073'
   },
   instructions: {
     textAlign: 'center',
@@ -767,7 +819,7 @@ const styles = StyleSheet.create({
   bubble: {
     height: 62,
     width: 62,
-    borderRadius: 25,
+    borderRadius: 28,
     borderWidth: 2,
     borderColor: '#FFFFFF',
   },

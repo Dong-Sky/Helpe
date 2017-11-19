@@ -6,12 +6,15 @@ import {
   View,
   Image,
   TextInput,
+  ScrollView,
 } from 'react-native';
 import {
   StackNavigator,
   TabNavigator,
   NavigationActions,
 } from 'react-navigation';
+import { Tile,Card,Button } from 'react-native-elements';
+import Swiper from 'react-native-swiper';
 
  class compass extends Component {
    static navigationOptions = {
@@ -65,18 +68,51 @@ import {
       <View style={styles.container}>
         <View style={styles.StatusBar}>
         </View>
-        <View style={styles.header}>
-        </View>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.android.js
-        </Text>
-        <Text style={styles.instructions}>
-          Double tap R on your keyboard to reload,{'\n'}
-          Shake or press menu button for dev menu
-        </Text>
+        <ScrollView>
+          <Swiper style={styles.wrapper} showsButtons={true} height={200}>
+            <View>
+              <Image
+                 source={require('../icon/other/kfc.jpg')}
+                 resizeMode='contain'
+              />
+            </View>
+            <View>
+              <Image
+                source={require('../icon/other/mc.jpg')}
+                resizeMode='contain'
+              />
+            </View>
+            <Image
+              source={require('../icon/other/mc.jpg')}
+              resizeMode='contain'
+            />
+          </Swiper>
+          <Card
+            title='HELLO WORLD'
+            image={require('../icon/other/kfc.jpg')}>
+            <Text style={{marginBottom: 10}}>
+              The idea with React Native Elements is more about component structure than actual design.
+            </Text>
+            <Button
+              icon={{name: 'code'}}
+              backgroundColor='#f1a073'
+              buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0}}
+              title='VIEW NOW' />
+          </Card>
+          <Card
+            title='HELLO WORLD'
+            image={require('../icon/other/mc.jpg')}>
+            <Text style={{marginBottom: 10}}>
+              The idea with React Native Elements is more about component structure than actual design.
+            </Text>
+            <Button
+              icon={{name: 'code'}}
+              backgroundColor='#f1a073'
+              buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0}}
+              title='VIEW NOW' />
+          </Card>
+        </ScrollView>
+
       </View>
     );
   }
@@ -91,7 +127,7 @@ const styles = StyleSheet.create({
   },
   StatusBar: {
         height:22,
-        backgroundColor:'#fbe994',
+        backgroundColor:'#FFFFFF',
   },
   header: {
     height: 44,

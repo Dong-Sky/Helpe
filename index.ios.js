@@ -23,7 +23,7 @@ import { List, ListItem } from 'react-native-elements';
 import { Icon,Button } from 'react-native-elements';
 import Storage from 'react-native-storage';
 import util from './common/util';
-import service from './common/service';
+import { I18n } from './common/I18n';
 import Service from './common/service';
 //import 分页面
 //四个主页面
@@ -53,6 +53,8 @@ import buy from './page/buy';
 import online from './page/online';
 import mySaleDetail_Service from './page/mySaleDetail_Service';
 import myOrderDetail_Service from './page/myOrderDetail_Service';
+import fav from './page/fav';
+import user from './page/user';
 var storage = new Storage({
   // 最大容量，默认值1000条数据循环存储
   size: 1000,
@@ -76,6 +78,7 @@ var storage = new Storage({
   //sync: require('./sync')  // 这个sync文件是要你自己写的
 })
 global.storage = storage;
+global.I18n = I18n;
 /*storage.save({
       key: 'loginState',  // 注意:请不要在key中使用_下划线符号!
       data: {
@@ -127,7 +130,7 @@ const main = TabNavigator({
   swipeEnabled: false, // 禁止左右滑动
   backBehavior: 'none', // 按 back 键是否跳转到第一个 Tab， none 为不跳转
   tabBarOptions: {
-      activeTintColor: '#f3456d', // 文字和图片选中颜色
+      activeTintColor: '#f1a073', // 文字和图片选中颜色
       inactiveTintColor: '#595959', // 文字和图片默认颜色
       showIcon: true, // android 默认不显示 icon, 需要设置为 true 才会显示
       showLabel: false,
@@ -166,6 +169,8 @@ const easygo = StackNavigator({
     online: { screen: online },
     mySaleDetail_Service: { screen: mySaleDetail_Service },
     myOrderDetail_Service: { screen: myOrderDetail_Service },
+    fav: { screen: fav },
+    user: { screen: user },
 }, {
     initialRouteName: 'main', // 默认显示界面
     navigationOptions: {// 屏幕导航的默认选项, 也可以在组件内用 static navigationOptions 设置(会覆盖此处的设置)

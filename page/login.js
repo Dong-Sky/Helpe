@@ -19,6 +19,12 @@ import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import { Kohana } from 'react-native-textinput-effects';
 import { Button } from 'react-native-elements';
+import FBSDK from 'react-native-fbsdk';
+import {
+  LoginButton,
+  AccessToken,
+  LoginManager,
+} from 'react-native-fbsdk';
 import Service from '../common/service';
 
 class login extends Component{
@@ -73,6 +79,26 @@ class login extends Component{
       this.setState({ loading: false });
       console.log(error);
     })
+  };
+
+  fbLogin = () => {
+    LoginManager.logInWithReadPermissions(['public_profile']).then(
+      function(result) {
+        if (result.isCancelled) {
+          alert('Login cancelled');
+        } else {
+          alert('Login success with permissions: '
+            +result.grantedPermissions.toString());
+            AccessToken.getCurrentAccessToken().then(
+                  (data) => {
+                    console.log(data.accessToken.toString())
+                  })
+        }
+      },
+      function(error) {
+        alert('Login fail with error: ' + error);
+      }
+    );
   };
 
   showLoading = () => {
@@ -166,6 +192,11 @@ class login extends Component{
             </TouchableOpacity>
           </View>
           {this.showLoading()}
+          <TouchableOpacity>
+            <Text onPress={() => this.fbLogin()}>
+              fblogin
+            </Text>
+          </TouchableOpacity>
         </View>
     );
   }

@@ -19,12 +19,13 @@ import { Icon,Button } from 'react-native-elements';
    static navigationOptions = {
      tabBarLabel: ' ',
      tabBarIcon: ({ tintColor }) => (
-       <Icon
-         name='add-circle'
-         color='#f3456d'
-         size={40} />
-     ),
+       <Image
+         source={require('../icon/tarbar/send.png')}
+         style={[styles.icon]}
+       />
+     )
    };
+
 
    constructor(props) {
        super(props);
@@ -133,12 +134,12 @@ const styles = StyleSheet.create({
         marginBottom: 5
   },
   icon: {
-   width: 25,
-   height: 25,
+    width: 32,
+    height: 32,
   },
   icon_send: {
-  width: 25,
-  height: 25,
+    width: 25,
+    height: 25,
   },
 });
 export default send;

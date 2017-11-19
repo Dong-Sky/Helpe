@@ -150,7 +150,7 @@ class mySaleDetail extends Component{
 
   a  = () => {
     alert('hello')
-  }
+  };
 
   render(){
     return(
