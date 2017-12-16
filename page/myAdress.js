@@ -13,6 +13,10 @@ import {
   FlatList,
   Keyboard,
   Alert,
+<<<<<<< Updated upstream
+=======
+  TouchableOpacity,
+>>>>>>> Stashed changes
 } from 'react-native';
 import ReactNative from 'react-native';
 import {
@@ -25,6 +29,7 @@ import { List, ListItem,Icon,Button,Avatar,SearchBar } from 'react-native-elemen
 import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import { Kohana } from 'react-native-textinput-effects';
+import Modalbox from 'react-native-modalbox';
 import MapView, { marker,Callout,} from 'react-native-maps';
 import Service from '../common/service';
 
@@ -39,6 +44,10 @@ class myAdress extends Component {
          islogin:false,
          //弹出视图控制
          modalVisible: false,
+         isInfoModalVisible: false,
+         mapModalVisible: false,
+         isDisabled: false,
+         isDisabled1: false,
          //用户地址列表
          data: [],
          //地图信息
@@ -48,10 +57,17 @@ class myAdress extends Component {
            latitudeDelta: 0.00629157290689264,
            longitudeDelta: 0.004999999999881766,
          },
+         addr: {
+           latitude: 0,
+           longitude: 0,
+           latitudeDelta: 0.00629157290689264,
+           longitudeDelta: 0.004999999999881766,
+           info: '我的位置',
+         },
          locate: true,
          //地址信息
          info: null,
-         aid: '39128',
+         aid: '0',
        }
   };
 
@@ -87,7 +103,6 @@ class myAdress extends Component {
            console.log("获取位置失败："+ error);
          },
      );
-
   };
 
   onRegionChange = (region) => {
@@ -125,16 +140,16 @@ class myAdress extends Component {
    })
    .then(response => response.json())
    .then(responseJson => {
-     console.log(responseJson);
+
      if(!responseJson.status){
-       alert('添加成功');
+       alert(I18n.t('success.add'));
      }
      else {
-       alert('添加失败');
+       alert(I18n.t('success.add_failed'));
      }
    })
    .then(() => this.getAddress())
-   .catch(error => console.log(error))
+   .catch(error => {console.log(error);})
   };
 
   //删除地址方法
@@ -163,24 +178,28 @@ class myAdress extends Component {
         animationType={"slide"}
         transparent={false}
         visible={this.state.modalVisible}
-        onRequestClose={() => {alert("Modal has been closed.")}}
+        onRequestClose={() => {console.log("Modal has been closed.")}}
         >
        <View style={styles.container}>
          <View style={styles.StatusBar}>
          </View>
          <View style={styles.header}>
-           <Text
-             style={{marginLeft:20,color:'#5c492b'}}
-             onPress={() => this.setModalVisible(!this.state.modalVisible)}>
-             返回
-           </Text>
-           <View style={{flex:1,}}>
+           <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start'}}>
+             <Icon
+               style={{marginLeft: 5}}
+               name='keyboard-arrow-left'
+               color='#f1a073'
+               size={32}
+               onPress={() => this.setState({modalVisible: false,info: null,})}
+             />
            </View>
-           <Text
-             style={{marginRight:20,color:'#5c492b'}}
-             onPress={() => this.addAddress()}>
-             确定
-           </Text>
+           <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
+             <Text style={{alignSelf: 'center',fontSize: 18,color: '#333333'}}>
+               {I18n.t('myAddress.new')}
+             </Text>
+           </View>
+           <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
+           </View>
          </View>
          <View style={{flex:1,}}>
            <MapView
@@ -196,23 +215,136 @@ class myAdress extends Component {
                showsMyLocationButton={true}
                onRegionChangeComplete={(region) => console.log(region)}
              >
+               <TouchableOpacity style={{height: 50,width: 50,}} onPress={() => this.getLocation()}>
+                 <Image
+                   source={require('../icon/tarbar/locate.png')}
+                   style={{height: 50,width: 50}}
+                 />
+               </TouchableOpacity>
                <MapView.Marker
                  coordinate={this.state.region}
                />
            </MapView>
           </View>
+          <View style={{height: 1,backgroundColor: '#e5e5e5'}}></View>
           <View style={styles.modal_body}>
-                <TextInput
-                  style={{height:50,alignSelf:'stretch'}}
-                  placeholder="请输入内容"
-                  onChangeText={(info) => this.setState({info})}
-                  value={this.state.info}
-                  onEndEditing={() => Keyboard.dismiss()}
-                />
+            <ListItem
+              title={I18n.t('myAddress.info')}
+              titleStyle={styles.title}
+              rightTitle={this.state.info==''?I18n.t('myAddress.no_info'):this.state.info}
+              containerStyle={styles.listContainerStyle}
+              rightTitleNumberOfLines={3}
+              onPress={() => this.setState({isInfoModalVisible: true})}
+            />
           </View>
+          <Button
+            style={styles.button}
+            buttonStyle={{marginTop:5,marginBottom:5,}}
+            borderRadius={5}
+            backgroundColor='#f1a073'
+            onPress={() => {
+              if(this.state.info==null||this.state.info==''){
+                alert(I18n.t('myAddress.no_info'));
+              }
+              else{
+                this.addAddress();
+              }
+            }}
+            title={I18n.t('myAddress.no_info')} />
+            {this.renderInfoModal()}
          </View>
       </Modal>
     );
+  };
+
+<<<<<<< Updated upstream
+  renderSeparator = () => {
+      return (
+        <View
+          style={{
+            height: 1,
+            width: "95%",
+            backgroundColor: "#e5e5e5",//CED0CE
+            marginLeft: "5%"
+          }}
+        />
+      );
+=======
+  //地址名页面
+  renderInfoModal = () => {
+    return(
+      <Modalbox
+        style={{height: 220,width: 300,alignItems: 'center',}}
+        isOpen={this.state.isInfoModalVisible}
+        isDisabled={this.state.isDisabled}
+        position='center'
+        backdrop={true}
+        backButtonClose={true}
+        onClosed={() => this.setState({isInfoModalVisible: false})}
+        >
+          <Text style={{marginTop: 10}}>
+            {I18n.t('myAddress.no_info')}
+          </Text>
+          <View style={{flex: 1,marginTop: 10, alignSelf: 'stretch'}}>
+            <TextInput
+              style={styles.markInput}
+              autoCapitalize='none'
+              multiline = {true}
+              underlineColorAndroid="transparent"
+              editable={true}
+              value={this.state.info}
+              onChangeText={(info) => this.setState({info})}
+              maxLength={50}
+              placeholder={I18n.t('myAddress.txt1')}
+            />
+          </View>
+          <Button
+            style={styles.button1}
+            backgroundColor='#f1a073'
+            borderRadius={5}
+            title={I18n.t('common.submit')}
+            onPress={() => this.setState({isInfoModalVisible: false,})}
+          />
+      </Modalbox>
+    );
+  };
+
+  //地图页面
+  renderMapModal = () => {
+    return(
+      <Modalbox
+        style={{height: 300,width: 300,alignItems: 'center',}}
+        isOpen={this.state.mapModalVisible}
+        isDisabled={this.state.isDisabled1}
+        position='center'
+        backdrop={true}
+        swipeToClose={false}
+        backButtonClose={true}
+        onClosed={() => this.setState({mapModalVisible: false})}
+        >
+          <MapView
+            style={styles.map}
+            initialRegion={{
+              latitude: this.state.addr.latitude/1,
+              longitude: this.state.addr.longitude/1,
+              latitudeDelta: 0.00629157290689264,
+              longitudeDelta: 0.004999999999881766,
+            }}
+          >
+            <MapView.Marker coordinate={{
+              latitude: this.state.addr.latitude/1,
+              longitude: this.state.addr.longitude/1,
+            }}>
+              <MapView.Callout>
+                <Text style={{color: '#333333',fontSize: 14}}>
+                  {I18n.t('myAddress.myAddress')}
+                </Text>
+              </MapView.Callout>
+            </MapView.Marker>
+        </MapView>
+      </Modalbox>
+    );
+>>>>>>> Stashed changes
   };
 
   renderSeparator = () => {
@@ -234,13 +366,30 @@ class myAdress extends Component {
         <View style={styles.StatusBar}>
         </View>
         <View style={styles.header}>
-          <View style={{flex:1,}}>
+          <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start'}}>
+            <Icon
+              style={{marginLeft: 5}}
+              name='keyboard-arrow-left'
+              color='#f1a073'
+              size={32}
+              onPress={() => this.props.navigation.goBack()}
+            />
           </View>
-          <Text
-            style={{marginRight:20,color:'#5c492b'}}
-            onPress={() => this.setModalVisible(true)}>
-              添加
-          </Text>
+          <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
+            <Text style={{alignSelf: 'center',color: '#333333',fontSize: 18}}>
+              {I18n.t('myAddress.myAddress')}
+            </Text>
+          </View>
+          <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
+            <View style={{marginRight: 10}}>
+              <Icon
+                name='add'
+                color='#f1a073'
+                size={28}
+                onPress={() => this.setState({modalVisible: true},this.getLocation)}
+              />
+            </View>
+          </View>
         </View>
         <List containerStyle={{borderWidth: 1,borderColor: '#e5e5e5',marginTop: 0}}>
           <FlatList
@@ -250,6 +399,7 @@ class myAdress extends Component {
                 title={item.info}
                 titleStyle={styles.title}
                 containerStyle={styles.listContainerStyle}
+<<<<<<< Updated upstream
                 keyExtractor={item => item.id}
                 onPress={() => {
                   Alert.alert(
@@ -259,6 +409,31 @@ class myAdress extends Component {
                       {text: '修改', onPress: () => console.log('Ask me later pressed')},
                       {text: '取消', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
                       {text: '删除', onPress: () => this.deleteAddress(item.id)},
+=======
+                titleNumberOfLines={3}
+                keyExtractor={item => item.id}
+                onPress={() => {
+                  Alert.alert(
+                    I18n.t('myAddress.choose'),
+                    '',
+                    [
+                      {
+                        text: I18n.t('myAddress.go'),
+                        onPress: () => {
+                          var addr = {
+                            latitude: item.lat/1,
+                            longitude: item.lng/1,
+                            latitudeDelta: 0.00629157290689264,
+                            longitudeDelta: 0.004999999999881766,
+                            info: item.info,
+                          };
+                          console.log(addr);
+                          this.setState({addr: addr,mapModalVisible: true,});
+                        }
+                      },
+                      {text: I18n.t('common.cancel'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                      {text: I18n.t('common.delete'), onPress: () => this.deleteAddress(item.id)},
+>>>>>>> Stashed changes
                     ],
                     { cancelable: false }
                   );
@@ -268,7 +443,11 @@ class myAdress extends Component {
             ItemSeparatorComponent={this.renderSeparator}
           />
         </List>
+<<<<<<< Updated upstream
 
+=======
+          {this.renderMapModal()}
+>>>>>>> Stashed changes
           {this.rendermodal()}
       </View>
     );
@@ -287,14 +466,16 @@ const styles = StyleSheet.create({
   },
   StatusBar:  {
     height:22,
-    backgroundColor:'#fbe994',
+    backgroundColor:'#FFFFFF',
   },
   header: {
     height: 44,
     alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fbe994',
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderColor: '#e5e5e5'
   },
   body: {
         flex:1,
@@ -307,6 +488,7 @@ const styles = StyleSheet.create({
   },
   modal_body: {
     flex: 1,
+    backgroundColor: '#f2f2f2'
     //flexDirection: 'column',
     //alignItems: 'center',
   },
@@ -326,5 +508,36 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
     backgroundColor: '#FFFFFF'
   },
+<<<<<<< Updated upstream
+=======
+  button1: {
+    alignSelf: 'center',
+    marginTop : 5,
+    width: 240,
+    height: 50,
+  },
+  contactInput:{
+    width: 260,
+    height: 140,
+    textAlignVertical: 'top',
+    borderWidth: 1,
+    borderColor: '#f1a073',
+    alignSelf: 'center',
+    color: '#666666',
+    fontSize: 14,
+    padding: 5,
+  },
+  markInput:{
+    width: 260,
+    height: 120,
+    textAlignVertical: 'top',
+    borderWidth: 1,
+    borderColor: '#f1a073',
+    alignSelf: 'center',
+    color: '#666666',
+    fontSize: 14,
+    padding: 5,
+  },
+>>>>>>> Stashed changes
 });
 export default myAdress;

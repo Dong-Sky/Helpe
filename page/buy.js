@@ -13,6 +13,7 @@ import {
   Keyboard,
   Dimensions,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import {
   StackNavigator,
@@ -53,6 +54,11 @@ function isRealNum(val){
       addressModalVisible: false,
       newAddressModalVisible: false,
       markModalVisible: false,
+      backModalVisible: false,
+      isInfoModalVisible: false,
+      isDisabled: false,
+      isDisabled1: false,
+
       //商品信息
       defaultImg: '',
       itemId: null,
@@ -134,12 +140,8 @@ function isRealNum(val){
 
       return responseJson.data.item.uid;
     })
-    .then(uid => {
-      console.log(uid);
-      console.log(this.state);
-      this.setState({loading: false})
-    })
-    .catch(error => console.log(error));
+    .then(() => this.setState({loading: false}))
+    .catch(error => {console.log(error);this.setState({loading: false,})});
   };
 
   getLocation = () => {
@@ -155,7 +157,7 @@ function isRealNum(val){
            this.setState({ region });
          },
          error => {
-           console.log("获取位置失败："+ error);
+           //console.log("获取位置失败："+ error);
          },
      );
 
@@ -173,7 +175,7 @@ function isRealNum(val){
      })
      .then(response => response.json())
      .then(responseJson => {
-       console.log(responseJson);
+
        this.setState({ data: responseJson.data})
      })
      .catch(error => console.log(error))
@@ -192,12 +194,12 @@ function isRealNum(val){
    })
    .then(response => response.json())
    .then(responseJson => {
-     console.log(responseJson);
+
      if(!responseJson.status){
-       alert('添加成功');
+       alert(I18n.t('success.add'));
      }
      else {
-       alert('添加失败');
+       alert(I18n.t('error.add_failed'));
      }
    })
    .then(() => this.getAddress())
@@ -205,51 +207,74 @@ function isRealNum(val){
   };
 
 
-  //定义详情描述窗口
+  //备注页面
   renderMarkModal = () => {
-       return(
-        <Modal
-          animationType={"slide"}
-          transparent={false}
-          visible={this.state.markModalVisible}
-          onRequestClose={() => {console.log("Modal has been closed.")}}
-          >
-         <View style={styles.container}>
-           <View style={styles.StatusBar}>
-           </View>
-           <View style={styles.header}>
-             <Text
-               style={{marginLeft:20,color:'#5c492b'}}
-               onPress={() => this.setMarkModalVisible(!this.state.markModalVisible)}>
-               返回
-             </Text>
-             <View style={{flex:1,}}>
-             </View>
-             <Text
-               style={{marginRight:20,color:'#5c492b'}}
-               onPress={Keyboard.dismiss}>
-               完成
-             </Text>
-           </View>
-           <ScrollView
-             style={styles.contact_modal_body}
-             showsVerticalScrollIndicator={true}
-             >
-             <TextInput
-               style={{flex: 1,height: 1500,fontSize: 16,fontWeight: '500'}}
-               autoCapitalize='none'
-               placeholder='请详细描述您的服务'
-               multiline={true}
-               onChangeText={(mark) => this.setState({mark})}
-               value={this.state.mark}
-             />
-             <Text style={{ marginTop: 10,marginBottom: 10,height: 40,fontSize: 12,fontWeight: '500',alignSelf: 'center'}}>
-               不能再添加更多内容
-             </Text>
-           </ScrollView>
-           </View>
-        </Modal>
-      );
+    return(
+      <Modalbox
+        style={{height: 240,width: 300,alignItems: 'center',}}
+        isOpen={this.state.markModalVisible}
+        isDisabled={this.state.isDisabled}
+        position='center'
+        backdrop={true}
+        backButtonClose={true}
+        onClosed={() => this.setState({markModalVisible: false})}
+        >
+          <Text style={{marginTop: 10}}>
+            {I18n.t('buy.remark')}
+          </Text>
+          <View style={{flex: 1,marginTop: 10, alignSelf: 'stretch'}}>
+            <TextInput
+              style={styles.contactInput}
+              autoCapitalize='none'
+              multiline = {true}
+              underlineColorAndroid="transparent"
+              editable={true}
+              onChangeText={(mark) => this.setState({mark})}
+              value={this.state.mark}
+            />
+          </View>
+          <Button
+            style={styles.button1}
+            backgroundColor='#f1a073'
+            borderRadius={5}
+            title={I18n.t('common.finish')}
+            onPress={() => this.setState({markModalVisible: false,})}
+          />
+      </Modalbox>
+    );
+  };
+
+  //请求成功
+  renderBackModal = () => {
+    return(
+      <Modalbox
+        style={{height: 180,width: 300,alignItems: 'center',}}
+        isOpen={this.state.backModalVisible}
+        isDisabled={this.state.isDisabled1}
+        position='center'
+        backdrop={true}
+        backButtonClose={false}
+        backdropPressToClose={false}
+        swipeToClose={false}
+        onClosed={() => this.setState({backModalVisible: false})}
+        >
+          <Text style={{marginTop: 10,fontSize: 18,color: '#f1a073'}}>
+            {I18n.t('success.submit')}
+          </Text>
+          <View style={{flex: 1,marginTop: 10, alignSelf: 'stretch',marginLeft: 10,marginRight: 10}}>
+            <Text style={{fontSize: 14,color: '#333333'}}>
+              {'\t'}{I18n.t('buy.txt1')}{'\n\n'}{'\t'}{I18n.t('buy.txt2')}
+            </Text>
+          </View>
+          <Button
+            style={styles.button1}
+            backgroundColor='#f1a073'
+            borderRadius={5}
+            title={I18n.t('common.finish')}
+            onPress={() => {this.setState({backModalVisible: false,});this.props.navigation.goBack()}}
+          />
+      </Modalbox>
+    );
   };
 
 
@@ -267,20 +292,20 @@ function isRealNum(val){
         headers:{
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: 'a=buy&token='+token+'&uid='+uid+'&aid='+aid+'&id='+itemId+'&v='+Service.version+'&num='+Number(num)+'&changeprice='+Number(changeprice)+'&mark='+mark,
+        body: 'a=buy&tp=0&token='+token+'&uid='+uid+'&aid='+aid+'&id='+itemId+'&v='+Service.version+'&num='+Number(num)+'&changeprice='+Number(changeprice)+'&mark='+mark,
       })
       .then(response => response.json())
       .then(responseJson =>{
         console.log(responseJson);
         if(!responseJson.status){
-          alert('下单成功');
+          this.setState({backModalVisible: true});
         }
         else {
           alert(responseJson.err);
         }
       })
       .then(() => this.setState({loading: false}))
-      .catch(error => console.log(error));
+      .catch(error => {console.log(error);this.setState({loading: false})});
   };
 
   total = () => {
@@ -318,32 +343,37 @@ function isRealNum(val){
             <View style={styles.StatusBar}>
             </View>
             <View style={styles.header}>
-              <Text
-                style={{marginLeft:20,color:'#5c492b'}}
-                onPress={() => {
-                  this.setAddressModalVisible(!this.state.addressModalVisible);
-                }}>
-                返回
-              </Text>
-              <View style={{flex:1,alignItems:'center'}}>
-                <Text>
-                  我的地址
+              <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start'}}>
+                <Icon
+                  style={{marginLeft: 5}}
+                  name='keyboard-arrow-left'
+                  color='#f1a073'
+                  size={32}
+                  onPress={() => this.setState({addressModalVisible: false})}
+                />
+              </View>
+              <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
+                <Text style={{alignSelf: 'center',color: '#333333',fontSize: 18}}>
+                  {I18n.t('buy.myAddress')}
                 </Text>
               </View>
-              <Text
-                style={{marginRight:20,color:'#5c492b'}}
-                onPress={() => {
-                  this.setNewAddressModalVisible(true);
-                }}>
-                添加
-              </Text>
+              <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
+                <View style={{marginRight: 10}}>
+                  <Icon
+                    name='add'
+                    color='#f1a073'
+                    size={28}
+                    onPress={() => this.setState({newAddressModalVisible: true},this.getLocation)}
+                  />
+                </View>
+              </View>
             </View>
             <View style={{flex: 2,marginTop: 2,backgroundColor: '#FFFFFF'}}>
               <FlatList
                 data={this.state.data}
                     renderItem={({ item }) => (
                       <CheckBox
-                        containerStyle={{ borderBottomWidth: 0,borderWidth: 0,borderColor: '#FFFFFF',alignSelf: 'stretch' }}
+                        containerStyle={{ borderBottomWidth: 0,borderWidth: 0,borderColor: '#FFFFFF',alignSelf: 'stretch',marginTop: 0,marginBottom: 0,backgroundColor: '#FFFFFF' }}
                         title={item.info}
                         titleStyle={styles.title}
                         iconRight={true}
@@ -383,20 +413,24 @@ function isRealNum(val){
           <View style={styles.StatusBar}>
           </View>
           <View style={styles.header}>
-            <Text
-              style={{marginLeft:20,color:'#5c492b'}}
-              onPress={() => {
-                this.setNewAddressModalVisible(!this.state.newAddressModalVisible);
-              }}>
-              返回
-            </Text>
-            <View style={{flex:1,}}>
+            <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start'}}>
+              <Icon
+                style={{marginLeft: 5}}
+                name='keyboard-arrow-left'
+                color='#f1a073'
+                size={32}
+                onPress={() => {
+                  this.setNewAddressModalVisible(!this.state.newAddressModalVisible);
+                }}
+              />
             </View>
-            <Text
-              style={{marginRight:20,color:'#5c492b'}}
-              onPress={() => this.addAddress()}>
-              确定
-            </Text>
+            <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
+              <Text style={{alignSelf: 'center',fontSize: 18,color: '#333333'}}>
+                {I18n.t('buy.newAddress')}
+              </Text>
+            </View>
+            <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
+            </View>
           </View>
           <View style={{flex:1,}}>
             <MapView
@@ -412,24 +446,85 @@ function isRealNum(val){
                 showsMyLocationButton={true}
                 onRegionChangeComplete={(region) => console.log(region)}
               >
+                <TouchableOpacity style={{height: 50,width: 50,}} onPress={() => this.getLocation()}>
+                  <Image
+                    source={require('../icon/tarbar/locate.png')}
+                    style={{height: 50,width: 50}}
+                  />
+                </TouchableOpacity>
                 <MapView.Marker
                   coordinate={this.state.region}
                 />
             </MapView>
            </View>
-           <View style={{flex:1,}}>
-                 <TextInput
-                   style={{height:50,alignSelf:'stretch'}}
-                   placeholder="请输入内容"
-                   onChangeText={(info) => this.setState({info})}
-                   value={this.state.info}
-                   onEndEditing={() => Keyboard.dismiss()}
-                 />
+           <View style={{flex: 1}}>
+             <ListItem
+               title={I18n.t('buy.info')}
+               titleStyle={styles.title}
+               rightTitle={this.state.info}
+               containerStyle={styles.listContainerStyle}
+               rightTitleNumberOfLines={3}
+               onPress={() => this.setState({isInfoModalVisible: true})}
+             />
            </View>
+           <Button
+             style={styles.button}
+             buttonStyle={{marginTop:5,marginBottom:5,}}
+             borderRadius={5}
+             backgroundColor='#f1a073'
+             onPress={() => {
+               if(this.state.info==null){
+                 alert(I18n.t('buy.no_info'));
+               }
+               else{
+                 this.addAddress();
+               }
+             }}
+             title={I18n.t('buy.add')} />
+             {this.renderInfoModal()}
           </View>
        </Modal>
      );
    };
+
+   renderInfoModal = () => {
+     return(
+       <Modalbox
+         style={{height: 220,width: 300,alignItems: 'center',}}
+         isOpen={this.state.isInfoModalVisible}
+         isDisabled={this.state.isDisabled1}
+         position='center'
+         backdrop={true}
+         backButtonClose={true}
+         onClosed={() => this.setState({isInfoModalVisible: false})}
+         >
+           <Text style={{marginTop: 10}}>
+             {I18n.t('buy.no_info')}
+           </Text>
+           <View style={{flex: 1,marginTop: 10, alignSelf: 'stretch'}}>
+             <TextInput
+               style={styles.markInput}
+               autoCapitalize='none'
+               multiline = {true}
+               underlineColorAndroid="transparent"
+               editable={true}
+               value={this.state.info}
+               onChangeText={(info) => this.setState({info})}
+               maxLength={50}
+               placeholder={I18n.t('buy.p1')}
+             />
+           </View>
+           <Button
+             style={styles.button1}
+             backgroundColor='#f1a073'
+             borderRadius={5}
+             title={I18n.t('common.confirm')}
+             onPress={() => this.setState({isInfoModalVisible: false,})}
+           />
+       </Modalbox>
+     );
+   };
+
 
    //定义照片组件
    returnPhoto = () => {
@@ -506,16 +601,36 @@ function isRealNum(val){
         <View style={styles.StatusBar}>
         </View>
         <View style={styles.header}>
+          <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start'}}>
+            <Icon
+              style={{marginLeft: 5}}
+              name='keyboard-arrow-left'
+              color='#f1a073'
+              size={32}
+              onPress={() => this.props.navigation.goBack()}
+            />
+          </View>
+          <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
+            <Text style={{alignSelf: 'center',color: '#333333',fontSize: 18}}>
+              {I18n.t('buy.order')}
+            </Text>
+          </View>
+          <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
+          </View>
         </View>
 
         <ScrollView>
           <TouchableOpacity style={styles.item_pic}>
             {this.returnPhoto()}
           </TouchableOpacity>
+<<<<<<< Updated upstream
           <View style={{marginBottom: 0,borderTopWidth: 0,marginTop:0,borderTopWidth: 1,borderColor: '#e5e5e5'}}>
+=======
+          <List containerStyle={[styles.list,{marginTop: 0}]}>
+>>>>>>> Stashed changes
             <ListItem
               titleStyle={styles.title}
-              title='价格'
+              title={I18n.t('buy.price')}
               rightIcon={<View></View>}
               rightTitle={this.state.item.price}
               containerStyle={styles.listContainerStyle}
@@ -523,25 +638,30 @@ function isRealNum(val){
             {this.renderSeparator()}
             <ListItem
               titleStyle={styles.title}
-              title='数量'
+              title={I18n.t('buy.n')}
               rightIcon={<View></View>}
               textInput={true}
               textInputStyle={styles.textInput}
               textInputOnChangeText={(num) => this.setState({num})}
               textInputValue={this.state.num}
               clearButtonMode='always'
+<<<<<<< Updated upstream
               keyboardType='phone-pad'
+=======
+              keyboardType='numeric'
+>>>>>>> Stashed changes
               containerStyle={styles.listContainerStyle}
             />
             {this.renderSeparator()}
             <ListItem
               titleStyle={styles.title}
-              title='补差价'
+              title={I18n.t('buy.changeprice')}
               rightIcon={<View></View>}
               textInput={true}
               textInputOnChangeText={(changeprice) => this.setState({changeprice})}
               textInputValue={this.state.changeprice}
               clearButtonMode='always'
+<<<<<<< Updated upstream
               keyboardType='phone-pad'
               containerStyle={styles.listContainerStyle}
             />
@@ -551,38 +671,67 @@ function isRealNum(val){
               titleStyle={styles.title}
               title='线下支付'
               rightTitle={this.state.item.paytp>=1?'支持':'不支持'}
+=======
+              keyboardType='numeric'
+              containerStyle={styles.listContainerStyle}
+            />
+          </List>
+          <List containerStyle={styles.list}>
+            <ListItem
+              titleStyle={styles.title}
+              title={I18n.t('buy.underline')}
+              rightTitle={this.state.item.paytp>=1?I18n.t('buy.y'):I18n.t('buy.n')}
+>>>>>>> Stashed changes
               containerStyle={styles.listContainerStyle}
             />
             {this.renderSeparator()}
             <ListItem
               titleStyle={styles.title}
+<<<<<<< Updated upstream
               title='线上支付'
               rightTitle={this.state.item.paytp!=1?'支持':'不支持'}
               containerStyle={styles.listContainerStyle}
             />
           </View>
           <View style={styles.list}>
+=======
+              title={I18n.t('buy.online')}
+              rightTitle={this.state.item.paytp!=1?I18n.t('buy.y'):I18n.t('buy.n')}
+              containerStyle={styles.listContainerStyle}
+            />
+          </List>
+          <List containerStyle={styles.list}>
+>>>>>>> Stashed changes
             <ListItem
               titleStyle={styles.title}
-              title='我的地址'
-              rightTitle={this.state.address? this.state.address:'请选择'}
+              title={I18n.t('buy.myAddress')}
+              rightTitle={this.state.address? this.state.address:I18n.t('buy.choose')}
               onPress={() => this.setAddressModalVisible(true)}
               containerStyle={styles.listContainerStyle}
             />
             {this.renderSeparator()}
             <ListItem
               titleStyle={styles.title}
-              title='备注'
-              rightTitle={this.state.mark==null?'未编辑':'已编辑'}
+              title={I18n.t('buy.remark')}
+              rightTitle={this.state.mark==null?I18n.t('buy.has_remark'):I18n.t('buy.no_remark')}
               onPress={() => this.setMarkModalVisible(true)}
               containerStyle={styles.listContainerStyle}
             />
+<<<<<<< Updated upstream
           </View>
           <View style={styles.list}>
             <ListItem
               titleStyle={styles.title}
               title='总价'
               rightTitle={this.total()<0?'输入不合法':this.total().toString()}
+=======
+          </List>
+          <List containerStyle={styles.list}>
+            <ListItem
+              titleStyle={styles.title}
+              title={I18n.t('buy.total')}
+              rightTitle={this.total()<0?I18n.t('buy.input_err'):this.total().toString()}
+>>>>>>> Stashed changes
               containerStyle={styles.listContainerStyle}
             />
           </View>
@@ -590,19 +739,35 @@ function isRealNum(val){
         <Button
           style={styles.button}
           buttonStyle={{marginTop:5,marginBottom:5,}}
+          borderRadius={5}
           onPress={() => {
-            if(this.total()<0){
-              alert('输入合法的数量与差价（仅能为整数)');
+            if(this.state.aid==null){
+              alert(I18n.t('buy.choose_addr'));
+            }
+            else if(this.total()<0){
+              alert(I18n.t('buy.price_err'));
             }
             else {
-              this.buy();
+              Alert.alert(
+                I18n.t('buy.txt3'),
+                I18n.t('buy.n')+': '+this.state.num+'\n'+I18n.t('buy.changeprice')+': '+this.state.changeprice+'\n'+I18n.t('buy.total')+': '+this.total().toString(),
+                [
+                  {text: I18n.t('common.cancel'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                  {text: I18n.t('common.confirm'), onPress: () => this.buy()},
+                ],
+                { cancelable: false }
+              )
             }
           }}
-          backgroundColor='#f3456d'
-          title='确认提交' />
+          backgroundColor='#f1a073'
+          title={I18n.t('common.submit')}/>
         {this.renderAddressModal()}
         {this.renderMarkModal()}
         {this.showLoading()}
+<<<<<<< Updated upstream
+=======
+        {this.renderBackModal()}
+>>>>>>> Stashed changes
       </View>
 
     );
@@ -618,7 +783,7 @@ const styles = StyleSheet.create({
   },
   StatusBar:  {
       height:22,
-      backgroundColor:'#f3456d',
+      backgroundColor:'#FFFFFF',
   },
   map: {
     ...StyleSheet.absoluteFillObject,
@@ -628,7 +793,7 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f3456d',
+    backgroundColor: '#FFFFFF',
   },
   item_pic: {
     height: 200,
@@ -666,13 +831,49 @@ const styles = StyleSheet.create({
     //alignSelf: 'center'
   },
   list: {
+<<<<<<< Updated upstream
     marginTop:10,
+=======
+    marginTop: 10,
+>>>>>>> Stashed changes
     borderWidth: 1,
     borderColor: '#e5e5e5',
   },
   listContainerStyle:{
     borderBottomWidth: 0,
+<<<<<<< Updated upstream
     backgroundColor: '#FFFFFF',
+=======
+    backgroundColor: '#FFFFFF'
+  },
+  contactInput:{
+    width: 260,
+    height: 140,
+    textAlignVertical: 'top',
+    borderWidth: 1,
+    borderColor: '#f1a073',
+    alignSelf: 'center',
+    color: '#666666',
+    fontSize: 14,
+    padding: 5,
+  },
+  button1: {
+    alignSelf: 'center',
+    marginTop : 5,
+    width: 240,
+    height: 50,
+  },
+  markInput:{
+    width: 260,
+    height: 120,
+    textAlignVertical: 'top',
+    borderWidth: 1,
+    borderColor: '#f1a073',
+    alignSelf: 'center',
+    color: '#666666',
+    fontSize: 14,
+    padding: 5,
+>>>>>>> Stashed changes
   },
 });
 

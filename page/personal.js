@@ -13,6 +13,11 @@ import {
   Modal,
   Alert,
   CameraRoll,
+<<<<<<< Updated upstream
+=======
+  ActivityIndicator,
+  DeviceEventEmitter,
+>>>>>>> Stashed changes
 } from 'react-native';
 import {
   StackNavigator,
@@ -22,8 +27,29 @@ import {
 import { List, ListItem, Avatar} from 'react-native-elements';
 import { Icon,Button } from 'react-native-elements';
 import DateTimePicker from 'react-native-modal-datetime-picker';
+<<<<<<< Updated upstream
+=======
+import Modalbox from 'react-native-modalbox';
+>>>>>>> Stashed changes
 import ImagePicker from 'react-native-image-picker';
 import Service from '../common/service.js';
+import { I18n } from '../common/I18n';
+//图片选择器参数设置
+var options = {
+  title: I18n.t('user.nickname'),
+  cancelButtonTitle:  I18n.t('common.cancel'),
+  takePhotoButtonTitle: I18n.t('user.pick_photo'),
+  chooseFromLibraryButtonTitle: I18n.t('user.album'),
+  customButtons: [
+    {name: 'look', title: I18n.t('user.look')},
+  ],
+  storageOptions: {
+    skipBackup: true,
+    path: 'images'
+  },
+  maxWidth: 600,
+  maxHeight: 600,
+};
 
 //图片选择器参数设置
 var options = {
@@ -44,7 +70,10 @@ var options = {
 };
 
 
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 export default class personal extends Component {
   static navigationOptions = {
    title: '个人信息',
@@ -60,6 +89,8 @@ export default class personal extends Component {
      //控制窗口
      UpdateInfoModalVisible: false,
      isDateTimePickerVisible: false,
+     isMarkModalVisible: false,
+     isDisabled: false,
      //用户信息
      user: {},
      //修改用户信息
@@ -68,6 +99,8 @@ export default class personal extends Component {
        name: 'prop',
        value: null,
      },
+
+     loading: false,
    };
  };
 
@@ -91,7 +124,8 @@ export default class personal extends Component {
  getUserInfo = () => {
    const { token,uid } = this.state;
    const url = Service.BaseUrl+`?a=user&m=info&token=${token}&uid=${uid}&id=${uid}&v=${Service.version}`;
-   console.log(url);
+
+   this.setState({loading: true,})
    fetch(url)
    .then(response => response.json())
    .then(responseJson => {
@@ -99,10 +133,11 @@ export default class personal extends Component {
        this.setState({user: responseJson.data.user});
      }
      else{
-       alert('请求错误\n错误原因: '+responseJson.err);
+       alert(I18n.t('error.fetch_failed')+'\n'+responseJson.err);
      }
    })
-   .catch(err => alert('网络请求错误\n错误类型: '+err.name+'\n具体内容: '+err.message))
+   .then(() =>  this.setState({loading: false,}))
+   .catch(err => console.log(err))
  };
 
 
@@ -112,21 +147,21 @@ export default class personal extends Component {
    const { name,value } = this.state.Update;
    const { token ,uid } = this.state;
    const url = Service.BaseUrl+`?a=user&m=update&token=${token}&uid=${uid}&v=${Service.version}&${name}=${value}`;
-   console.log(url);
+
    fetch(url)
    .then(response => response.json())
    .then(responseJson => {
      console.log(responseJson);
      if(!responseJson.status){
-       alert('修改成功');
+       alert(I18n.t('success.update'));
      }
      else{
-       alert('请求错误\n错误原因: '+responseJson.err);
+       alert(I18n.t('error.update_failed')+'\n'+responseJson.err);
      }
    })
    .then(() => this.getUserInfo())
-   .then(() => {})
-   .catch(err =>  alert('网络请求错误\n错误类型: '+err.name+'\n具体内容: '+err.message))
+   .then(() => {DeviceEventEmitter.emit('update_user');})
+   .catch(err =>  console.log(err))
  };
 
  UpdateSex = () => {
@@ -134,21 +169,79 @@ export default class personal extends Component {
    const { token ,uid } = this.state;
    const gender = this.state.user.gender==0? 1:0;
    const url = Service.BaseUrl+`?a=user&m=update&token=${token}&uid=${uid}&v=${Service.version}&gender=${gender}`;
-   console.log(url);
+
    fetch(url)
    .then(response => response.json())
    .then(responseJson => {
-     console.log(responseJson);
+
      if(!responseJson.status){
-       alert('修改成功');
+       alert(I18n.t('success.update'));
      }
      else{
-       alert('请求错误\n错误原因: '+responseJson.err);
+       alert(I18n.t('success.update_failed')+'\n'+responseJson.err);
      }
    })
    .then(() => this.getUserInfo())
-   .then(() => {})
-   .catch(err =>  alert('网络请求错误\n错误类型: '+err.name+'\n具体内容: '+err.message))
+   .then(() => {DeviceEventEmitter.emit('update_user');})
+   .catch(err =>  console.log(err))
+ };
+
+ ChooseFace = () => {
+   ImagePicker.showImagePicker(options, (response) => {
+     console.log('Response = ', response);
+
+     if (response.didCancel) {
+
+     }
+     else if (response.error) {
+       alert("ImagePickerError: " + response.error);
+     }
+     else if (response.customButton=='look') {
+       alert(I18n.t('user.look'));
+     }
+     else {
+
+       let file = {uri: response.uri, type: 'multipart/form-data', name: 'face'};
+       this.updateFace(file);
+     }
+   });
+ };
+
+
+ updateFace = (file) => {
+
+
+   const { token,uid } = this.state;
+   const url = Service.BaseUrl+`?a=user&m=face&v=${Service.version}&token=${token}&uid=${uid}`;
+
+   let formData = new FormData();
+   formData.append('face',file);
+
+   this.setState({loading: true,})
+   fetch(url,{
+       method:'POST',
+       headers:{
+           'Content-Type':'multipart/form-data',
+       },
+       body: formData,
+     })
+     .then(response => response.json())
+     .then(responseJson => {
+       console.log(responseJson);
+       this.setState({ loading: false });
+       if(!responseJson.status){
+         alert(I18n.t('success.update'));
+       }
+       else {
+         alert(I18n.t('error.update_failed'));
+       }
+     })
+     .then(() => this.setState({loading: false}))
+     .then(() => this.getUserInfo())
+     .then(() => {DeviceEventEmitter.emit('update_user');})
+     .catch(error => console.log(error));
+
+
  };
 
  ChooseFace = () => {
@@ -213,28 +306,26 @@ export default class personal extends Component {
 
  //修改生日
  handleDatePicked = (date) => {
-   console.log('A date has been picked: ', date);
+
    const { token ,uid } = this.state;
-   console.log(date.getFullYear());
-   console.log(date.getMonth());
-   console.log(date.getDate());
-   const birthdate = date.getFullYear()+'年'+(date.getMonth()+1)+'月'+date.getDate()+'日';
+
+   const birthdate = date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate();
    const url = Service.BaseUrl+`?a=user&m=update&token=${token}&uid=${uid}&v=${Service.version}&birthdate=${birthdate}`;
 
-   console.log(url);
+
    fetch(url)
    .then(response => response.json())
    .then(responseJson => {
      console.log(responseJson);
      if(!responseJson.status){
-       alert('修改成功');
+       alert(I18n.t('success.update'));
      }
      else{
-       alert('请求错误\n错误原因: '+responseJson.err);
+       alert(I18n.t('error.update_failed')+'\n'+responseJson.err);
      }
    })
    .then(() => this.getUserInfo())
-   .catch(err =>  alert('网络请求错误\n错误类型: '+err.name+'\n具体内容: '+err.message))
+   .catch(err =>  console.log(error))
  };
 
  //定义页面元素
@@ -253,26 +344,43 @@ export default class personal extends Component {
           <View style={styles.StatusBar}>
           </View>
           <View style={styles.header}>
-            <Text
-              style={{marginLeft: 10}}
+          <View style={{flex: 1,flexDirection: 'row',alignSelf: 'stretch',alignItems: 'center',}}>
+            <Icon
+              style={{marginLeft: 5}}
+              name='chevron-left'
+              color='#f1a073'
+              size={32}
               onPress={() => {
-                this.setState({UpdateInfoModalVisible: false,new: {title: '修改信息',name: 'prop'}})
-            }}>
-              返回
-            </Text>
-            <View style={{flex: 1,alignItems: 'center',alignSelf: 'center'}}>
-              <Text>
-                {this.state.Update.title}
-              </Text>
-            </View>
-            <Text
-              style={{marginRight: 15}}
-              onPress={() => this.UpdateInfo()}>
-              修改
+                this.setState({
+                  UpdateInfoModalVisible: false,
+                  Update: {
+                    title: I18n.t('user.update'),
+                    name: 'prop',
+                    value: null,
+                  },
+                })
+              }
+            }
+            />
+          </View>
+          <View style={{flex: 1,flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
+            <Text style={{alignSelf: 'center',fontSize: 18,color: '#333333'}}>
+              {this.state.Update.title}
             </Text>
           </View>
+          <View style={{flex: 1,flexDirection: 'row',justifyContent: 'flex-end',marginRight: 5}}>
+            <Icon
+              style={{alignSelf: 'center'}}
+              name='mode-edit'
+              color='#f1a073'
+              size={28}
+              onPress={() => this.UpdateInfo()}
+            />
+          </View>
+        </View>
+        <View style={{height: 40,marginRight: 5,marginLeft: 5, borderColor: '#f1a073', borderBottomWidth: 1,padding: 0}}>
           <TextInput
-            style={{height: 40, borderColor: 'gray', borderWidth: 1,}}
+            style={{flex: 1}}
             onChangeText={(value) => {
               var Update1 = this.state.Update;
               Update1.value = value;
@@ -281,9 +389,63 @@ export default class personal extends Component {
             value={this.state.Update.value}
           />
         </View>
+        </View>
     </Modal>
    );
  };
+
+ renderMarkModal = () => {
+   return(
+     <Modalbox
+       style={{height: 240,width: 300,alignItems: 'center',}}
+       isOpen={this.state.isMarkModalVisible}
+       isDisabled={this.state.isDisabled}
+       position='center'
+       backdrop={true}
+       backButtonClose={true}
+       onClosed={() => {
+         this.setState({
+           isMarkModalVisible: false,
+           Update: {
+             title: I18n.t('user.update'),
+             name: 'prop',
+             value: null,
+           },
+         })
+       }
+     }>
+
+         <Text style={{marginTop: 10}}>
+           {I18n.t('user.mark')}
+         </Text>
+         <View style={{flex: 1,marginTop: 10, alignSelf: 'stretch'}}>
+           <TextInput
+             style={styles.markInput}
+             autoCapitalize='none'
+             multiline = {true}
+             underlineColorAndroid="transparent"
+             editable={true}
+             maxLength={280}
+             placeholder={I18n.t('user.txt1')}
+             value={this.state.Update.value}
+             onChangeText={(value) => {
+               var Update1 = this.state.Update;
+               Update1.value = value;
+               this.setState({Update: Update1});
+             }}
+           />
+         </View>
+         <Button
+           style={styles.button1}
+           backgroundColor='#f1a073'
+           borderRadius={5}
+           title={I18n.t('common.submit')}
+           onPress={() => this.UpdateInfo()}
+         />
+     </Modalbox>
+   );
+ };
+
 
  renderSeparator = () => {
      return (
@@ -320,10 +482,41 @@ export default class personal extends Component {
      source = {uri: Service.BaseUri+this.state.user.face};
    }
 
+<<<<<<< Updated upstream
    console.log(source);
    return source;
  }
 
+=======
+  
+   return source;
+ }
+
+ //加载器
+ showLoading = () => {
+   return(
+     <Modalbox
+       style={{height: 60, width: 60,backgroundColor: '#FFFFFF',opacity: 0.4,}}
+       position='center'
+       isOpen={this.state.loading}
+       backdropOpacity={0}
+       backdropPressToClose={false}
+       swipeToClose={false}
+       swipeThreshold={200}
+       swipeArea={0}
+       animationDuration={0}
+       backdropColor='#FFFFFF'
+       >
+         <ActivityIndicator
+           animating={true}
+           style={{alignSelf: 'center',height: 50}}
+           color='#333333'
+           size="large" />
+     </Modalbox>
+   );
+ };
+
+>>>>>>> Stashed changes
  render() {
    const { navigate } = this.props.navigation;
    const { params } = this.props.navigation.state;
@@ -331,27 +524,27 @@ export default class personal extends Component {
    const list1 = [
      {
        id: 1,
-       title: '昵称',
-       value: this.state.user.name==''?'未填写':this.state.user.name,
+       title: I18n.t('user.nickname'),
+       value: this.state.user.name==''?I18n.t('user.none'):this.state.user.name,
        rightIcon: false,
        press: () => {
-         var Update = {title: '昵称',name: 'name',value: this.state.user.name};
+         var Update = {title: I18n.t('user.nickname'),name: 'name',value: this.state.user.name};
          this.setState({Update: Update, UpdateInfoModalVisible: true});
        }
      },
      {
        id: 2,
-       title: '性别',
-       value: this.state.user.gender==0?'男':'女',
+       title: I18n.t('user.sex'),
+       value: this.state.user.gender==0?I18n.t('user.male'):I18n.t('user.female'),
        rightIcon: false,
        press: () => {
          Alert.alert(
-            '修改性别?',
+            I18n.t('user.txt2'),
             '',
             [
 
-              {text: '取消', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-              {text: '确定', onPress: () => this.UpdateSex()},
+              {text: I18n.t('common.no'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+              {text: I18n.t('user.common.yes'), onPress: () => this.UpdateSex()},
             ],
             { cancelable: false }
           );
@@ -359,44 +552,52 @@ export default class personal extends Component {
      },
      {
        id: 3,
-       title: '生日',
-       value: this.state.user.birthdate==''?'未填写':this.state.user.birthdate,
+       title: I18n.t('user.birthdate'),
+       value: this.state.user.birthdate==''?I18n.t('user.none'):this.state.user.birthdate,
        rightIcon: false,
        press: () => {
-         var Update = {title: '生日',name: 'birthdate',value: this.state.user.birthdate};
+         var Update = {title: I18n.t('user.birthdate'),name: 'birthdate',value: this.state.user.birthdate};
          this.setState({Update: Update, isDateTimePickerVisible: true});
        }
-     },
-     {
-       id: 4,
-       title: '所在城市',
-       value: this.state.user.city==''?'未填写':this.state.user.city,
-       rightIcon: false,
-       press: () => {
-         var Update = {title: '所在城市',name: 'city',value: this.state.user.city};
-         this.setState({Update: Update, UpdateInfoModalVisible: true});
-       }
-     },
+     }
    ]
 
    const list2 = [
      {
        id: 1,
-       title:'职业',
-       value: this.state.user.occ==''?'未填写':this.state.user.occ,
+       title: I18n.t('user.city'),
+       value: this.state.user.city==''?I18n.t('user.none'):this.state.user.city,
        rightIcon: false,
        press: () => {
-         var Update = {title: '职业',name: 'occ',value: this.state.user.occ};
+         var Update = {title: I18n.t('user.city'),name: 'city',value: this.state.user.city};
          this.setState({Update: Update, UpdateInfoModalVisible: true});
        }
      },
      {
        id: 2,
+<<<<<<< Updated upstream
        title:'学校/工作单位',
        value: this.state.user.work==''?'未填写':this.state.user.work,
        rightIcon: false,
        press: () => {
          var Update = {title: '学校/工作单位',name: 'work',value: this.state.user.work};
+=======
+       title:I18n.t('user.occ'),
+       value: this.state.user.occ==''?I18n.t('user.none'):this.state.user.occ,
+       rightIcon: false,
+       press: () => {
+         var Update = {title: I18n.t('user.occ'),name: 'occ',value: this.state.user.occ};
+         this.setState({Update: Update, UpdateInfoModalVisible: true});
+       }
+     },
+     {
+       id: 3,
+       title:I18n.t('user.work'),
+       value: this.state.user.work==''?I18n.t('user.none'):this.state.user.work,
+       rightIcon: false,
+       press: () => {
+         var Update = {title: I18n.t('user.work'),name: 'work',value: this.state.user.work};
+>>>>>>> Stashed changes
          this.setState({Update: Update, UpdateInfoModalVisible: true});
        }
      }
@@ -405,29 +606,33 @@ export default class personal extends Component {
    const list3 = [
      {
        id: 1,
-       title:'手机',
-       value: this.state.user.phone==''?'未填写':this.state.user.phone,
+       title:I18n.t('user.phone'),
+       value: this.state.user.phone==''?I18n.t('user.none'):this.state.user.phone,
        rightIcon: false,
        press: () => {
-         var Update = {title: '手机',name: 'phone',value: this.state.user.phone};
+         var Update = {title: I18n.t('user.phone'),name: 'phone',value: this.state.user.phone};
          this.setState({Update: Update, UpdateInfoModalVisible: true});
        }
      },
      {
        id: 2,
-       title:'邮箱',
-       value: this.state.user.email==''?'未填写':this.state.user.email,
+       title:I18n.t('user.mail'),
+       value: this.state.user.email==''?I18n.t('user.none'):this.state.user.email,
        rightIcon: false,
        press: () => {
-         var Update = {title: '邮箱',name: 'email',value: this.state.user.email};
+         var Update = {title: I18n.t('user.none'),name: 'email',value: this.state.user.email};
          this.setState({Update: Update, UpdateInfoModalVisible: true});
        }
      },
      {
        id: 3,
-       title: '个人简介',
-       value: '查看',
+       title: I18n.t('user.mark'),
+       value: I18n.t('user.go'),
        rightIcon: false,
+       press: () => {
+         var Update = {title: I18n.t('user.mark'),name: 'mark',value: this.state.user.mark};
+         this.setState({Update: Update, isMarkModalVisible: true});
+       }
      },
    ];
    return (
@@ -435,7 +640,16 @@ export default class personal extends Component {
        <View style={styles.StatusBar}>
        </View>
        <View style={styles.header}>
+       <View style={{flex: 1,flexDirection: 'row',alignSelf: 'stretch',alignItems: 'center',}}>
+         <Icon
+           style={{marginLeft: 5}}
+           name='chevron-left'
+           color='#f1a073'
+           size={32}
+           onPress={() => this.props.navigation.goBack()}
+         />
        </View>
+<<<<<<< Updated upstream
        <ScrollView>
          <View style={styles.banner}>
            <TouchableOpacity onPress={() => this.ChooseFace()}>
@@ -499,18 +713,94 @@ export default class personal extends Component {
              )}
              keyExtractor={item => item.id}
              ItemSeparatorComponent={this.renderSeparator}
+=======
+       <View style={{flex: 1,flexDirection: 'column',justifyContent: 'center'}}>
+         <Text style={{alignSelf: 'center',fontSize: 18,color: '#333333'}}>
+           {I18n.t('user.user')}
+         </Text>
+       </View>
+       <View style={{flex: 1,flexDirection: 'column',justifyContent: 'center'}}>
+       </View>
+     </View>
+     <ScrollView>
+       <View style={styles.banner}>
+         <TouchableOpacity onPress={() => this.ChooseFace()}>
+           <Image
+             style={styles.avatar}
+             source={this.returnAvatarSource()}
+
+>>>>>>> Stashed changes
            />
-         </List>
-       </ScrollView>
-       <DateTimePicker
-         mode='date'
-         isVisible={this.state.isDateTimePickerVisible}
-         confirmTextIOS='确定'
-         cancelTextIOS='取消'
-         onConfirm={this.handleDatePicked}
-         onCancel={() => this.setState({isDateTimePickerVisible: false})}
-       />
-       {this.renderUpdateInfoModal()}
+         </TouchableOpacity>
+       </View>
+       <List containerStyle={[styles.list,{marginTop: 0}]}>
+         <FlatList
+           roundAvatar
+           data={list1}
+           style={{marginTop: 0,borderWidth: 0}}
+           renderItem={({ item }) => (
+             <ListItem
+               component={TouchableOpacity}
+               key={item.id}
+               title={item.title}
+               rightTitle={item.value}
+               titleStyle={styles.title}
+               containerStyle={styles.listContainerStyle}
+               onPress={() => item.press()}
+             />
+           )}
+           keyExtractor={item => item.id}
+           ItemSeparatorComponent={this.renderSeparator}
+         />
+       </List>
+       <List containerStyle={styles.list}>
+         <FlatList
+           data={list2}
+           renderItem={({ item }) => (
+             <ListItem
+               component={TouchableOpacity}
+               key={item.id}
+               title={item.title}
+               rightTitle={item.value}
+               titleStyle={styles.title}
+               containerStyle={styles.listContainerStyle}
+               onPress={() => item.press()}
+             />
+           )}
+           keyExtractor={item => item.id}
+           ItemSeparatorComponent={this.renderSeparator}
+         />
+       </List>
+       <List containerStyle={styles.list}>
+         <FlatList
+           data={list3}
+           renderItem={({ item }) => (
+             <ListItem
+               component={TouchableOpacity}
+               key={item.id}
+               title={item.title}
+               rightTitle={item.value}
+               titleStyle={styles.title}
+               containerStyle={styles.listContainerStyle}
+               onPress={() => item.press()}
+             />
+           )}
+           keyExtractor={item => item.id}
+           ItemSeparatorComponent={this.renderSeparator}
+         />
+       </List>
+     </ScrollView>
+     <DateTimePicker
+       mode='date'
+       isVisible={this.state.isDateTimePickerVisible}
+       confirmTextIOS={I18n.t('common.confirm')}
+       cancelTextIOS={I18n.t('common.cancel')}
+       onConfirm={this.handleDatePicked}
+       onCancel={() => this.setState({isDateTimePickerVisible: false})}
+     />
+     {this.renderUpdateInfoModal()}
+     {this.renderMarkModal()}
+
      </View>
 
    );
@@ -570,4 +860,24 @@ const styles = StyleSheet.create({
       borderWidth: 1,
       borderColor: '#e5e5e5'
     },
+<<<<<<< Updated upstream
+=======
+    markInput:{
+      width: 260,
+      height: 140,
+      textAlignVertical: 'top',
+      borderWidth: 1,
+      borderColor: '#f1a073',
+      alignSelf: 'center',
+      color: '#666666',
+      fontSize: 14,
+      padding: 5,
+    },
+    button1: {
+      alignSelf: 'center',
+      marginTop : 5,
+      width: 240,
+      height: 50,
+    },
+>>>>>>> Stashed changes
 });

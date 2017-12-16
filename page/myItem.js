@@ -11,6 +11,7 @@ import {
   TouchableHightlight,
   FlatList,
   ActivityIndicator,
+  DeviceEventEmitter,
 } from 'react-native';
 import {
   StackNavigator,
@@ -22,6 +23,11 @@ import { Icon,Button,Avatar } from 'react-native-elements';
 import MapView, { marker,Callout,} from 'react-native-maps';
 import ScrollableTabView from 'react-native-scrollable-tab-view';
 import Service from '../common/service';
+
+//时间戳转换字符
+function formatDate(t){
+  return new Date(parseInt(t) * 1000).toLocaleDateString().replace(/\//g, "-");
+}
 
 
 
@@ -40,18 +46,35 @@ class myItem extends Component {
        <View style={styles.StatusBar}>
        </View>
        <View style={styles.header}>
+         <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start'}}>
+           <Icon
+             style={{marginLeft: 5}}
+             name='keyboard-arrow-left'
+             color='#f1a073'
+             size={32}
+             onPress={() => this.props.navigation.goBack()}
+           />
+         </View>
+         <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
+           <Text style={{alignSelf: 'center',color: '#333333',fontSize: 18}}>
+             {I18n.t('myItem.myItem')}
+           </Text>
+         </View>
+         <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
+         </View>
        </View>
        <ScrollableTabView
-         tabBarUnderlineStyle={{backgroundColor:'#5c492b'}}
-         tabBarActiveTextColor='#5c492b'
+         tabBarUnderlineStyle={{backgroundColor:'#f1a073'}}
+         tabBarActiveTextColor='#f1a073'
+         style={{backgroundColor: '#FFFFFF'}}
          >
         <ServicePage
-          tabLabel="Service"
+          tabLabel={I18n.t('myItem.Service')}
           state={this.props.navigation.state.params}
           navigation={this.props.navigation}
         />
         <AskPage
-          tabLabel="Ask"
+          tabLabel={I18n.t('myItem.Ask')}
           state={this.props.navigation.state.params}
           navigation={this.props.navigation}
         />
@@ -89,31 +112,30 @@ class ServicePage extends Component {
   };
 
   componentDidMount() {
-    this.getMyItem();
-    console.log(this.state);
+    this.makeRemoteRequest();
+
+    this.subscription = DeviceEventEmitter.addListener('refresh_myItem',() => this.makeRemoteRequest());
+
+
   };
 
-  getMyItem = () => {
+
+  makeRemoteRequest = () => {
     const { token,uid,page,seed,tp } = this.state;
     const url = Service.BaseUrl+`?a=user&m=item&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&tp=${tp}`;
-    console.log(url);
+
     this.setState({ loading: true, });
     fetch(url)
       .then(res => res.json())
       .then(
         res => {
-        if(!res.status){
-          this.setState({
-            data: page === 1 ? res.data.data : [...this.state.data, ...res.data.data],
-            error: res.error || null,
-            loading: false,
-            refreshing: false
-          });
-        }
-        else{
-          alert(res.err);
-          this.setState({ loading: false,})
-        }
+          console.log(res.data);
+        this.setState({
+          data: page === 1 ? res.data.data : [...this.state.data, ...res.data.data],
+          error: res.error || null,
+          loading: false,
+          refreshing: false
+        });
       })
       .then(() => console.log(this.state.data))
       .catch(error => {
@@ -129,7 +151,7 @@ class ServicePage extends Component {
         refreshing: true
       },
       () => {
-        this.getMyItem();
+        this.makeRemoteRequest();
       }
     );
   };
@@ -140,7 +162,7 @@ class ServicePage extends Component {
         page: this.state.page + 1
       },
       () => {
-        this.getMyItem();
+        this.makeRemoteRequest();
       }
     );
   };
@@ -150,9 +172,9 @@ class ServicePage extends Component {
       <View
         style={{
           height: 1,
-          width: "86%",
+          width: "95%",
           backgroundColor: "#e5e5e5",
-          marginLeft: "14%"
+          marginLeft: "5%"
         }}
       />
     );
@@ -187,10 +209,12 @@ class ServicePage extends Component {
               roundAvatar
               key={item.id}
               title={item.name}
-              subtitle={item.price+'en\n'+'start: '+item.t}
-              rightTitle={item.flag==1? 'online':'not online'}
+              subtitleNumberOfLines={2}
+              subtitle={formatDate(item.t)+'\n'+I18n.t('myItem.salenum')+': '+item.salenum+I18n.t('myItem.e')}
+              rightTitle={item.flag==1? I18n.t('myItem.online'):I18n.t('myItem.underline')}
               avatar={{ uri:Service.BaseUri+item.img  }}
-              avatarStyle ={{height:60,width:60}}
+              avatarContainerStyle={{height:60,width:60}}
+              avatarStyle={{height:60,width:60}}
               containerStyle={{ borderBottomWidth: 0 }}
               onPress={() => {
                 const params = {
@@ -250,7 +274,10 @@ class AskPage extends Component {
 
   componentDidMount() {
     this.makeRemoteRequest();
-    console.log(this.state);
+
+    this.subscription = DeviceEventEmitter.addListener('refresh_myAsk',() => this.makeRemoteRequest());
+
+    
   };
 
   makeRemoteRequest = () => {
@@ -305,9 +332,9 @@ class AskPage extends Component {
       <View
         style={{
           height: 1,
-          width: "86%",
+          width: "95%",
           backgroundColor: "#e5e5e5",
-          marginLeft: "14%"
+          marginLeft: "5%"
         }}
       />
     );
@@ -342,22 +369,24 @@ class AskPage extends Component {
               roundAvatar
               key={item.id}
               title={item.name}
-              subtitle={item.price+'en\n'+'start: '+item.t}
+              subtitle={I18n.t('myItem.start')+': '+formatDate(item.t)}
               rightTitle={item.flag==1? 'online':'not online'}
               avatar={{ uri:Service.BaseUri+item.img  }}
-              avatarStyle ={{height:60,width:60}}
+              avatarContainerStyle={{height:60,width:60}}
+              avatarStyle={{height:60,width:60}}
               containerStyle={{ borderBottomWidth: 0 }}
               onPress={() => {
-                if(this.state.islogin){
-                  navigate('myItemDetail',{
-                    token: this.state.token,
-                    uid: this.state.uid,
-                    islogin: this.state.uid,
-                    itemId: item.id,
-                  });
+                const params = {
+                  token: this.state.token,
+                  uid: this.state.uid,
+                  islogin: this.state.uid,
+                  itemId: item.id,
+                };
+                if(item.tp==0){
+                  navigate('myItemDetail_Service',params);
                 }
-                else{
-                  alert('请登录!')
+                else if(item.tp==1){
+                  navigate('myItemDetail_Ask',params)
                 }
               }}
             />
@@ -387,14 +416,16 @@ const styles = StyleSheet.create({
   },
   StatusBar:  {
       height:22,
-      backgroundColor:'#fbe994',
+      backgroundColor:'#FFFFFF',
   },
   header: {
     height: 44,
     alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fbe994',
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderColor: '#e5e5e5',
   },
   icon: {
      width: 25,
@@ -405,7 +436,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   account_icon: {
-      tintColor:'#5c492b',
+      tintColor:'#f1a073',
       width:25,
       height:25,
   },

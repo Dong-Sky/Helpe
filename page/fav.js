@@ -13,6 +13,10 @@ import {
   Modal,
   Dimensions,
   NativeModules,
+<<<<<<< Updated upstream
+=======
+  Alert,
+>>>>>>> Stashed changes
 } from 'react-native';
 import {
   StackNavigator,
@@ -99,7 +103,11 @@ class fav extends Component {
   makeRemoteRequest = () => {
     const { token, uid } = this.state;
     const url = Service.BaseUrl+`?a=fav&v=${Service.version}&token=${token}&uid=${uid}`;
+<<<<<<< Updated upstream
     console.log(url);
+=======
+    
+>>>>>>> Stashed changes
 
     this.setState({loading: true})
     fetch(url)
@@ -110,11 +118,19 @@ class fav extends Component {
         this.setState({data: responseJson.data});
       }
       else{
+<<<<<<< Updated upstream
         alert('请求失败\n'+'错误原因: '+responseJson.err);
       }
     })
     .then(() => this.setState({loading: false}))
     .catch(err => {console.log(err) ; this.setState({loading: false})})
+=======
+        alert(I18n.t('error.fetch_failed')+'\n'+responseJson.err);
+      }
+    })
+    .then(() => this.setState({loading: false,refreshing: false}))
+    .catch(err => {console.log(err) ; this.setState({loading: false,refreshing: false})})
+>>>>>>> Stashed changes
   };
 
 
@@ -142,6 +158,32 @@ class fav extends Component {
     );
   };
 
+<<<<<<< Updated upstream
+=======
+  //收藏
+  delfav = (id) =>{
+    const { token,uid, } = this.state;
+    const url = Service.BaseUrl+`?a=fav&m=del&token=${token}&uid=${uid}&id=${id}&v=${Service.version}`;
+    console.log(url);
+    this.setState({loading: true})
+    fetch(url)
+    .then(response => response.json())
+    .then(responseJson => {
+      console.log(responseJson);
+      if(!responseJson.status){
+        alert(I18n.t('success.delete'));
+      }
+      else{
+        alert(I18n.t('error.delete_failed')+'\n'+responseJson.err);
+      }
+    })
+    .then(() => this.setState({loading: false}))
+    .then(() => this.makeRemoteRequest())
+    .catch(err => {console.log(err);this.setState({loading: false})})
+  };
+
+
+>>>>>>> Stashed changes
 
   renderSeparator = () => {
     return (
@@ -149,7 +191,11 @@ class fav extends Component {
         style={{
           height: 1,
           width: "95%",
+<<<<<<< Updated upstream
           backgroundColor: "#CED0CE",
+=======
+          backgroundColor: "#e5e5e5",
+>>>>>>> Stashed changes
           marginLeft: "5%"
         }}
       />
@@ -181,25 +227,53 @@ class fav extends Component {
         <View style={styles.StatusBar}>
         </View>
         <View style={styles.header}>
+<<<<<<< Updated upstream
+=======
+          <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start'}}>
+            <Icon
+              style={{marginLeft: 5}}
+              name='keyboard-arrow-left'
+              color='#f1a073'
+              size={32}
+              onPress={() => this.props.navigation.goBack()}
+            />
+          </View>
+          <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
+            <Text style={{alignSelf: 'center',color: '#333333',fontSize: 18}}>
+              {I18n.t('fav.fav')}
+            </Text>
+          </View>
+          <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
+          </View>
+>>>>>>> Stashed changes
         </View>
         <List containerStyle={{ borderTopWidth: 1,flex:1,backgroundColor: '#FFFFFF' ,marginTop: 0,borderColor: '#e5e5e5'}}>
           <FlatList
             style={{marginTop: 0,borderWidth: 0}}
             data={this.state.data}
             renderItem={({ item }) => (
+<<<<<<< Updated upstream
               <View>
+=======
+>>>>>>> Stashed changes
               <ListItem
                 component={TouchableOpacity}
                 roundAvatar
                 key={item.id}
                 title={item.name}
+<<<<<<< Updated upstream
                 subtitle={'开始:'+formatDate(item.t)+'\n'+'相距:'+(item.juli)+'m'}
                 rightTitle={item.u=='""'||item.u==null? item.price+'圆':item.price+'圆/'+item.u}
+=======
+                subtitle={formatDate(item.t)}
+                rightTitle={item.flag==0?I18n.t('fav.underline'):I18n.t('fav.online')}
+>>>>>>> Stashed changes
                 avatar={{ uri:Service.BaseUri+item.img  }}
                 avatarContainerStyle={{height:60,width:60}}
                 avatarStyle={{height:60,width:60}}
                 containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF'}}
                 onPress={() => {
+<<<<<<< Updated upstream
                   const params = {
                     token: this.state.token,
                     uid: this.state.uid,
@@ -215,14 +289,51 @@ class fav extends Component {
                 }}
               />
               </View>
+=======
+                  Alert.alert(
+                    I18n.t('fav.choose'),
+                    '',
+                    [
+                      {
+                        text: I18n.t('fav.go'),
+                        onPress: () => {
+                            const params = {
+                              token: this.state.token,
+                              uid: this.state.uid,
+                              islogin: this.state.islogin,
+                              itemId: item.itemid,
+                            };
+                            if(item.tp==0){
+                              navigate('itemDetail_Service',params);
+                            }
+                            else if(item.tp==1){
+                              navigate('itemDetail_Ask',params);
+                            }
+                        }
+                       },
+                      {text: I18n.t('common.cancel'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                      {text: I18n.t('fav.del'), onPress: () => this.delfav(item.id)},
+                    ],
+                    { cancelable: false }
+                  )
+                }}
+              />
+>>>>>>> Stashed changes
             )}
             keyExtractor={item => item.id}
             ItemSeparatorComponent={this.renderSeparator}
             //ListHeaderComponent={this.renderHeader}
+<<<<<<< Updated upstream
             ListFooterComponent={this.renderFooter}
             onRefresh={this.handleRefresh}
             refreshing={this.state.refreshing}
             onEndReached={this.handleLoadMore}
+=======
+            //ListFooterComponent={this.renderFooter}
+            onRefresh={this.handleRefresh}
+            refreshing={this.state.refreshing}
+            //onEndReached={this.handleLoadMore}
+>>>>>>> Stashed changes
             onEndReachedThreshold={50}
           />
         </List>
@@ -245,14 +356,22 @@ const styles = StyleSheet.create({
   },
   StatusBar:  {
     height:22,
+<<<<<<< Updated upstream
     backgroundColor:'#f3456d',
+=======
+    backgroundColor:'#FFFFFF',
+>>>>>>> Stashed changes
   },
   header: {
     height: 44,
     alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'center',
+<<<<<<< Updated upstream
     backgroundColor: '#f3456d',
+=======
+    backgroundColor: '#FFFFFF',
+>>>>>>> Stashed changes
   },
   choosebar: {
     flex:1,

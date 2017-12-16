@@ -9,6 +9,7 @@ import {
   AsyncStorage,
   TouchableOpacity,
   ActivityIndicator,
+  DeviceEventEmitter,
 } from 'react-native';
 import {
   StackNavigator,
@@ -18,7 +19,11 @@ import {
 import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import { Kohana } from 'react-native-textinput-effects';
+<<<<<<< Updated upstream
 import { Button } from 'react-native-elements';
+=======
+import { Button,Icon } from 'react-native-elements';
+>>>>>>> Stashed changes
 import FBSDK from 'react-native-fbsdk';
 import {
   LoginButton,
@@ -41,7 +46,7 @@ class login extends Component{
   login = () => {
     const { username, password } = this.state;
     const url = Service.BaseUrl+`?a=oauth&v=${Service.version}&username=${username}&password=${password}`;
-    console.log(url);
+
     this.setState({ loading: true });
     fetch(url)
     .then((response) => response.json())
@@ -49,30 +54,37 @@ class login extends Component{
       this.setState({ loading: false });
 
       if(!responseJson.status){
-        console.log(responseJson.data);
+
         storage.save({
       	key: 'loginState',   // Note: Do not use underscore("_") in key!
       	data: {
       		token:responseJson.data.token,
           uid:responseJson.data.uid,
+          ws: responseJson.data.ws,
       	},
 
       	// if not specified, the defaultExpires will be applied instead.
       	// if set to null, then it will never expire.
       	expires: null,
-       });
-       alert('登录成功');
-       this.props.navigation.dispatch(
+      })
+      .then(() => {
+        alert(I18n.t('success.login'));
+        DeviceEventEmitter.emit('login',true);
+      })
+      .then(() => this.props.navigation.goBack())
+      ;
+
+       /*this.props.navigation.dispatch(
          NavigationActions.reset({
           index: 0,
           actions: [
             NavigationActions.navigate({ routeName: 'main'})
           ]
         })
-       );
+      );*/
       }
       else{
-        alert('登录失败!\n'+responseJson.err);
+        alert(I18n.t('error.login_failed')+'\n'+responseJson.err);
       }
     })
     .catch((error) => {
@@ -128,45 +140,59 @@ class login extends Component{
         <View style={styles.StatusBar}>
         </View>
         <View style={styles.header}>
-          <Text style={{marginLeft:20,color:'#5c492b'}}>
-            退出
-          </Text>
+          <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start'}}>
+            <Icon
+              style={{marginLeft: 5}}
+              name='keyboard-arrow-left'
+              color='#f1a073'
+              size={32}
+              onPress={() => this.props.navigation.goBack()}
+            />
+          </View>
           <View style={{flex:1,}}>
           </View>
-          <Text
-            style={{marginRight:20,color:'#5c492b'}}
-            onPress={() => this.props.navigation.navigate('register')}>
-            注册
-          </Text>
+
+          <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
+            <View style={{marginRight: 10}}>
+              <Text
+                style={{marginRight: 10,color:'#f1a073',fontSize: 16}}
+                onPress={() => this.props.navigation.navigate('register')}>
+                {I18n.t('login.register')}
+              </Text>
+            </View>
+          </View>
+
         </View>
         <View style={styles.body}>
           <Kohana
-            style={{ backgroundColor: '#FFFFFF',borderBottomWidth:1,borderColor:'#e7e7e7' }}
-            label={'username'}
+            style={{ backgroundColor: '#f1a073',borderBottomWidth:1,borderColor:'#e5e5e5' }}
+            label={I18n.t('login.username')}
             iconClass={FontAwesomeIcon}
             iconName={'user-o'}
-            iconColor={'#f4d29a'}
+            iconColor={'#FFFFFF'}
             iconSize={40}
-            labelStyle={{ marginTop: 8, color: '#e7e7e7' }}
-            inputStyle={{ color: '#91627b' }}
+            labelStyle={{ marginTop: 8, color: '#e5e5e5' }}
+            inputStyle={{ color: '#FFFFFF' }}
             autoCapitalize='none'
             clearButtonMode='always'
             onChangeText={(username) => this.setState({username})}
             value={this.state.username}
+
           />
           <Kohana
-            style={{ marginTop:4,backgroundColor: '#FFFFFF' }}
-            label={'password'}
+            style={{ marginTop:4,backgroundColor: '#f1a073' }}
+            label={I18n.t('login.password')}
             iconClass={FontAwesomeIcon}
             iconName={'lock'}
-            iconColor={'#ddd'}
-            iconColor={'#f4d29a'}
-            labelStyle={{ color: '#e7e7e7' }}
-            inputStyle={{ color: '#91627b' }}
+            iconColor={'#FFFFFF'}
+            labelStyle={{ color: '#e5e5e5' }}
+            inputStyle={{ color: '#FFFFFF' }}
             autoCapitalize='none'
             clearButtonMode='always'
             onChangeText={(password) => this.setState({password})}
             value={this.state.password}
+            secureTextEntry={true}
+
          />
           </View>
           <Button
@@ -182,21 +208,29 @@ class login extends Component{
                 this.login();
               }
             }}
-            backgroundColor='#5c492b'
-            title='登録' />
+            backgroundColor='#f1a073'
+            borderRadius={10}
+            //containerStyle={{height: 60,width: 180}}
+            titleStyle={{color: 'FFFFFF'}}
+            title={I18n.t('login.login')}/>
           <View style={styles.other}>
             <TouchableOpacity>
-              <Text style={{color:'#5c492b',}}>
-                password forget
-              </Text>
             </TouchableOpacity>
           </View>
           {this.showLoading()}
+<<<<<<< Updated upstream
           <TouchableOpacity>
             <Text onPress={() => this.fbLogin()}>
               fblogin
             </Text>
           </TouchableOpacity>
+=======
+          {/*<TouchableOpacity>
+            <Text onPress={() => this.fbLogin()}>
+              fblogin
+            </Text>
+          </TouchableOpacity>*/}
+>>>>>>> Stashed changes
         </View>
     );
   }
@@ -207,34 +241,35 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     //justifyContent: 'flex-start',
     alignItems: 'center',
-    backgroundColor: '#fbe994',
+    backgroundColor: '#FFFFFF',
   },
   StatusBar:  {
       height:22,
-      backgroundColor:'#fbe994',
+      backgroundColor:'#FFFFFF',
   },
   header: {
     height:44,
     alignSelf:'stretch',
     flexDirection: 'row',
     alignItems:'center',
-    backgroundColor:'#fbe994',
+    backgroundColor:'#FFFFFF',
   },
   body: {
-    marginTop:20,
+    marginTop: 50,
     width:300,
     height:150,
     alignSelf:'center',
-    backgroundColor:'#FFFFFF',
+    backgroundColor:'#f1a073',
     borderWidth:10,
-    borderColor:'#FFFFFF',
-    borderRadius:20,
+    borderColor:'#f1a073',
+    borderRadius: 20,
   },
   button: {
-    alignSelf:'center',
-    marginTop:15,
-    width:280,
-    height:50,
+    alignSelf: 'center',
+    marginTop: 20,
+    width: 240,
+    height: 60,
+
   },
   other:  {
     alignSelf:'center',

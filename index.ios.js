@@ -13,6 +13,7 @@ import {
   Image,
   TextInput,
   AsyncStorage,
+  DeviceEventEmitter,
 } from 'react-native';
 import {
   StackNavigator,
@@ -39,10 +40,13 @@ import register from './page/register';
 import setting from './page/setting';
 import scanner from './page/scanner';
 import myItem from './page/myItem';
-import myOrder from './page/myOrder';
-import mySale from './page/mySale';
+import myOrder_Service from './page/myOrder_Service';
+import myOrder_Ask from './page/myOrder_Ask';
+import mySale_Service from './page/mySale_Service';
+import mySale_Ask from './page/mySale_Ask';
 import myAdress from './page/myAdress';
 import myItemDetail_Service from './page/myItemDetail_Service';
+import myItemDetail_Ask from './page/myItemDetail_Ask';
 import itemDetail_Service from './page/itemDetail_Service';
 import itemDetail_Ask from './page/itemDetail_Ask';
 import chatroom from './page/chatroom';
@@ -50,11 +54,22 @@ import payment from './page/payment';
 import publish_Service from './page/publish_Service';
 import publish_Ask from './page/publish_Ask';
 import buy from './page/buy';
+import help from './page/help';
 import online from './page/online';
 import mySaleDetail_Service from './page/mySaleDetail_Service';
+import mySaleDetail_Ask from './page/mySaleDetail_Ask';
 import myOrderDetail_Service from './page/myOrderDetail_Service';
+<<<<<<< Updated upstream
 import fav from './page/fav';
 import user from './page/user';
+=======
+import myOrderDetail_Ask from './page/myOrderDetail_Ask';
+import fav from './page/fav';
+import follow from './page/follow';
+import user from './page/user';
+import myFeedback from './page/myFeedback';
+
+>>>>>>> Stashed changes
 var storage = new Storage({
   // 最大容量，默认值1000条数据循环存储
   size: 1000,
@@ -89,6 +104,8 @@ global.I18n = I18n;
       // 如果设为null，则永不过期
       expires: null,
     })*/
+
+
 class welcome extends Component {
   render() {
     const { navigate } = this.props.navigation;
@@ -99,6 +116,80 @@ class welcome extends Component {
           Let's go!
         </Text>
       </View>
+    );
+  }
+};
+
+class easygo extends Component {
+
+  constructor(props) {
+  super(props);
+  this.state = {
+    token: null,
+    uid: null,
+    islogin: false,
+  };
+
+}
+
+
+  componentWillMount(){
+    this.getLoginState();
+  };
+
+  componentDidMount(){
+
+  };
+
+  componentWillUnmount() {
+    // 移除
+
+  };
+
+  getLoginState = () => {
+    storage.load({
+      key: 'loginState',
+    })
+    .then((ret) => {
+      console.log(ret);
+      if(ret.token!=null&ret.uid!=null){
+        const token1 = ret.token;
+        const uid1 = ret.uid;
+        const url = Service.BaseUrl+`?a=oauth&m=check&v=${Service.version}&token=${token1}&uid=${uid1}`;
+        fetch(url)
+        .then(response => response.json())
+        .then(responseJson => {
+          if(!responseJson.data.res){
+            storage.remove({
+              key:'loginState',
+            })
+            .then(() => {DeviceEventEmitter.emit('login',false);})
+            .then(() => alert('登录已失效'));
+
+          }
+          else{
+            this.setState({token: token1,uid: uid1,islogin: true})
+          }
+        })
+        .catch(err => console.log(err))
+      }
+    }
+  )
+    .catch(error => {
+      console.log(error);
+    })
+  };
+
+  render() {
+
+    return (
+    <EasygoPage
+      loginState={{
+        token: this.state.token,
+        uid: this.state.uid,
+        islogin: this.state.islogin,
+      }}
+    />
     );
   }
 }
@@ -142,11 +233,11 @@ const main = TabNavigator({
           fontSize: 12, // 文字大小
       },
   },
-  onTransitionStart: ()=>{console.log('导航开始'); },  // 回调
-  onTransitionEnd: ()=>{ console.log('导航结束'); }  // 回调
+  //onTransitionStart: ()=>{console.log('导航开始'); },  // 回调
+  //onTransitionEnd: ()=>{ console.log('导航结束'); }  // 回调
 });
 
-const easygo = StackNavigator({
+const EasygoPage = StackNavigator({
     welcome: { screen: welcome },
     main: { screen: main  },
     login:  { screen: login },
@@ -156,9 +247,12 @@ const easygo = StackNavigator({
     myAdress: { screen: myAdress },
     scanner:  { screen: scanner },
     myItem: { screen: myItem },
-    myOrder: { screen: myOrder },
-    mySale: { screen: mySale },
+    myOrder_Service: { screen: myOrder_Service },
+    myOrder_Ask: { screen: myOrder_Ask },
+    mySale_Service: { screen: mySale_Service },
+    mySale_Ask: { screen: mySale_Ask },
     myItemDetail_Service: { screen: myItemDetail_Service },
+    myItemDetail_Ask: { screen: myItemDetail_Ask },
     itemDetail_Service: { screen: itemDetail_Service  },
     itemDetail_Ask: { screen: itemDetail_Ask },
     chatroom: { screen: chatroom },
@@ -166,26 +260,37 @@ const easygo = StackNavigator({
     publish_Service:  { screen: publish_Service },
     publish_Ask:  { screen: publish_Ask  },
     buy:  { screen: buy },
+    help: { screen: help },
     online: { screen: online },
     mySaleDetail_Service: { screen: mySaleDetail_Service },
+    mySaleDetail_Ask: { screen: mySaleDetail_Ask },
     myOrderDetail_Service: { screen: myOrderDetail_Service },
+<<<<<<< Updated upstream
     fav: { screen: fav },
     user: { screen: user },
+=======
+    myOrderDetail_Ask: { screen: myOrderDetail_Ask },
+    fav: { screen: fav },
+    follow: { screen: follow },
+    myFeedback: { screen: myFeedback },
+    user: { screen: user },
+
+>>>>>>> Stashed changes
 }, {
     initialRouteName: 'main', // 默认显示界面
     navigationOptions: {// 屏幕导航的默认选项, 也可以在组件内用 static navigationOptions 设置(会覆盖此处的设置)
         headerStyle:{
-          backgroundColor:'#fbe994',
+          backgroundColor:'#FFFFFF',
         },
         cardStack: {
             gesturesEnabled: true
         },
-        headerTintColor:'#5c492b',
+        headerTintColor:'#FFFFFF',
     },
     mode: 'card',  // 页面切换模式, 左右是card(相当于iOS中的push效果), 上下是modal(相当于iOS中的modal效果)
     headerMode: 'none', // 导航栏的显示模式, screen: 有渐变透明效果, float: 无透明效果, none: 隐藏导航栏
-    onTransitionStart: ()=>{ console.log('导航栏切换开始'); },  // 回调
-    onTransitionEnd: ()=>{ console.log('导航栏切换结束'); }  // 回调
+    //onTransitionStart: ()=>{ console.log('导航栏切换开始'); },  // 回调
+    //onTransitionEnd: ()=>{ console.log('导航栏切换结束'); }  // 回调
 });
 
 const styles = StyleSheet.create({

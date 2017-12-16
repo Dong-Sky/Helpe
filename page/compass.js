@@ -7,6 +7,10 @@ import {
   Image,
   TextInput,
   ScrollView,
+<<<<<<< Updated upstream
+=======
+  DeviceEventEmitter,
+>>>>>>> Stashed changes
 } from 'react-native';
 import {
   StackNavigator,
@@ -38,10 +42,39 @@ import Swiper from 'react-native-swiper';
    };
    componentWillMount(){
      this.getLoginState();
+
+     this.subscription0 = DeviceEventEmitter.addListener('login',
+     (e) => {
+
+       //e==0登录,e!=0登出
+       if(e){
+         this.getLoginState();
+       }
+       else{
+         this.setState({
+           token: null,
+           uid: null,
+           islogin: false,
+         })
+       }
+
+       }
+     );
+
    };
 
    componentDidMount() {
 
+   };
+
+   componentWillUnmount() {
+     console.log('clear');
+     try{
+       this.subscription0.remove();
+
+     }catch(e){
+       console.log(e);
+     }
    };
 
    getLoginState = () => {
@@ -55,7 +88,7 @@ import Swiper from 'react-native-swiper';
        }
        this.state.token = ret.token;
        this.state.uid = ret.uid;
-         console.log(ret);
+
        }
      )
      .catch(error => {
@@ -69,6 +102,7 @@ import Swiper from 'react-native-swiper';
         <View style={styles.StatusBar}>
         </View>
         <ScrollView>
+<<<<<<< Updated upstream
           <Swiper style={styles.wrapper} showsButtons={true} height={200}>
             <View>
               <Image
@@ -104,12 +138,24 @@ import Swiper from 'react-native-swiper';
             image={require('../icon/other/mc.jpg')}>
             <Text style={{marginBottom: 10}}>
               The idea with React Native Elements is more about component structure than actual design.
+=======
+          <Card
+            title={I18n.t('compass.welcome')}
+            image={require('../icon/other/kfc.jpg')}>
+            <Text style={{marginBottom: 10}}>
+              {I18n.t('compass.welcome_txt')}
+>>>>>>> Stashed changes
             </Text>
             <Button
               icon={{name: 'code'}}
               backgroundColor='#f1a073'
               buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0}}
+<<<<<<< Updated upstream
               title='VIEW NOW' />
+=======
+              title={I18n.t('compass.agreement')}
+            />
+>>>>>>> Stashed changes
           </Card>
         </ScrollView>
 

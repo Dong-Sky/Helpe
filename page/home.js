@@ -13,6 +13,8 @@ import {
   Modal,
   Dimensions,
   NativeModules,
+  NetInfo,
+  DeviceEventEmitter,
 } from 'react-native';
 import {
   StackNavigator,
@@ -22,6 +24,7 @@ import {
 import Geolocation from 'Geolocation' ;
 import { List, ListItem,Icon,Button,Avatar,SearchBar } from 'react-native-elements';
 import MapView from 'react-native-maps';
+import Modalbox from 'react-native-modalbox';
 import ModalDropdown from 'react-native-modal-dropdown';
 
 import Service from '../common/service';
@@ -49,7 +52,22 @@ function getDisance(lat1, lng1, lat2, lng2) {
     var deltaLat = radLat1 - radLat2;
     var deltaLng = toRad(lng1) - toRad(lng2);
     var dis = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(deltaLat / 2), 2) + Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(deltaLng / 2), 2)));
-    return parseInt(dis * 6378137);
+
+
+    var d =  parseInt(dis * 6378137);
+    if(d<500){
+      return  '<500m';
+    }
+    else if(d>500&&d<1000){
+      return '<1000m';
+    }
+    else if(d>1000){
+      var x = Number(d).toFixed(1);
+      return (x.toString()+'km');
+    }
+    else{
+      return '???m';
+    }
 }
 
 
@@ -94,23 +112,55 @@ class home1 extends Component {
       //页面
       bubble: [],
       modalVisible: false,
-      item: null,
+      isDisabled: false,
+      item: {},
+      modalID: 0,
+
     };
   };
 
 
   componentWillMount(){
+
+
     this.getLoginState();
-    this.getLocation();
+
+    this.subscription0 = DeviceEventEmitter.addListener('login',
+    (e) => {
+      //e==0登录,e!=0登出
+      if(e){
+        this.getLoginState();
+      }
+      else{
+        this.setState({
+          token: null,
+          uid: null,
+          islogin: false,
+        })
+      }
+
+      }
+    );
+
   };
 
   componentDidMount() {
+    this.getLocation();
+  };
 
+  componentWillUnmount() {
+    console.log('clear');
+    try{
+      this.subscription0.remove();
+
+    }catch(e){
+      console.log(e);
+    }
   };
 
   onRegionChange = (region) => {
-    //this.setState({ region });
-    this.state.region = region;
+    this.setState({ region },this.getItemList);
+    //this.state.region = region;
     //this.getItemList();
   };
 
@@ -133,7 +183,7 @@ class home1 extends Component {
       }
       this.state.token = ret.token;
       this.state.uid = ret.uid;
-        console.log(ret);
+
       }
     )
     .catch(error => {
@@ -144,7 +194,7 @@ class home1 extends Component {
   getLocation = () => {
      navigator.geolocation.getCurrentPosition(
          location => {
-           console.log(location);
+
            var region = {
              latitude: location.coords.latitude,
              longitude: location.coords.longitude,
@@ -156,36 +206,45 @@ class home1 extends Component {
            }; */
            //this.setState({ region });
            /*this.state.region = region;
-           this.state.myLocation = region;
-           this.getItemList();*/
-           this.setState({ region });
+           this.state.myLocation = region;*/
+           //this.getItemList();
+           this.setState({ region }, this.getItemList);
          },
          error => {
-           console.log("获取位置失败："+ error);
-           alert('获取位置失败');
+
+           alert(I18n.t('err.getLocation_failed'));
          },
      );
 
   };
 
   getItemList = () => {
-    console.log(this.state);
-    const { token,uid,page,region,searchtp,tp } = this.state;
 
+    const { token,uid,page,region,searchtp,tp,s } = this.state;
+    var d1 = region.latitudeDelta;
+    var d2 = region.longitudeDelta;
+    if(d1>0.06){
+      d1 = 0.03;
+    }
+    if(d2 = 0.04){
+      d2 = 0.02;
+    }
     //计算屏幕范围
-    const minlat = region.latitude-0.5*region.latitudeDelta;
-    const maxlat = region.latitude+0.5*region.latitudeDelta;
-    const minlng = region.longitude-0.5*region.longitudeDelta;
-    const maxlng = region.longitude+0.5*region.longitudeDelta;
+    const minlat = region.latitude-0.5*d1;
+    const maxlat = region.latitude+0.5*d1;
+    const minlng = region.longitude-0.5*d2;
+    const maxlng = region.longitude+0.5*d2;
+
 
     const url = Service.BaseUrl+`?a=item&v=${Service.version}&token=${token}&uid=${uid}&searchtp=${searchtp}&minlat=${minlat}&maxlat=${maxlat}&minlng=${minlng}&maxlng=${maxlng}&ps=10&tp=${tp}`;
-    console.log(url);
+
+
     this.setState({ loading: true, });
     fetch(url)
       .then(res => res.json())
       .then(
         res => {
-          console.log(res.data);
+
         this.setState({
           data: res.data.data,
           error: res.error || null,
@@ -193,7 +252,7 @@ class home1 extends Component {
           refreshing: false
         });
       })
-      .then(() => console.log(this.state.data))
+
       .catch(error => {
         this.setState({ error, loading: false });
       });
@@ -208,14 +267,17 @@ class home1 extends Component {
     const { data } = this.state;
     var bubble = [];
     for(i=0; i<data.length ; i++){
-      var uri = Service.BaseUri+data[i].img
+      var uri = Service.BaseUri+data[i].img;
+      let id = i;
       bubble[i] = (
         <MapView.Marker
           key={i}
           coordinate={{ latitude: parseFloat(data[i].lat),longitude: parseFloat(data[i].lng) }}
           onPress={() => {
+
             this.setState({
               modalVisible: true,
+              modalID: id,
             });
           }}
         >
@@ -229,27 +291,60 @@ class home1 extends Component {
         </MapView.Marker>
       );
     }
-    console.log(bubble);
+
     return bubble;
   };
 
+
   returnModal = () => {
-    return(
-      <Modal
-        animationType={"fade"}
-        transparent={true}
-        visible={this.state.modalVisible}
-        onRequestClose={() => {console.log('close');}}
+    const { navigate } = this.props.navigation;
+    //const item = this.state.data[this.state.modalID]?this.state.data[this.state.modalID]:{};
+    let item = this.state.item;
+    //console.log(this.state.item);
+    return (
+      <Modalbox
+        style={{width:0.84*width,height: 70,marginTop: -20,borderWidth: 1,borderColor: '#e5e5e5'}}
+        isOpen={this.state.modalVisible}
+        isDisabled={this.state.isDisabled}
+        position='bottom'
+        backdrop={false}
+        backButtonClose={false}
+        swipeToClose={true}
+        backdropOpacity={0.1}
+        backdropColor='#FFFFFF'
+        onClosed={() => this.setState({modalVisible: false})}
         >
-          <TouchableOpacity style={styles.modal} onPress={() => this.setModalVisible(!this.state.modalVisible)}>
-            <TouchableOpacity style={{flex: 1}} onPress={() => this.setModalVisible(!this.state.modalVisible)}>
-            </TouchableOpacity>
-            <TouchableOpacity style={{backgroundColor: '#FFFFFF',width:0.84*width,height: 60,marginBottom: 60,alignSelf: 'center',}} onPress={() => alert('hello')}>
-            </TouchableOpacity>
-          </TouchableOpacity>
-      </Modal>
+          <ListItem
+            roundAvatar
+            style={{flex: 1}}
+            containerStyle={{borderBottomWidth: 0}}
+            rightTitleStyle={{color: '#da695c'}}
+            title={item.name}
+            subtitle={I18n.t('home.far')+': '+getDisance(this.state.region.latitude,this.state.region.longitude,item.lat,item.lng)}
+            rightTitle={item.u=='""'||item.u==null? '￥'+item.price:'￥'+item.price+'/'+item.u}
+            subtitleNumberOfLines={1}
+            avatar={item.img==''?'':Service.BaseUri+item.img}
+            onPressRightIcon={() => {
+              const params = {
+                token: this.state.token,
+                uid: this.state.uid,
+                islogin: this.state.islogin,
+                itemId: item.id,
+              };
+              if(item.tp==0){
+                navigate('itemDetail_Service',params);
+              }
+              else if(item.tp==1){
+                navigate('itemDetail_Ask',params);
+              }
+            }}
+            avatarContainerStyle={{height: 50,width: 50}}
+            avatarStyle={{height: 50,width: 50}}
+            leftIconOnPress={() => alert(123)}
+          />
+      </Modalbox>
     );
-  };
+  }
 
   controlChooseBarStyle = (tp) => {
     if(this.state.tp==tp){
@@ -262,20 +357,31 @@ class home1 extends Component {
 
   controlFontStyle = (tp) => {
     if(this.state.tp==tp){
+<<<<<<< Updated upstream
       return {color: '#FFFFFF'};
     }
     else{
       return {color: '#f1a073'};
+=======
+      return {color: '#FFFFFF',fontSize: 16};
+    }
+    else{
+      return {color: '#f1a073',fontSize: 16};
+>>>>>>> Stashed changes
     }
   };
 
 
   render() {
+<<<<<<< Updated upstream
     console.log(this.state);
     console.log(I18n.t('home.Service'));
     console.log(I18n.t('home.Ask'));
     console.log(I18n.t('home.search'));
     console.log(I18n);
+=======
+
+>>>>>>> Stashed changes
     const {params} = this.props.navigation.state;
     const {navigate} = this.props.navigation;
     return (
@@ -293,7 +399,11 @@ class home1 extends Component {
               />
             </View>
             <View style={{flex:1,alignItems: 'center'}}>
+<<<<<<< Updated upstream
               <View style={{width: 120,height: 30,borderWidth: 2, borderColor: '#f1a073',flexDirection: 'row'}}>
+=======
+              <View style={{width: 160,height: 30,borderWidth: 2, borderColor: '#f1a073',flexDirection: 'row'}}>
+>>>>>>> Stashed changes
                 <TouchableOpacity style={[styles.choosebar,this.controlChooseBarStyle(0)]} onPress={() => this.reget(0)}>
                   <Text style={[this.controlFontStyle(0)]}>
                     {I18n.t('home.Service')}
@@ -307,16 +417,28 @@ class home1 extends Component {
               </View>
             </View>
             <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end',marginRight: 10}}>
+<<<<<<< Updated upstream
               <Text
+=======
+              <Icon
+                style={{}}
+                name='playlist-play'
+                color='#f1a073'
+                size={32}
+>>>>>>> Stashed changes
                 onPress={() => navigate('itemList',{
                   token:this.state.token,
                   uid: this.state.uid,
                   islogin: this.state.islogin,
                 })}
+<<<<<<< Updated upstream
                 style={{color: '#f1a073',fontSize: 14}}
                 >
                 {I18n.t('home.More')}
               </Text>
+=======
+              />
+>>>>>>> Stashed changes
             </View>
           </View>
           <View style={{flex:1}}>
@@ -331,10 +453,11 @@ class home1 extends Component {
               userLocationAnnotationTitle='myLocation'
               //followsUserLocation={this.state.locate}
               showsMyLocationButton={true}
-              onRegionChangeComplete={() => {this.getItemList()}}
+              //onRegionChangeComplete={() => {this.getItemList()}}
               scrollEnabled={true}
               onPanDrag={() => console.log('onPanDrag')}
             >
+<<<<<<< Updated upstream
               {/*<TouchableOpacity style={{marginLeft:10,marginTop: 10}}>
                 <Icon
                   name={'my-location'}
@@ -345,11 +468,15 @@ class home1 extends Component {
                  />
               </TouchableOpacity>*/}
               <TouchableOpacity style={{height: 50,width: 50,}} onPress={() => this.getLocation()}>
+=======
+              <TouchableOpacity style={{height: 50,width: 50,}} onPress={() => {this.setState({modalVisible: false,modalID: 0});this.getLocation()}}>
+>>>>>>> Stashed changes
                 <Image
                   source={require('../icon/tarbar/locate.png')}
                   style={{height: 50,width: 50}}
                 />
               </TouchableOpacity>
+<<<<<<< Updated upstream
               {/*<TouchableOpacity style={{marginLeft: 10,flexDirection: 'column',justifyContent: 'center',height: 50,width: 50, }}>
                 <Icon
                   name={'my-location'}
@@ -361,6 +488,28 @@ class home1 extends Component {
               </TouchableOpacity>*/}
                <MapView.Marker coordinate={this.state.myLocation}/>
                {this.returnBubble()}
+=======
+              <MapView.Marker coordinate={this.state.myLocation}/>
+              {
+                this.state.data.map((l,i) => (
+                  <MapView.Marker
+                    key={i}
+                    coordinate={{ latitude: parseFloat(l.lat),longitude: parseFloat(l.lng) }}
+                    onPress={() => this.setState({
+                      item: l,
+                      modalVisible: true,
+                    })}
+                  >
+                    <Image
+                      style={styles.bubble}
+                      source={{ uri: Service.BaseUri+l.img }}
+                      resizeMode="cover"
+                    />
+                  </MapView.Marker>
+              ))
+            }
+
+>>>>>>> Stashed changes
             </MapView>
             {this.returnModal()}
           </View>
@@ -399,7 +548,7 @@ class itemList extends Component {
         longitudeDelta: 0.004999999999881766,
       },
       //列表控制
-      tp: null,
+      tp: -1,
       cid: null,
       searchtp: 2,
       loading: false,
@@ -409,26 +558,84 @@ class itemList extends Component {
       refreshing: false,
       //
       category: [],
-      DropTp: ['全部','服务','求助'],
-      type: ['全部'],
+      DropTp: [I18n.t('home.all'),I18n.t('home.Service'),I18n.t('home.Ask')],
+      stp: [I18n.t('home.near'),I18n.t('home.more_far'),I18n.t('home.all')],
+      type: [I18n.t('home.all')],
       data: [],
-      sorttp: ['距离排序','时间排序','销量排序'],
+      sorttp: [I18n.t('home.sortByD'),I18n.t('home.sortByT'),I18n.t('home.sortByS')],
+      s: 0,
+      //模糊匹配
+      modalVisible: false,
+      isDisabled: false,
+      txt: null,
+      fuzzyData: [],
+      refreshing1: false,
     };
   };
 
   componentWillMount() {
     const { params } = this.props.navigation.state;
+
+
+
     this.setState({
       token: params.token,
       uid: params.uid,
       islogin: params.uid,
     });
     this.getItemCategory();
+
+    this.subscription0 = DeviceEventEmitter.addListener('login',
+    (e) => {
+      //e==0登录,e!=0登出
+      if(e){
+        this.getLoginState();
+      }
+      else{
+        this.setState({
+          token: null,
+          uid: null,
+          islogin: false,
+        })
+      }
+
+      }
+    );
   };
 
   componentDidMount() {
     this.getLocationAndItemList();
   };
+
+  componentWillUnmount() {
+    console.log('clear');
+    try{
+      this.subscription0.remove();
+
+    }catch(e){
+      console.log(e);
+    }
+  };
+
+  getLoginState = () => {
+    storage.load({
+      key: 'loginState',
+    })
+    .then((ret) => {
+      console.log(ret);
+      if(ret.token!=null&ret.uid!=null){
+        this.setState({ islogin: true });
+      }
+      this.state.token = ret.token;
+      this.state.uid = ret.uid;
+
+      }
+    )
+    .catch(error => {
+      console.log(error);
+    })
+  };
+
 
   getLocationAndItemList = () => {
     console.log(this.state);
@@ -458,6 +665,7 @@ class itemList extends Component {
   //获取商品类型
   getItemCategory = () => {
     const url = Service.BaseUrl+`?a=category&v=${Service.version}`;
+
     fetch(url)
     .then(response => response.json())
     .then(responseJson => {
@@ -465,7 +673,7 @@ class itemList extends Component {
       if(!responseJson.status){
         console.log(responseJson.data.data);
         var category = responseJson.data.data;
-        var type = ['全部'];
+        var type = [I18n.t('home.all')];
         for(i=0;i<category.length;i++){
           type.push(category[i].name);
         }
@@ -473,20 +681,39 @@ class itemList extends Component {
         this.state.type = type;
       }
       else {
-        alert('请求错误');
+        alert(I18n.t('err.fetch_failed')+'\n'+responseJson.err);
       }
     })
     .catch(err => console.log(error))
   };
 
   makeRemoteRequest = () => {
-    const { token,uid,page,searchtp,region,tp,cid } = this.state;
+    const { token,uid,page,searchtp,region,tp,cid,s } = this.state;
     const lat = region.latitude;
     const lng = region.longitude;
-    const minlat = region.latitude-20.0;
-    const maxlat = region.latitude+20.0;
-    const minlng = region.longitude-20.0;
-    const maxlng = region.longitude+20.0;
+
+    var d1 = 0.05;
+    var d2 = 0.05;
+    if(s==0){
+      d1 = 0.05;
+      d2 = 0.05;
+    }
+    else if (s==1){
+      d1 = 0.4;
+      d2 = 0.4;
+    }
+
+    const minlat = region.latitude-d1;
+    const maxlat = region.latitude+d1;
+    const minlng = region.longitude-d2;
+    const maxlng = region.longitude+d2;
+    var url1 = '';
+    if(s!=2){
+      url1 = `&minlat=${minlat}&maxlat=${maxlat}&minlng=${minlng}`;
+    }
+
+
+
     var url;
     if(searchtp==2){
       url = Service.BaseUrl+`?a=item&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&searchtp=${searchtp}&lat=${lat}&lng=${lng}&tp=${tp}&cid=${cid}`;
@@ -494,14 +721,14 @@ class itemList extends Component {
     else{
       url = Service.BaseUrl+`?a=item&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&searchtp=${searchtp}&tp=${tp}&cid=${cid}`;
     }
+    url = url+url1;
 
-    console.log(url);
     this.setState({ loading: true, });
     fetch(url)
       .then(res => res.json())
       .then(
         res => {
-          console.log(res.data);
+
         this.setState({
           data: page === 1 ? res.data.data : [...this.state.data, ...res.data.data],
           error: res.error || null,
@@ -511,6 +738,7 @@ class itemList extends Component {
       })
       .then(() => console.log(this.state.data))
       .catch(error => {
+        console.log(error);
         this.setState({ error, loading: false });
       });
   };
@@ -535,6 +763,58 @@ class itemList extends Component {
       },
       () => {
         this.makeRemoteRequest();
+      }
+    );
+  };
+
+
+
+  handleRefresh = () => {
+    this.setState(
+      {
+        page: 1,
+        seed: this.state.seed + 1,
+        refreshing: true
+      },
+      () => {
+        this.makeRemoteRequest();
+      }
+    );
+  };
+
+  //模糊匹配
+
+  fuzzy_matching = () => {
+      const { token,uid,txt,region } = this.state;
+      const lat = region.latitude;
+      const lng = region.longitude;
+      const url = Service.BaseUrl+`?a=item&v=${Service.version}&name=${txt}`;
+
+      this.setState({loading: true});
+      fetch(url)
+        .then(res => res.json())
+        .then(
+          res => {
+
+          this.setState({
+            fuzzyData:res.data.data ,
+            loading: false,
+          });
+        })
+        .then(() => console.log(this.state.data))
+        .catch(error => {
+          console.log(error);
+          this.setState({ error, loading: false });
+        });
+  };
+
+  handleRefresh1 = () => {
+    this.setState(
+      {
+        refreshing: true
+      },
+      () => {
+        this.fuzzy_matching();
       }
     );
   };
@@ -570,8 +850,8 @@ class itemList extends Component {
               defaultValue={this.state.DropTp[0]}
               defaultIndex={0}
               onSelect={(DropTp) => {
-                console.log(DropTp);
-                if(DropTp==0){ this.state.tp = null; }
+
+                if(DropTp==0){ this.state.tp = -1; }
                 else if(DropTp==1){ this.state.tp = 0 ;}
                 else if(DropTp==2){ this.state.tp = 1; }
                 this.state.page = 1;
@@ -587,7 +867,7 @@ class itemList extends Component {
               defaultValue={this.state.type[0]}
               defaultIndex={0}
               onSelect={(type) => {
-                console.log(type);
+
                 if(type==0){ this.state.cid = null; }
                 else{ this.state.cid = type; }
                 this.state.page = 1;
@@ -603,7 +883,7 @@ class itemList extends Component {
               defaultValue={this.state.sorttp[0]}
               defaultIndex={0}
               onSelect={(sorttp) => {
-                console.log(sorttp);
+
                 if(sorttp==0){ this.state.searchtp = 2; }
                 else { this.state. searchtp = sorttp-1; }
                 this.state.page = 1;
@@ -615,8 +895,14 @@ class itemList extends Component {
               textStyle={styles.DropText}
               dropdownStyle={styles.Dropdown2}
               dropdownTextHighlightStyle={styles.highlight}
-              options={this.state.DropTp}
+              options={this.state.stp}
+              defaultValue={this.state.stp[0]}
               defaultIndex={0}
+              onSelect={(s) => {
+                this.state.s = s;
+                this.state.page = 1;
+                this.makeRemoteRequest();
+              }}
             />
           </View>
       </View>
@@ -639,24 +925,133 @@ class itemList extends Component {
     );
   };
 
+renderModal = () => {
+  const { navigate } = this.props.navigation;
+  return(
+    <Modalbox
+
+      isOpen={this.state.modalVisible}
+      isDisabled={this.state.isDisabled}
+      position='center'
+      backdrop={true}
+      backButtonClose={false}
+      swipeToClose={false}
+      onClosed={() => this.setState({modalVisible: false})}
+      >
+        <View style={styles.container}>
+          <View style={[styles.StatusBar,{backgroundColor: '#f1a073'}]}>
+          </View>
+          <View style={[styles.header,{backgroundColor: '#f1a073'}]}>
+            <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start'}}>
+              <Icon
+                style={{marginLeft: 5}}
+                name='keyboard-arrow-left'
+                color='#FFFFFF'
+                size={32}
+                onPress={() => this.setState({modalVisible: false,fuzzyData: [],txt: null,})}
+              />
+            </View>
+            <View style={{flex: 5,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
+              <TextInput
+                style={{backgroundColor: '#FFFFFF',borderColor: '#e5e5e5',borderWidth: 1,marginRight: 5,marginLeft: 5,height: 30,width: '100%',padding: 5,fontSize: 16,borderRadius: 5}}
+                placeholder={I18n.t('home.default_txt')}
+                placeholderTextColor='#999999'
+                returnKeyType='done'
+                clearButtonMode='always'
+                value={this.state.txt}
+                onChangeText={(txt) => this.setState({txt})}
+              />
+            </View>
+            <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
+              <View style={{marginRight: 10}}>
+                <Icon
+                  name='search'
+                  color='#FFFFFF'
+                  size={28}
+                  onPress={() => this.fuzzy_matching()}
+                />
+              </View>
+            </View>
+          </View>
+          <List containerStyle={{ borderTopWidth: 0,flex:1,backgroundColor: '#FFFFFF' ,marginTop: 0}}>
+            <FlatList
+              style={{marginTop: 0,borderWidth: 0}}
+              data={this.state.fuzzyData}
+              renderItem={({ item }) => (
+                <View>
+                <ListItem
+                  component={TouchableOpacity}
+                  roundAvatar
+                  key={item.id}
+                  title={item.name}
+                  subtitle={I18n.t('home.salenum')+': '+item.salenum+I18n.t('home.e')+'\n'+I18n.t('home.far')+': '+getDisance(this.state.region.latitude,this.state.region.longitude,item.lat,item.lng)}
+                  subtitleNumberOfLines={2}
+                  rightTitle={item.u=='""'||item.u==null? '￥'+item.price:'￥'+item.price+'/'+item.u}
+                  avatar={{ uri:Service.BaseUri+item.img  }}
+                  avatarContainerStyle={{height:50,width:50}}
+                  avatarStyle={{height:50,width:50}}
+                  rightTitleStyle={{color: '#f1a073'}}
+                  containerStyle={{ borderBottomWidth: 0,}}
+                  onPress={() => {
+                    const params = {
+                      token: this.state.token,
+                      uid: this.state.uid,
+                      islogin: this.state.islogin,
+                      itemId: item.id,
+                    };
+                    if(item.tp==0){
+                      navigate('itemDetail_Service',params);
+                    }
+                    else if(item.tp==1){
+                      navigate('itemDetail_Ask',params);
+                    }
+                  }}
+                />
+                </View>
+              )}
+              keyExtractor={item => item.id}
+              ItemSeparatorComponent={this.renderSeparator}
+              //ListHeaderComponent={this.renderHeader}
+              ListFooterComponent={this.renderFooter}
+              onRefresh={() => this.handleRefresh1}
+              refreshing={this.state.refreshing1}
+
+              onEndReachedThreshold={50}
+            />
+          </List>
+        </View>
+    </Modalbox>
+  );
+};
+
   render() {
     console.log(this.state);
     const { navigate } = this.props.navigation;
     const { params } = this.props.navigation.state;
     return (
       <View style={styles.container}>
-        <View style={styles.StatusBar}>
+        <View style={[styles.StatusBar,{backgroundColor: '#f1a073'}]}>
         </View>
+<<<<<<< Updated upstream
         <View style={styles.header}>
           <View style={{flexDirection: 'row',alignSelf: 'stretch',alignItems: 'center',borderColor: '#e5e5e5',borderTopWidth: 1,borderBottomWidth: 1,}}>
             <Icon
               style={{marginLeft: 5}}
               name='chevron-left'
               color='#f1a073'
+=======
+        <View style={[styles.header,{backgroundColor: '#f1a073'}]}>
+          <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start'}}>
+            <Icon
+              style={{marginLeft: 5}}
+              name='keyboard-arrow-left'
+              color='#FFFFFF'
+>>>>>>> Stashed changes
               size={32}
               onPress={() => this.props.navigation.goBack()}
             />
           </View>
+<<<<<<< Updated upstream
           <View style={{flex: 1}}>
             <SearchBar
               containerStyle={{backgroundColor: '#FFFFFF',borderWidth: 0}}
@@ -664,6 +1059,22 @@ class itemList extends Component {
               lightTheme
               placeholder='Type Here...' >
             </SearchBar>
+=======
+          <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
+            <Text style={{alignSelf: 'center',color: '#FFFFFF',fontSize: 18}}>
+              Helpe
+            </Text>
+          </View>
+          <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
+            <View style={{marginRight: 10}}>
+              <Icon
+                name='search'
+                color='#FFFFFF'
+                size={28}
+                onPress={() => this.setState({modalVisible: true})}
+              />
+            </View>
+>>>>>>> Stashed changes
           </View>
         </View>
         {this.renderHeader()}
@@ -678,12 +1089,20 @@ class itemList extends Component {
                 roundAvatar
                 key={item.id}
                 title={item.name}
-                subtitle={'开始:'+formatDate(item.t)+'\n'+'相距:'+(item.juli)+'m'}
-                rightTitle={item.u=='""'||item.u==null? item.price+'圆':item.price+'圆/'+item.u}
+                subtitle={I18n.t('home.salenum')+': '+item.salenum+I18n.t('home.e')+'\n'+I18n.t('home.far')+': '+getDisance(this.state.region.latitude,this.state.region.longitude,item.lat,item.lng)}
+                subtitleNumberOfLines={2}
+                rightTitle={item.u=='""'||item.u==null? '￥'+item.price:'￥'+item.price+'/'+item.u}
                 avatar={{ uri:Service.BaseUri+item.img  }}
+<<<<<<< Updated upstream
                 avatarContainerStyle={{height:60,width:60}}
                 avatarStyle={{height:60,width:60}}
                 containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF'}}
+=======
+                avatarContainerStyle={{height:50,width:50}}
+                avatarStyle={{height:50,width:50}}
+                rightTitleStyle={{color: '#f1a073'}}
+                containerStyle={{ borderBottomWidth: 0,}}
+>>>>>>> Stashed changes
                 onPress={() => {
                   const params = {
                     token: this.state.token,
@@ -711,6 +1130,7 @@ class itemList extends Component {
             onEndReachedThreshold={50}
           />
         </List>
+        {this.renderModal()}
       </View>
     );
   }
@@ -731,8 +1151,8 @@ const home = StackNavigator({
     },
     mode: 'card',  // 页面切换模式, 左右是card(相当于iOS中的push效果), 上下是modal(相当于iOS中的modal效果)
     headerMode: 'none', // 导航栏的显示模式, screen: 有渐变透明效果, float: 无透明效果, none: 隐藏导航栏
-    onTransitionStart: ()=>{ console.log('导航栏切换开始'); },  // 回调
-    onTransitionEnd: ()=>{ console.log('导航栏切换结束'); }  // 回调
+    //onTransitionStart: ()=>{ console.log('导航栏切换开始'); },  // 回调
+    //onTransitionEnd: ()=>{ console.log('导航栏切换结束'); }  // 回调
 });
 
 const styles = StyleSheet.create({

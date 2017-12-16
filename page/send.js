@@ -7,6 +7,9 @@ import {
   Image,
   TextInput,
   TouchableOpacity,
+  Dimensions,
+  NativeModules,
+  DeviceEventEmitter,
 } from 'react-native';
 import {
   StackNavigator,
@@ -14,6 +17,12 @@ import {
   NavigationActions,
 } from 'react-navigation';
 import { Icon,Button } from 'react-native-elements';
+import Modalbox from 'react-native-modalbox';
+
+
+//获取屏幕尺寸
+const width = Dimensions.get('window').width;
+const height = Dimensions.get('window').height;
 
  class send extends Component {
    static navigationOptions = {
@@ -33,15 +42,45 @@ import { Icon,Button } from 'react-native-elements';
          token:null,
          uid:null,
          islogin:false,
+
+         modalVisible: false,
+         isDisabled: false,
        }
    };
 
    componentWillMount(){
      this.getLoginState();
+
+     this.subscription0 = DeviceEventEmitter.addListener('login',
+     (e) => {
+
+       //e==0登录,e!=0登出
+       if(e){
+         this.getLoginState();
+       }
+       else{
+         this.setState({
+           token: null,
+           uid: null,
+           islogin: false,
+         })
+       }
+      });
+
    };
 
    componentDidMount() {
 
+   };
+
+   componentWillUnmount() {
+     console.log('clear');
+     try{
+       this.subscription0.remove();
+
+     }catch(e){
+       console.log(e);
+     }
    };
 
    getLoginState = () => {
@@ -49,19 +88,95 @@ import { Icon,Button } from 'react-native-elements';
        key: 'loginState',
      })
      .then((ret) => {
-       console.log(ret);
+
        if(ret.token!=null&ret.uid!=null){
          this.setState({ islogin: true });
        }
        this.state.token = ret.token;
        this.state.uid = ret.uid;
-         console.log(ret);
+
        }
      )
      .catch(error => {
        console.log(error);
      })
    };
+
+   returnModal = () => {
+     const { navigate } = this.props.navigation;
+
+
+     return (
+       <Modalbox
+         style={{width:0.96*width,height: 200,marginTop: -100,borderWidth: 1,borderColor: '#e5e5e5',borderRadius: 20 }}
+         isOpen={true}
+         position='bottom'
+         backdrop={true}
+         backButtonClose={false}
+         swipeToClose={false}
+         backdropPressToClose={false}
+         //backdropOpacity={0.5}
+         //backdropColor='#FFFFFF'
+         onClosed={() => this.setState({modalVisible: false})}
+         >
+           <View style={styles.modal}>
+             <View style={{flex: 1,}}>
+               <TouchableOpacity
+                 style={[styles.touch,{marginRight: 15}]}
+                 onPress={() => {
+                   if(this.state.islogin){
+                     this.props.navigation.navigate('publish_Service',{
+                       token:this.state.token,
+                       uid:this.state.uid,
+                       islogin:this.state.islogin,
+                     })
+                   }
+                   else {
+                     alert(I18n.t('send.not_login'));
+                   }
+                 }}
+
+                 >
+                 <Icon
+                   name='store'
+                   color='#f9dac9'
+                   size={70}
+                 />
+                 <Text style={{fontSize: 18,color: '#333333',marginTop: 20}}>
+                   {I18n.t('send.publish_Service')}
+                 </Text>
+               </TouchableOpacity>
+             </View>
+             <View style={{flex: 1,}}>
+               <TouchableOpacity
+                  style={[styles.touch,{marginLeft: 15}]}
+                  onPress={() => {
+                    if(this.state.islogin){
+                      this.props.navigation.navigate('publish_Ask',{
+                        token:this.state.token,
+                        uid:this.state.uid,
+                        islogin:this.state.islogin,
+                      })
+                    }
+                    else {
+                      alert(I18n.t('send.not_login'));
+                    }
+                  }}
+                  >
+                 <Icon
+                   name='help'
+                   color='#f9dac9'
+                   size={70}
+                 />
+                 <Text style={{fontSize: 18,color: '#333333',marginTop: 20}}>
+                   {I18n.t('send.publish_Ask')}
+                 </Text>
+               </TouchableOpacity>
+             </View>
+           </View>
+       </Modalbox>
+     );
+   }
 
   render() {
     return (
@@ -70,8 +185,8 @@ import { Icon,Button } from 'react-native-elements';
         </View>
         <View style={styles.header}>
         </View>
-        <Button
-        title='Service'
+      {/*  <Button
+        title={I18n.t('send.publish_Service')}
         onPress={() => {
           if(this.state.islogin){
             this.props.navigation.navigate('publish_Service',{
@@ -81,12 +196,12 @@ import { Icon,Button } from 'react-native-elements';
             })
           }
           else {
-            alert('请先登录');
+            alert(I18n.t('send.not_login'));
           }
         }}
       />
         <Button
-        title='Ask'
+        title={I18n.t('send.publish_Ask')}
         onPress={() => {
           if(this.state.islogin){
             this.props.navigation.navigate('publish_Ask',{
@@ -96,10 +211,11 @@ import { Icon,Button } from 'react-native-elements';
             })
           }
           else {
-            alert('请先登录');
+            alert(I18n.t('send.not_login'));
           }
         }}
-       />
+      />*/}
+       {this.returnModal()}
       </View>
     );
   }
@@ -110,18 +226,36 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         //justifyContent: 'center',
-        alignItems: 'stretch'
+        alignItems: 'stretch',
+        backgroundColor: '#FFFFFF'
+  },
+  modal:{
+    flex: 1,
+    flexDirection: 'row',
+    //justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 0,
+    borderRadius: 20,
+  },
+  touch:{
+    height: 100,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   StatusBar:  {
     height:22,
-    backgroundColor:'#fbe994',
+    backgroundColor:'#FFFFFF',
   },
   header: {
     height: 44,
     alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fbe994',
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderColor: '#e5e5e5',
   },
   welcome: {
         fontSize: 20,

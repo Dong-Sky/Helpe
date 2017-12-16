@@ -24,6 +24,11 @@ import { List, ListItem } from 'react-native-elements';
 import { Icon,Button,Avatar,Card } from 'react-native-elements';
 import Service from '../common/service';
 
+//时间戳转换字符
+function formatDate(t){
+  return new Date(parseInt(t) * 1000).toLocaleDateString().replace(/\//g, "-");
+}
+
 class online extends Component{
   constructor(props) {
        super(props);
@@ -33,6 +38,7 @@ class online extends Component{
          islogin: false,
          id: null,
          res: {},
+         isOnline: false,
        }
   };
 
@@ -59,10 +65,12 @@ class online extends Component{
     .then(responseJson => {
       console.log(responseJson);
       if(!responseJson.status){
-        alert('上架成功!');
+        let pet = responseJson.data.item.pet? responseJson.data.item.pet: 0;
+        alert(I18n.t('success.online')+'\n'+I18n.t('online.t')+': '+formatDate(pet));
+        this.setState({isOnline: true});
       }
       else {
-        alert('上架失败!')
+        alert(I18n.t('error.online_failed'))
       }
     })
     .catch(error => console.log(error))
@@ -74,34 +82,65 @@ class online extends Component{
         <View style={styles.StatusBar}>
         </View>
         <View style={styles.header}>
-          <Text
-            style={{marginLeft:20,color:'#5c492b'}}
-            onPress={() => this.props.navigation.goBack()}>
-            返回
-          </Text>
-          <View style={{flex:1,}}>
+          <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start'}}>
+            <Icon
+              style={{marginLeft: 5}}
+              name='keyboard-arrow-left'
+              color='#f1a073'
+              size={32}
+              onPress={() => this.props.navigation.goBack()}
+            />
           </View>
-          <Text
-            style={{marginRight:20,color:'#5c492b'}}
-            onPress={() =>  this.props.navigation.dispatch(
-                               NavigationActions.reset({
-                                index: 0,
-                                actions: [
-                                  NavigationActions.navigate({ routeName: 'main'})
-                                ]
-                              })
-                            )
-                    }>
-            完成
-          </Text>
+          <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
+            <Text style={{alignSelf: 'center',fontSize: 18,color: '#333333'}}>
+              {I18n.t('online.title')}
+            </Text>
+          </View>
+          <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end',marginRight: 10,}}>
+            <Text
+               style={{fontSize: 16,color: '#f1a073'}}
+               onPress={() =>  this.props.navigation.dispatch(
+                                  NavigationActions.reset({
+                                   index: 0,
+                                   actions: [
+                                     NavigationActions.navigate({ routeName: 'main'})
+                                   ]
+                                 })
+                               )
+                       }
+               >
+              {I18n.t('common.finish')}
+            </Text>
+          </View>
         </View>
-          <Button
-              style={{marginTop: 10}}
-              icon={{name: 'code'}}
-              backgroundColor='#5c492b'
-              buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0}}
-              onPress={() => this.online()}
-              title='立即上架' />
+        <View style={{flex: 1}}>
+          <Card
+            style={{marginTop: 100}}
+            title={I18n.t('success.publish')}
+            //image={require('../images/pic2.jpg')}
+            >
+            <Text style={{marginBottom: 10}}>
+              {'\t'+I18n.t('online.txt1')}
+            </Text>
+            <Text style={{marginBottom: 10}}>
+              {'\t'+I18n.t('online.txt2')}
+            </Text>
+            <Button
+              onPress={() => {
+                if(this.state.isOnline){
+                  alert(I18n.t('online.is_online'));
+                }
+                else{
+                  this.online();
+                }
+              }}
+              backgroundColor='#f1a073'
+              borderRadius={5}
+              buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0,}}
+              title={this.state.isOnline?I18n.t('online.is_online'):I18n.t('online.go_online')}
+            />
+          </Card>
+        </View>
       </View>
     );
   }
@@ -116,14 +155,14 @@ const styles = StyleSheet.create({
   },
   StatusBar:  {
       height: 22,
-      backgroundColor: '#fbe994',
+      backgroundColor: '#FFFFFF',
   },
   header: {
     height: 44,
     alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fbe994',
+    backgroundColor: '#FFFFFF',
   },
   item_pic: {
     height: 200,
