@@ -244,33 +244,37 @@ class comment extends Component {
     ws = new WebSocket(wsUri);
 
 
-     heartbeat = setInterval(
-      () => {
-
-       if(ws){
-          try {
-            console.log('发送心跳');
-            ws.send(JSON.stringify( {"o":1,"d":""}));
-          }
-          catch (ex) {
-            console.log(ex);
-          }
-        }
-      },
-      10000);
+    console.log(ws);
 
     ws.onopen = () => {
       console.log('open');
+
+      heartbeat = setInterval(
+       () => {
+
+        if(ws){
+           try {
+             console.log('发送心跳');
+             ws.send(JSON.stringify( {"o":1,"d":""}));
+           }
+           catch (ex) {
+             console.log(ex);
+           }
+         }
+       },
+       10000);
+
     };
 
     ws.onmessage = (e) => {
       //解析数据
-      let d = JSON.parse(ab2str(e.data));
+      console.log(unescape(ab2str(e.data)));
+      let d = JSON.parse(unescape(ab2str(e.data)));
 
       console.log(d);
       if(d.O==5&&d.D!=undefined){
         //在线数据
-        let data = JSON.parse(d.D);
+        let data = JSON.parse(unescape(d.D));
 
         //存入数据库
         this.Record_online(data);
@@ -288,7 +292,7 @@ class comment extends Component {
     };
 
     ws.onerror = (e) => {
-      //console.log(e);
+      console.log(e);
       //this.reconnect();
     };
 
@@ -320,6 +324,7 @@ class comment extends Component {
       if(ws){
 
         try {
+
           ws.send(JSON.stringify(da));
           this.Record_send(data);
         }

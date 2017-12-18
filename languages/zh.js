@@ -1,12 +1,5 @@
 export default {
-<<<<<<< Updated upstream
-    home: {
-        Search: '搜索',
-        More: '更多',
-        Service: '服务',
-        Ask: '求助'
-    },
-=======
+
   common: {
     no_name: '未命名',
     yes: '是',
@@ -490,5 +483,4 @@ export default {
 
   },
 
->>>>>>> Stashed changes
 };

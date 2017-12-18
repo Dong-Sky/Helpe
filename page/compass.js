@@ -7,10 +7,9 @@ import {
   Image,
   TextInput,
   ScrollView,
-<<<<<<< Updated upstream
-=======
+
   DeviceEventEmitter,
->>>>>>> Stashed changes
+
 } from 'react-native';
 import {
   StackNavigator,
@@ -102,60 +101,18 @@ import Swiper from 'react-native-swiper';
         <View style={styles.StatusBar}>
         </View>
         <ScrollView>
-<<<<<<< Updated upstream
-          <Swiper style={styles.wrapper} showsButtons={true} height={200}>
-            <View>
-              <Image
-                 source={require('../icon/other/kfc.jpg')}
-                 resizeMode='contain'
-              />
-            </View>
-            <View>
-              <Image
-                source={require('../icon/other/mc.jpg')}
-                resizeMode='contain'
-              />
-            </View>
-            <Image
-              source={require('../icon/other/mc.jpg')}
-              resizeMode='contain'
-            />
-          </Swiper>
-          <Card
-            title='HELLO WORLD'
-            image={require('../icon/other/kfc.jpg')}>
-            <Text style={{marginBottom: 10}}>
-              The idea with React Native Elements is more about component structure than actual design.
-            </Text>
-            <Button
-              icon={{name: 'code'}}
-              backgroundColor='#f1a073'
-              buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0}}
-              title='VIEW NOW' />
-          </Card>
-          <Card
-            title='HELLO WORLD'
-            image={require('../icon/other/mc.jpg')}>
-            <Text style={{marginBottom: 10}}>
-              The idea with React Native Elements is more about component structure than actual design.
-=======
           <Card
             title={I18n.t('compass.welcome')}
             image={require('../icon/other/kfc.jpg')}>
             <Text style={{marginBottom: 10}}>
               {I18n.t('compass.welcome_txt')}
->>>>>>> Stashed changes
             </Text>
             <Button
               icon={{name: 'code'}}
               backgroundColor='#f1a073'
               buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0}}
-<<<<<<< Updated upstream
-              title='VIEW NOW' />
-=======
               title={I18n.t('compass.agreement')}
             />
->>>>>>> Stashed changes
           </Card>
         </ScrollView>
 

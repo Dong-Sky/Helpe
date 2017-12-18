@@ -271,11 +271,6 @@ class mySaleDetail extends Component{
     );
   };
 
-<<<<<<< Updated upstream
-  a  = () => {
-    alert('hello')
-  };
-=======
   //计算价格
   total = () => {
     const cash = Number(this.state.order.cash);
@@ -296,7 +291,6 @@ class mySaleDetail extends Component{
       return cash+changeprice;
     }
   }
->>>>>>> Stashed changes
 
 
   returnItemAvatarSource = () => {

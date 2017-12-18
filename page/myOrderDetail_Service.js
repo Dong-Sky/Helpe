@@ -11,10 +11,7 @@ import {
   ActivityIndicator,
   Alert,
   Switch,
-<<<<<<< Updated upstream
-=======
   DeviceEventEmitter,
->>>>>>> Stashed changes
 } from 'react-native';
 import {
   StackNavigator,
@@ -25,8 +22,6 @@ import { Icon,Button,Card, ListItem,SocialIcon,List,CheckBox,Rating  } from 'rea
 import Modalbox from 'react-native-modalbox';
 import Service from '../common/service';
 
-<<<<<<< Updated upstream
-=======
 returnState = (status) => {
   var title = '?';
   switch(Number(status)){
@@ -59,7 +54,6 @@ returnState = (status) => {
   return title;
 };
 
->>>>>>> Stashed changes
 //时间戳转换字符
 function formatDate(t){
   return new Date(parseInt(t) * 1000).toLocaleDateString().replace(/\//g, "-");
@@ -77,13 +71,6 @@ class myOrderDetail extends Component{
       item: {},
       orderaddr: {},
       user: {},
-<<<<<<< Updated upstream
-      //窗口
-      payModalVisible: false,
-      feedbackModalVisible: false,
-      isDisabled1: false,
-      isDisabled2: false,
-=======
       uuser: {},
       //窗口
       payModalVisible: false,
@@ -92,7 +79,6 @@ class myOrderDetail extends Component{
       isDisabled1: false,
       isDisabled2: false,
       isDisabled3: false,
->>>>>>> Stashed changes
       methodOfPay:1,
       //评价
       content: null,
@@ -151,11 +137,7 @@ class myOrderDetail extends Component{
         state.press = () => alert(I18n.t('myOrder.dtxt3'));
         break;
       case 40:
-<<<<<<< Updated upstream
-        state.title = '去评论';
-=======
         state.title = I18n.t('myOrder.od40');
->>>>>>> Stashed changes
         state.press = () => this.setState({feedbackModalVisible: true});
         break;
       case 50:
@@ -178,37 +160,22 @@ class myOrderDetail extends Component{
   getOrderInfo = () => {
     const { token,uid,porder } = this.state;
     const url = Service.BaseUrl+`?a=order&m=info&token=${token}&uid=${uid}&id=${porder.oid}&v=${Service.version}`;
-<<<<<<< Updated upstream
-    console.log(url);
-    fetch(url)
-    .then(response => response.json())
-    .then(responseJson => {
-      console.log(responseJson);
-=======
 
     fetch(url)
     .then(response => response.json())
     .then(responseJson => {
 
->>>>>>> Stashed changes
       if(!responseJson.status){
         this.setState({
           item: responseJson.data.item,
           user: responseJson.data.user,
-<<<<<<< Updated upstream
-=======
           uuser: responseJson.data.uuser,
->>>>>>> Stashed changes
           order: responseJson.data.order,
           orderaddr: responseJson.data.orderaddr,
         })
       }
       else{
-<<<<<<< Updated upstream
-        alert('请求错误'+'\n'+'错误原因: '+responseJson.err);
-=======
         alert(I18n.t('error.fetch_failed')+'\n'+responseJson.err);
->>>>>>> Stashed changes
       }
     })
     .catch(err => console.log(err))
@@ -234,7 +201,7 @@ class myOrderDetail extends Component{
     .then(responseJson => {
 
       if(!responseJson.status){
-        
+
         DeviceEventEmitter.emit('operate_Order');
 
         var txt = I18n.t('success.fetch');
@@ -275,21 +242,12 @@ class myOrderDetail extends Component{
     fetch(url)
     .then(response => response.json())
     .then(responseJson => {
-<<<<<<< Updated upstream
-      console.log(responseJson);
-      if(!responseJson.status){
-        alert('评价成功!');
-      }
-      else{
-        alert('请求失败\n'+'错误原因: '+responseJson.err);
-=======
 
       if(!responseJson.status){
         alert(I18n.t('success.feedback'));
       }
       else{
         alert(I18n.t('error.fetch_failed')+'\n'+responseJson.err);
->>>>>>> Stashed changes
       }
     })
     .then(() => this.setState({loading: false,feedbackModalVisible: false,content: null}))
@@ -315,48 +273,26 @@ class myOrderDetail extends Component{
             <CheckBox
               style={{backgroundColor: '#FFFFFF',borderWidth: 0,alignSelf: 'flex-start'}}
               containerStyle={{backgroundColor: '#FFFFFF',borderWidth: 0}}
-<<<<<<< Updated upstream
-              title='Helpme钱包支付'
-=======
               title={I18n.t('myOrder.dtxt11')}
->>>>>>> Stashed changes
               checked={this.state.methodOfPay==0}
               onPress={() => alert(I18n.t('myOrder.dtxt12'))}
             />
             <Text style={{marginLeft: 10,fontSize: 12,color: '#999999'}}>
-<<<<<<< Updated upstream
-              *说明：使用Helpme钱包进行线上支付(暂未开放)。
-=======
               {I18n.t('myOrder.dtxt13')}
->>>>>>> Stashed changes
             </Text>
             <CheckBox
               style={{backgroundColor: '#FFFFFF',borderWidth: 0,alignSelf: 'flex-start'}}
               containerStyle={{backgroundColor: '#FFFFFF',borderWidth: 0}}
-<<<<<<< Updated upstream
-              title='现金或其他渠道支付'
-=======
               title={I18n.t('myOrder.dtxt14')}
->>>>>>> Stashed changes
               checked={this.state.methodOfPay==1}
               onPress={() => this.setState({methodOfPay: 1})}
             />
             <Text style={{marginLeft: 10,fontSize: 12,color: '#999999'}}>
-<<<<<<< Updated upstream
-              *说明：已通过现金或其他渠道支付，经过双方确认支付完成后订单结束。
-=======
               {I18n.t('myOrder.dtxt15')}
->>>>>>> Stashed changes
             </Text>
           </View>
           <Button
             style={styles.button1}
-<<<<<<< Updated upstream
-            backgroundColor='#f3456d'
-            borderRadius={5}
-            title='确认支付'
-            onPress={() => this.operate_order('money')}
-=======
             backgroundColor='#f1a073'
             borderRadius={5}
             title={I18n.t('myOrder.pay')}
@@ -371,7 +307,6 @@ class myOrderDetail extends Component{
                 { cancelable: false }
               )
             }}
->>>>>>> Stashed changes
           />
           {this.showLoading()}
       </Modalbox>
@@ -382,11 +317,7 @@ class myOrderDetail extends Component{
   renderFeedbackModal = () => {
     return(
       <Modalbox
-<<<<<<< Updated upstream
-        style={{height: 320,width: 300,alignItems: 'center',}}
-=======
         style={{height: 330,width: 300,alignItems: 'center',}}
->>>>>>> Stashed changes
         isOpen={this.state.feedbackModalVisible}
         isDisabled={this.state.isDisabled2}
         position='center'
@@ -419,97 +350,14 @@ class myOrderDetail extends Component{
             style={styles.button1}
             backgroundColor='#f1a073'
             borderRadius={5}
-<<<<<<< Updated upstream
-            title='提交评价'
-=======
             title={I18n.t('myOrder.feedback')}
->>>>>>> Stashed changes
             onPress={() => this.feedback()}
           />
       </Modalbox>
     );
   };
 
-<<<<<<< Updated upstream
-  returnItemAvatarSource = () => {
-    var source;
-    if(this.state.item.img==''){
-      source = {uri:'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg' };
-    }
-    else{
-      source = {uri: Service.BaseUri+this.state.item.img};
-    }
-    return source;
-  };
 
-  returnUserAvatarSource = () => {
-    var source;
-    if(this.state.user.face==''){
-      source = {uri:'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg' };
-    }
-    else{
-      source = {uri: Service.BaseUri+this.state.user.face};
-    }
-    return source;
-  };
-
-
-  returnWork = () => {
-    var str = '';
-    if(this.state.user.work!=''&&this.state.user.occ!=''){
-      str = this.state.user.occ+'/'+this.state.user.work;
-    }
-    else if(this.state.user.work!=''){
-      str = this.state.user.work;
-    }
-    else if(this.state.user.occ!=''){
-      str = this.state.user.occ;
-    }
-    console.log(str);
-    return str;
-  };
-
-  renderSeparator = () => {
-      return (
-        <View
-          style={{
-            height: 1,
-            width: "95%",
-            backgroundColor: "#e5e5e5",//CED0CE
-            marginLeft: "5%"
-          }}
-        />
-      );
-  };
-
-  renderFooter = () => {
-      return (
-        <View
-          style={{
-            paddingVertical: 20,
-            borderTopWidth: 1,
-            borderColor: "#e5e5e5"
-          }}
-        >
-        </View>
-      );
-  };
-
-  renderHeader = () => {
-      return (<View
-                  style={{
-                    height: 1,
-                    width: "100%",
-                    backgroundColor: "#CED0CE",
-                    marginLeft: "0%"
-                  }}>
-              </View>
-          );
-  };
-
-
-
-=======
   //备注页面
   renderMarkModal = () => {
     return(
@@ -646,7 +494,6 @@ class myOrderDetail extends Component{
 
 
 
->>>>>>> Stashed changes
   showLoading = () => {
     return(
       <Modalbox
@@ -671,22 +518,13 @@ class myOrderDetail extends Component{
   };
 
   render(){
-<<<<<<< Updated upstream
-    console.log(this.state);
-=======
     const { navigate } = this.props.navigation;
 
->>>>>>> Stashed changes
     return(
       <View style={styles.container}>
         <View style={styles.StatusBar}>
         </View>
         <View style={styles.header}>
-<<<<<<< Updated upstream
-          <Text style={{marginLeft: 10,}} onPress={() => this.setState({payModalVisible: true})}>
-            支付
-          </Text>
-=======
           <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start'}}>
             <Icon
               style={{marginLeft: 5}}
@@ -703,7 +541,6 @@ class myOrderDetail extends Component{
           </View>
           <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
           </View>
->>>>>>> Stashed changes
         </View>
         <ScrollView>
           <ListItem
@@ -711,29 +548,17 @@ class myOrderDetail extends Component{
             component={TouchableOpacity}
             title={this.state.item.name}
             titleStyle={styles.title1}
-<<<<<<< Updated upstream
-            //rightTitle={'$'+this.state.item.price+'\n'+'*'+this.state.order.num}
-            rightIcon={
-              <View style={{alignSelf: 'center'}}>
-                <Text style={{color: '#333333',alignSelf: 'flex-end'}}>
-                  {'$'+this.state.item.price}
-=======
 
             rightIcon={
               <View style={{alignSelf: 'center'}}>
                 <Text style={{color: '#333333',alignSelf: 'flex-end'}}>
                   {'￥'+this.state.item.price}
->>>>>>> Stashed changes
                 </Text>
                 <Text style={{color: '#999999',alignSelf: 'flex-end'}}>
                   {'X'+this.state.order.num}
                 </Text>
                 <Text style={{color: '#da695c',alignSelf: 'flex-end'}}>
-<<<<<<< Updated upstream
-                  {this.state.order.changeprice>=0?'+'+this.state.order.changeprice:this.state.order.changeprice}
-=======
                   {this.state.order.changeprice>=0?'+￥'+this.state.order.changeprice:'-￥'+(-this.state.order.changeprice)}
->>>>>>> Stashed changes
                 </Text>
               </View>
             }
@@ -742,13 +567,6 @@ class myOrderDetail extends Component{
             avatarStyle={{height: 80,width: 80}}
             containerStyle={[styles.listContainerStyle,{borderWidth: 1,borderColor: '#e5e5e5'}]}
           />
-<<<<<<< Updated upstream
-          <List containerStyle={styles.list}>
-            <ListItem
-              titleStyle={styles.title1}
-              title={this.state.item==0?'服务名称':'求助名称'}
-=======
-
           <List containerStyle={styles.list}>
             <ListItem
               titleStyle={styles.title1}
@@ -790,104 +608,66 @@ class myOrderDetail extends Component{
             <ListItem
               titleStyle={styles.title1}
               title={this.state.item.tp==0?I18n.t('myOrder.S_name'):I18n.t('myOrder.A_name')}
->>>>>>> Stashed changes
               rightTitle={this.state.item.name}
               containerStyle={styles.listContainerStyle}
             />
             {this.renderSeparator()}
             <ListItem
               titleStyle={styles.title1}
-<<<<<<< Updated upstream
-              title='数量'
-=======
               title={I18n.t('myOrder.n')}
->>>>>>> Stashed changes
               rightTitle={this.state.order.num}
               containerStyle={styles.listContainerStyle}
             />
             {this.renderSeparator()}
             <ListItem
               titleStyle={styles.title1}
-<<<<<<< Updated upstream
-              title='补差价'
-=======
               title={I18n.t('myOrder.changeprice')}
->>>>>>> Stashed changes
               rightTitle={this.state.order.changeprice}
               containerStyle={styles.listContainerStyle}
             />
             {this.renderSeparator()}
             <ListItem
               titleStyle={styles.title1}
-<<<<<<< Updated upstream
-              title='总价'
-              rightTitle={'2000'}
-=======
               title={I18n.t('myOrder.total')}
               rightTitle={'￥'+(this.total()<0?I18n.t('myOrder.money_err'):this.total().toString())}
->>>>>>> Stashed changes
               containerStyle={styles.listContainerStyle}
             />
           </List>
           <List containerStyle={styles.list}>
             <ListItem
               titleStyle={styles.title1}
-<<<<<<< Updated upstream
-              title='订单编号'
-=======
               title={I18n.t('myOrder.code')}
->>>>>>> Stashed changes
               rightTitle={this.state.order.id}
               containerStyle={styles.listContainerStyle}
             />
             {this.renderSeparator()}
             <ListItem
               titleStyle={styles.title1}
-<<<<<<< Updated upstream
-              title='下单地址'
-              rightTitle={this.state.orderaddr.info==''?'未填写':this.state.orderaddr.info}
-              containerStyle={styles.listContainerStyle}
-=======
               title={I18n.t('myOrder.addr')}
               rightTitle={this.state.orderaddr.info==''?I18n.t('myOrder.none'):this.state.orderaddr.info}
               containerStyle={styles.listContainerStyle}
               onPress={() => alert(this.state.orderaddr.info==''?I18n.t('myOrder.none'):this.state.orderaddr.info)}
->>>>>>> Stashed changes
             />
             {this.renderSeparator()}
             <ListItem
               titleStyle={styles.title1}
-<<<<<<< Updated upstream
-              title='下单时间'
-=======
               title={I18n.t('myOrder.t')}
->>>>>>> Stashed changes
               rightTitle={formatDate(this.state.order.t)}
               containerStyle={styles.listContainerStyle}
             />
             {this.renderSeparator()}
             <ListItem
               titleStyle={styles.title1}
-<<<<<<< Updated upstream
-              title='备注'
-              rightTitle={this.state.porder.mark=''?'未填写':'查看'}
-              containerStyle={styles.listContainerStyle}
-=======
               title={I18n.t('myOrder.mark')}
               rightTitle={this.state.porder.mark==''?I18n.t('myOrder.none'):I18n.t('myOrder.go')}
               containerStyle={styles.listContainerStyle}
               onPress={() => this.setState({isMarkModalVisible: true})}
->>>>>>> Stashed changes
             />
           </List>
           <List containerStyle={styles.list}>
             <ListItem
               titleStyle={styles.title1}
-<<<<<<< Updated upstream
-              title='订单发起人'
-=======
               title={I18n.t('myOrder.onwer')}
->>>>>>> Stashed changes
               rightTitle={this.state.user.name}
               rightIcon={<View></View>}
               containerStyle={styles.listContainerStyle}
@@ -898,18 +678,12 @@ class myOrderDetail extends Component{
               component={TouchableOpacity}
               title={this.state.user.name}
               titleStyle={styles.title1}
-<<<<<<< Updated upstream
-              rightTitle={'查看'}
-=======
               rightTitle={I18n.t('myOrder.go')}
->>>>>>> Stashed changes
               subtitle={this.returnWork()}
               avatar={this.returnUserAvatarSource()}
               avatarContainerStyle={{height: 40,width: 40}}
               avatarStyle={{height: 40,width: 40}}
               containerStyle={[styles.listContainerStyle]}
-<<<<<<< Updated upstream
-=======
               onPress={() => {
                 const params = {
                   token: this.state.token,
@@ -919,7 +693,6 @@ class myOrderDetail extends Component{
                 };
                 navigate('user',params);
               }}
->>>>>>> Stashed changes
             />
           </List>
 
@@ -927,21 +700,14 @@ class myOrderDetail extends Component{
         <Button
           style={styles.button}
           //containerStyle={styles.buttonContainer}
-<<<<<<< Updated upstream
-          backgroundColor='#f3456d'
-=======
           backgroundColor='#f1a073'
->>>>>>> Stashed changes
           borderRadius={5}
           title={this.returnButtonState().title}
           onPress={this.returnButtonState().press}
         />
         {this.renderPayModal()}
         {this.renderFeedbackModal()}
-<<<<<<< Updated upstream
-=======
         {this.renderMarkModal()}
->>>>>>> Stashed changes
         {this.showLoading()}
       </View>
     );
@@ -1038,8 +804,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
     backgroundColor: '#FFFFFF',
   },
-<<<<<<< Updated upstream
-=======
   markInput:{
     width: 260,
     height: 140,
@@ -1051,7 +815,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     padding: 5,
   },
->>>>>>> Stashed changes
 });
 
 export default myOrderDetail;

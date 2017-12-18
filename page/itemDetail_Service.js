@@ -121,9 +121,6 @@ function formatDate(t){
           </TouchableOpacity>
         );
         slide1.push(newImg);
-<<<<<<< Updated upstream
-        this.setState({slide: slide1,album: album1,loading: false});
-=======
         this.setState({slide: slide1,album: album1});
       }
     })
@@ -164,68 +161,19 @@ function formatDate(t){
       }
       else{
         alert(I18n.t('error.fav_failed')+'\n'+responseJson.err);
->>>>>>> Stashed changes
       }
     })
     .then(() => this.setState({loading: false}))
     .catch(err => {console.log(err);this.setState({loading: false})})
   };
 
-<<<<<<< Updated upstream
-  getContent = () => {
-    const { token,uid,itemId } = this.state;
-    const url = Service.BaseUrl+`?a=feedback&v=${Service.version}&token=${token}&uid=${uid}&id=${itemId}`;
-    console.log(url);
 
-    fetch(url)
-    .then(response => response.json())
-    .then(responseJson => {
-      console.log(responseJson);
-      if(!responseJson.status){
-        this.setState({content: responseJson.data});
-      }
-      else {
-        alert('请求失败\n'+'错误原因: '+responseJson.err);
-      }
-    })
-    .catch(err => {console.log(err)})
-  };
-
-  //收藏
-  fav = () =>{
-    const { token,uid,itemId } = this.state;
-    const url = Service.BaseUrl+`?a=fav&m=save&token=${token}&uid=${uid}&id=${itemId}&v=${Service.version}`;
-    console.log(url);
-    this.setState({loading: true})
-    fetch(url)
-    .then(response => response.json())
-    .then(responseJson => {
-      console.log(responseJson);
-      if(!responseJson.status){
-        alert('收藏成功!');
-      }
-      else{
-        alert('请求失败\n'+'错误原因：'+responseJson.err);
-      }
-    })
-    .then(() => this.setState({loading: false}))
-    .catch(err => console.log(err))
-  };
-
-  saveImg = (img) =>  {
-    var promise = CameraRoll.saveToCameraRoll(img);
-    promise.then(function(result) {
-      alert('保存成功！');
-    }).catch(function(error) {
-      alert('保存失败！\n' + error);
-=======
   saveImg = (img) =>  {
     var promise = CameraRoll.saveToCameraRoll(img);
     promise.then(function(result) {
       alert(I18n.t('success.save'));
     }).catch(function(error) {
       alert(I18n.t('error.save_failed')+'\n' + error);
->>>>>>> Stashed changes
     });
   }
 
@@ -381,19 +329,11 @@ function formatDate(t){
           key={i}
           onLongPress={() => {
             Alert.alert(
-<<<<<<< Updated upstream
-              '请选择',
-              '是否保存图片?',
-              [
-                {text: '是', onPress: () => this.saveImg(ImgUrl)},
-                {text: '否', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-=======
               I18n.t('send.choose'),
               I18n.t('send.is_save_img'),
               [
                 {text: I18n.t('common.yes'), onPress: () => this.saveImg(ImgUrl)},
                 {text: I18n.t('common.no'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
->>>>>>> Stashed changes
               ],
               { cancelable: false }
             )
@@ -423,19 +363,11 @@ function formatDate(t){
           key={i}
           onLongPress={() => {
             Alert.alert(
-<<<<<<< Updated upstream
-              '请选择',
-              '是否保存图片?',
-              [
-                {text: '是', onPress: () => this.saveImg(ImgUrl)},
-                {text: '否', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-=======
               I18n.t('send.choose'),
               I18n.t('send.is_save_img'),
               [
                 {text: I18n.t('common.yes'), onPress: () => this.saveImg(ImgUrl)},
                 {text: I18n.t('common.no'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
->>>>>>> Stashed changes
               ],
               { cancelable: false }
             )
@@ -449,15 +381,7 @@ function formatDate(t){
         );
     }
   };
-<<<<<<< Updated upstream
 
-
-
-=======
-
-
-
->>>>>>> Stashed changes
   //加载器
   showLoading = () => {
     return(
@@ -520,8 +444,6 @@ function formatDate(t){
       source = {uri: Service.BaseUri+this.state.user.face};
     }
     return source;
-<<<<<<< Updated upstream
-=======
   };
 
   returnAvatarSource = (face) => {
@@ -561,7 +483,6 @@ function formatDate(t){
       str = I18n.t('itemDetail.both');
     }
     return str;
->>>>>>> Stashed changes
   };
 
   returnAvatarSource = (face) => {
@@ -575,38 +496,7 @@ function formatDate(t){
     return source;
   };
 
-<<<<<<< Updated upstream
-  returnWork = () => {
-    var str = '';
-    if(this.state.user.work!=''&&this.state.user.occ!=''){
-      str = this.state.user.occ+'/'+this.state.user.work;
-    }
-    else if(this.state.user.work!=''){
-      str = this.state.user.work;
-    }
-    else if(this.state.user.occ!=''){
-      str = this.state.user.occ;
-    }
-    return str;
-  };
 
-  returnPayTp =() => {
-    var str = '';
-    if(this.state.item.paytp==0){
-      str = '线上';
-    }
-    else if(this.state.item.paytp==1){
-      str = '线下';
-    }
-    else if(this.state.item.paytp==2){
-      str = '线下&线上';
-    }
-    return str;
-  };
-
-
-=======
->>>>>>> Stashed changes
   //联系方式页面
   renderContactModal = () => {
     return(
@@ -620,11 +510,8 @@ function formatDate(t){
         onClosed={() => this.setState({contactModalVisible: false})}
         >
           <Text style={{marginTop: 10}}>
-<<<<<<< Updated upstream
-            联系方式
-=======
+
             {I18n.t('itemDetail.contact')}
->>>>>>> Stashed changes
           </Text>
           <View style={{flex: 1,marginTop: 10, alignSelf: 'stretch'}}>
             <TextInput
@@ -640,11 +527,7 @@ function formatDate(t){
             style={styles.button1}
             backgroundColor='#f1a073'
             borderRadius={5}
-<<<<<<< Updated upstream
-            title='确定'
-=======
             title={I18n.t('common.back')}
->>>>>>> Stashed changes
             onPress={() => this.setState({contactModalVisible: false,})}
           />
       </Modalbox>
@@ -664,11 +547,7 @@ function formatDate(t){
         onClosed={() => this.setState({markModalVisible: false})}
         >
           <Text style={{marginTop: 10}}>
-<<<<<<< Updated upstream
-            详细内容
-=======
             {I18n.t('itemDetail.detail')}
->>>>>>> Stashed changes
           </Text>
           <View style={{flex: 1,marginTop: 10, alignSelf: 'stretch'}}>
             <TextInput
@@ -684,11 +563,7 @@ function formatDate(t){
             style={styles.button1}
             backgroundColor='#f1a073'
             borderRadius={5}
-<<<<<<< Updated upstream
-            title='确定'
-=======
             title={I18n.t('common.back')}
->>>>>>> Stashed changes
             onPress={() => this.setState({markModalVisible: false,})}
           />
       </Modalbox>
@@ -705,10 +580,7 @@ function formatDate(t){
         position='center'
         backdrop={true}
         backButtonClose={true}
-<<<<<<< Updated upstream
-=======
         swipeToClose={false}
->>>>>>> Stashed changes
         onClosed={() => this.setState({mapModalVisible: false})}
         >
           <MapView
@@ -726,11 +598,7 @@ function formatDate(t){
             }}>
               <MapView.Callout>
                 <Text style={{color: '#333333',fontSize: 14}}>
-<<<<<<< Updated upstream
-                  我的位置
-=======
                   {I18n.t('itemDetail.myLocation')}
->>>>>>> Stashed changes
                 </Text>
               </MapView.Callout>
             </MapView.Marker>
@@ -782,13 +650,8 @@ function formatDate(t){
                 />
               </View>
               <View style={{flex: 1,flexDirection: 'column',justifyContent: 'center'}}>
-<<<<<<< Updated upstream
-                <Text style={{alignSelf: 'center'}}>
-                  评论
-=======
                 <Text style={{alignSelf: 'center',fontSize: 18,color: '#333333'}}>
                   {I18n.t('itemDetail.feedback')}
->>>>>>> Stashed changes
                 </Text>
               </View>
               <View style={{flex: 1,flexDirection: 'column',justifyContent: 'center'}}>
@@ -804,11 +667,7 @@ function formatDate(t){
                       component={TouchableOpacity}
                       roundAvatar
                       key={item.id}
-<<<<<<< Updated upstream
-                      title={item.name==''?'匿名用户':item.name}
-=======
                       title={item.name==''?I18n.t('common.no_name'):item.name}
->>>>>>> Stashed changes
                       rightTitle={formatDate(item.t)}
                       avatar={this.returnAvatarSource(item.face)}
                       onPress={() => {console.log(typeof item.name);console.log(typeof item.content);}}
@@ -864,13 +723,8 @@ function formatDate(t){
             />
           </View>
           <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
-<<<<<<< Updated upstream
-            <Text style={{alignSelf: 'center',color: '#333333',fontSize: 16}}>
-              服务详情
-=======
             <Text style={{alignSelf: 'center',color: '#333333',fontSize: 18}}>
               {I18n.t('itemDetail.Service')}
->>>>>>> Stashed changes
             </Text>
           </View>
           <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
@@ -881,19 +735,11 @@ function formatDate(t){
                 size={28}
                 onPress={() => {
                   Alert.alert(
-<<<<<<< Updated upstream
-                    '收藏',
-                    '是否要收藏?',
-                    [
-                      {text: '取消', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                      {text: '确定', onPress: () => this.fav()},
-=======
                     I18n.t('itemDetail.fav'),
                     I18n.t('itemDetail.is_fav'),
                     [
                       {text: I18n.t('common.no'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
                       {text: I18n.t('common.yes'), onPress: () => this.fav()},
->>>>>>> Stashed changes
                     ],
                     { cancelable: false }
                   )
@@ -931,28 +777,17 @@ function formatDate(t){
               {this.state.item.name}
             </Text>
             <Text style={[styles.title,{fontSize: 14,color: '#da695c'}]}>
-<<<<<<< Updated upstream
-              {this.state.item.u? this.state.item.price+'圆/'+this.state.item.u:this.state.item.price+'圆'}
-            </Text>
-            <Text style={[styles.title,{fontSize: 14,color: '#333333',marginBottom: 5}]}>
-              {'已成交: '+this.state.item.salenum+'次'}
-=======
               {this.state.item.u? '￥'+this.state.item.price+'/'+this.state.item.u:'￥'+this.state.item.price+'圆'}
             </Text>
             <Text style={[styles.title,{fontSize: 14,color: '#333333',marginBottom: 5}]}>
               {I18n.t('itemDetail.sale')+': '+this.state.item.salenum+I18n.t('itemDetail.e')}
->>>>>>> Stashed changes
             </Text>
             {this.renderSeparator()}
             <Text style={[styles.title,styles.sub]}>
               {I18n.t('itemDetail.S_cate')+': '+this.state.category.name}
             </Text>
             <Text style={[styles.title,styles.sub]}>
-<<<<<<< Updated upstream
-              {'支付方式: '+this.returnPayTp()}
-=======
               {I18n.t('itemDetail.paytp')+': '+this.returnPayTp()}
->>>>>>> Stashed changes
             </Text>
             <Text style={[styles.title,styles.sub]}>
               {this.state.item.pet?I18n.t('itemDetail.deadline')+': '+formatDate(this.state.item.pet):null}
@@ -974,33 +809,6 @@ function formatDate(t){
               style={{fontSize: 12,fontWeight: '500',alignSelf: 'center',color: '#333333',marginBottom: 10,marginTop: 5}}
               onPress={() => this.setState({markModalVisible: true})}
               >
-<<<<<<< Updated upstream
-              点击查看全部内容
-            </Text>
-          </TouchableOpacity>
-          <List containerStyle={styles.list}>
-            <ListItem
-              component={TouchableOpacity}
-              titleStyle={styles.title}
-              title='我的地址'
-              containerStyle={styles.listContainerStyle}
-              onPress={() => {
-                if(this.state.addr.lat==undefined||this.state.addr.lng==undefined){
-                  alert('获取地址失败!');
-                }
-                else{
-                  this.setState({mapModalVisible: true});
-                }
-              }}
-            />
-            {this.renderSeparator()}
-            <ListItem
-              component={TouchableOpacity}
-              titleStyle={styles.title}
-              title='联系方式'
-              containerStyle={styles.listContainerStyle}
-              onPress={() => this.setState({contactModalVisible: true})}
-=======
               {I18n.t('itemDetail.read_more')}
             </Text>
           </TouchableOpacity>
@@ -1018,15 +826,11 @@ function formatDate(t){
                   this.setState({mapModalVisible: true});
                 }
               }}
->>>>>>> Stashed changes
             />
             {this.renderSeparator()}
             <ListItem
               component={TouchableOpacity}
               titleStyle={styles.title}
-<<<<<<< Updated upstream
-              title='相册'
-=======
               title={I18n.t('itemDetail.contact')}
               containerStyle={styles.listContainerStyle}
               onPress={() => this.setState({contactModalVisible: true})}
@@ -1036,7 +840,6 @@ function formatDate(t){
               component={TouchableOpacity}
               titleStyle={styles.title}
               title={I18n.t('itemDetail.ablum')}
->>>>>>> Stashed changes
               containerStyle={styles.listContainerStyle}
               onPress={() => this.setState({albumModalVisible: true})}
             />
@@ -1045,12 +848,8 @@ function formatDate(t){
             <ListItem
               component={TouchableOpacity}
               titleStyle={styles.title}
-<<<<<<< Updated upstream
-              title='评价'
-=======
               title={I18n.t('itemDetail.feedback')}
               rightTitle={'('+this.state.content.length+')'}
->>>>>>> Stashed changes
               containerStyle={styles.listContainerStyle}
               onPress={() => this.setState({contentModalVisible: true})}
             />
@@ -1062,16 +861,6 @@ function formatDate(t){
             buttonStyle={{marginTop:5,marginBottom:5,}}
             borderRadius={5}
             backgroundColor='#f1a073'
-<<<<<<< Updated upstream
-            onPress={() => navigate('buy',{
-              token: this.state.token,
-              uid: this.state.uid,
-              islogin: this.state.islogin,
-              itemId: this.state.itemId,
-            })}
-            title='立即下单' />
-            {this.showLoading()}
-=======
             onPress={() => {
               if(this.state.item.flag==1){
                 navigate('buy',{
@@ -1089,7 +878,6 @@ function formatDate(t){
               }
             }}
             title={I18n.t('itemDetail.buy')}/>
->>>>>>> Stashed changes
             {this.renderContactModal()}
             {this.renderMarkModal()}
             {this.renderAlbumModal()}
@@ -1245,24 +1033,12 @@ const styles = StyleSheet.create({
     width: 260,
     height: 140,
     textAlignVertical: 'top',
-<<<<<<< Updated upstream
-    padding: 0,
-=======
->>>>>>> Stashed changes
     borderWidth: 1,
     borderColor: '#f1a073',
     alignSelf: 'center',
     color: '#666666',
     fontSize: 14,
-<<<<<<< Updated upstream
-  },
-  markInput:{
-    width: '90%',
-    height: '100%',
-    textAlignVertical: 'top',
-    padding: 0,
-    borderWidth: 1,
-=======
+
     padding: 5,
   },
   markInput:{
@@ -1270,7 +1046,6 @@ const styles = StyleSheet.create({
     height: '100%',
     textAlignVertical: 'top',
     borderWidth: 2,
->>>>>>> Stashed changes
     borderColor: '#f1a073',
     alignSelf: 'center',
     color: '#666666',

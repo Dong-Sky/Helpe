@@ -13,11 +13,8 @@ import {
   Modal,
   Alert,
   CameraRoll,
-<<<<<<< Updated upstream
-=======
   ActivityIndicator,
   DeviceEventEmitter,
->>>>>>> Stashed changes
 } from 'react-native';
 import {
   StackNavigator,
@@ -27,10 +24,7 @@ import {
 import { List, ListItem, Avatar} from 'react-native-elements';
 import { Icon,Button } from 'react-native-elements';
 import DateTimePicker from 'react-native-modal-datetime-picker';
-<<<<<<< Updated upstream
-=======
 import Modalbox from 'react-native-modalbox';
->>>>>>> Stashed changes
 import ImagePicker from 'react-native-image-picker';
 import Service from '../common/service.js';
 import { I18n } from '../common/I18n';
@@ -70,10 +64,6 @@ var options = {
 };
 
 
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 export default class personal extends Component {
   static navigationOptions = {
    title: '个人信息',
@@ -482,13 +472,7 @@ export default class personal extends Component {
      source = {uri: Service.BaseUri+this.state.user.face};
    }
 
-<<<<<<< Updated upstream
-   console.log(source);
-   return source;
- }
 
-=======
-  
    return source;
  }
 
@@ -516,7 +500,6 @@ export default class personal extends Component {
    );
  };
 
->>>>>>> Stashed changes
  render() {
    const { navigate } = this.props.navigation;
    const { params } = this.props.navigation.state;
@@ -575,13 +558,6 @@ export default class personal extends Component {
      },
      {
        id: 2,
-<<<<<<< Updated upstream
-       title:'学校/工作单位',
-       value: this.state.user.work==''?'未填写':this.state.user.work,
-       rightIcon: false,
-       press: () => {
-         var Update = {title: '学校/工作单位',name: 'work',value: this.state.user.work};
-=======
        title:I18n.t('user.occ'),
        value: this.state.user.occ==''?I18n.t('user.none'):this.state.user.occ,
        rightIcon: false,
@@ -597,7 +573,6 @@ export default class personal extends Component {
        rightIcon: false,
        press: () => {
          var Update = {title: I18n.t('user.work'),name: 'work',value: this.state.user.work};
->>>>>>> Stashed changes
          this.setState({Update: Update, UpdateInfoModalVisible: true});
        }
      }
@@ -649,71 +624,6 @@ export default class personal extends Component {
            onPress={() => this.props.navigation.goBack()}
          />
        </View>
-<<<<<<< Updated upstream
-       <ScrollView>
-         <View style={styles.banner}>
-           <TouchableOpacity onPress={() => this.ChooseFace()}>
-             <Image
-               style={styles.avatar}
-               source={this.returnAvatarSource()}
-             />
-           </TouchableOpacity>
-         </View>
-         <List containerStyle={[styles.list,{marginTop: 0}]}>
-           <FlatList
-             roundAvatar
-             data={list1}
-             style={{marginTop: 0,borderWidth: 0}}
-             renderItem={({ item }) => (
-               <ListItem
-                 component={TouchableOpacity}
-                 key={item.id}
-                 title={item.title}
-                 rightTitle={item.value}
-                 titleStyle={styles.title}
-                 containerStyle={styles.listContainerStyle}
-                 onPress={() => item.press()}
-               />
-             )}
-             keyExtractor={item => item.id}
-             ItemSeparatorComponent={this.renderSeparator}
-           />
-         </List>
-         <List containerStyle={styles.list}>
-           <FlatList
-             data={list2}
-             renderItem={({ item }) => (
-               <ListItem
-                 component={TouchableOpacity}
-                 key={item.id}
-                 title={item.title}
-                 rightTitle={item.value}
-                 titleStyle={styles.title}
-                 containerStyle={styles.listContainerStyle}
-                 onPress={() => item.press()}
-               />
-             )}
-             keyExtractor={item => item.id}
-             ItemSeparatorComponent={this.renderSeparator}
-           />
-         </List>
-         <List containerStyle={styles.list}>
-           <FlatList
-             data={list3}
-             renderItem={({ item }) => (
-               <ListItem
-                 component={TouchableOpacity}
-                 key={item.id}
-                 title={item.title}
-                 rightTitle={item.value}
-                 titleStyle={styles.title}
-                 containerStyle={styles.listContainerStyle}
-                 onPress={() => item.press()}
-               />
-             )}
-             keyExtractor={item => item.id}
-             ItemSeparatorComponent={this.renderSeparator}
-=======
        <View style={{flex: 1,flexDirection: 'column',justifyContent: 'center'}}>
          <Text style={{alignSelf: 'center',fontSize: 18,color: '#333333'}}>
            {I18n.t('user.user')}
@@ -728,8 +638,6 @@ export default class personal extends Component {
            <Image
              style={styles.avatar}
              source={this.returnAvatarSource()}
-
->>>>>>> Stashed changes
            />
          </TouchableOpacity>
        </View>
@@ -860,8 +768,6 @@ const styles = StyleSheet.create({
       borderWidth: 1,
       borderColor: '#e5e5e5'
     },
-<<<<<<< Updated upstream
-=======
     markInput:{
       width: 260,
       height: 140,
@@ -879,5 +785,4 @@ const styles = StyleSheet.create({
       width: 240,
       height: 50,
     },
->>>>>>> Stashed changes
 });

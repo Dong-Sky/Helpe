@@ -623,11 +623,7 @@ function isRealNum(val){
           <TouchableOpacity style={styles.item_pic}>
             {this.returnPhoto()}
           </TouchableOpacity>
-<<<<<<< Updated upstream
-          <View style={{marginBottom: 0,borderTopWidth: 0,marginTop:0,borderTopWidth: 1,borderColor: '#e5e5e5'}}>
-=======
           <List containerStyle={[styles.list,{marginTop: 0}]}>
->>>>>>> Stashed changes
             <ListItem
               titleStyle={styles.title}
               title={I18n.t('buy.price')}
@@ -645,11 +641,7 @@ function isRealNum(val){
               textInputOnChangeText={(num) => this.setState({num})}
               textInputValue={this.state.num}
               clearButtonMode='always'
-<<<<<<< Updated upstream
-              keyboardType='phone-pad'
-=======
               keyboardType='numeric'
->>>>>>> Stashed changes
               containerStyle={styles.listContainerStyle}
             />
             {this.renderSeparator()}
@@ -661,17 +653,6 @@ function isRealNum(val){
               textInputOnChangeText={(changeprice) => this.setState({changeprice})}
               textInputValue={this.state.changeprice}
               clearButtonMode='always'
-<<<<<<< Updated upstream
-              keyboardType='phone-pad'
-              containerStyle={styles.listContainerStyle}
-            />
-          </View>
-          <View style={styles.list}>
-            <ListItem
-              titleStyle={styles.title}
-              title='线下支付'
-              rightTitle={this.state.item.paytp>=1?'支持':'不支持'}
-=======
               keyboardType='numeric'
               containerStyle={styles.listContainerStyle}
             />
@@ -681,27 +662,17 @@ function isRealNum(val){
               titleStyle={styles.title}
               title={I18n.t('buy.underline')}
               rightTitle={this.state.item.paytp>=1?I18n.t('buy.y'):I18n.t('buy.n')}
->>>>>>> Stashed changes
               containerStyle={styles.listContainerStyle}
             />
             {this.renderSeparator()}
             <ListItem
               titleStyle={styles.title}
-<<<<<<< Updated upstream
-              title='线上支付'
-              rightTitle={this.state.item.paytp!=1?'支持':'不支持'}
-              containerStyle={styles.listContainerStyle}
-            />
-          </View>
-          <View style={styles.list}>
-=======
               title={I18n.t('buy.online')}
               rightTitle={this.state.item.paytp!=1?I18n.t('buy.y'):I18n.t('buy.n')}
               containerStyle={styles.listContainerStyle}
             />
           </List>
           <List containerStyle={styles.list}>
->>>>>>> Stashed changes
             <ListItem
               titleStyle={styles.title}
               title={I18n.t('buy.myAddress')}
@@ -717,24 +688,15 @@ function isRealNum(val){
               onPress={() => this.setMarkModalVisible(true)}
               containerStyle={styles.listContainerStyle}
             />
-<<<<<<< Updated upstream
-          </View>
-          <View style={styles.list}>
-            <ListItem
-              titleStyle={styles.title}
-              title='总价'
-              rightTitle={this.total()<0?'输入不合法':this.total().toString()}
-=======
           </List>
           <List containerStyle={styles.list}>
             <ListItem
               titleStyle={styles.title}
               title={I18n.t('buy.total')}
               rightTitle={this.total()<0?I18n.t('buy.input_err'):this.total().toString()}
->>>>>>> Stashed changes
               containerStyle={styles.listContainerStyle}
             />
-          </View>
+          </List>
         </ScrollView>
         <Button
           style={styles.button}
@@ -764,10 +726,7 @@ function isRealNum(val){
         {this.renderAddressModal()}
         {this.renderMarkModal()}
         {this.showLoading()}
-<<<<<<< Updated upstream
-=======
         {this.renderBackModal()}
->>>>>>> Stashed changes
       </View>
 
     );
@@ -831,19 +790,15 @@ const styles = StyleSheet.create({
     //alignSelf: 'center'
   },
   list: {
-<<<<<<< Updated upstream
-    marginTop:10,
-=======
+
     marginTop: 10,
->>>>>>> Stashed changes
+
     borderWidth: 1,
     borderColor: '#e5e5e5',
   },
   listContainerStyle:{
     borderBottomWidth: 0,
-<<<<<<< Updated upstream
-    backgroundColor: '#FFFFFF',
-=======
+
     backgroundColor: '#FFFFFF'
   },
   contactInput:{
@@ -873,7 +828,6 @@ const styles = StyleSheet.create({
     color: '#666666',
     fontSize: 14,
     padding: 5,
->>>>>>> Stashed changes
   },
 });
 

@@ -13,10 +13,7 @@ import {
   FlatList,
   Keyboard,
   Alert,
-<<<<<<< Updated upstream
-=======
   TouchableOpacity,
->>>>>>> Stashed changes
 } from 'react-native';
 import ReactNative from 'react-native';
 import {
@@ -257,19 +254,6 @@ class myAdress extends Component {
     );
   };
 
-<<<<<<< Updated upstream
-  renderSeparator = () => {
-      return (
-        <View
-          style={{
-            height: 1,
-            width: "95%",
-            backgroundColor: "#e5e5e5",//CED0CE
-            marginLeft: "5%"
-          }}
-        />
-      );
-=======
   //地址名页面
   renderInfoModal = () => {
     return(
@@ -344,7 +328,6 @@ class myAdress extends Component {
         </MapView>
       </Modalbox>
     );
->>>>>>> Stashed changes
   };
 
   renderSeparator = () => {
@@ -399,17 +382,6 @@ class myAdress extends Component {
                 title={item.info}
                 titleStyle={styles.title}
                 containerStyle={styles.listContainerStyle}
-<<<<<<< Updated upstream
-                keyExtractor={item => item.id}
-                onPress={() => {
-                  Alert.alert(
-                    '请选择',
-                    '',
-                    [
-                      {text: '修改', onPress: () => console.log('Ask me later pressed')},
-                      {text: '取消', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                      {text: '删除', onPress: () => this.deleteAddress(item.id)},
-=======
                 titleNumberOfLines={3}
                 keyExtractor={item => item.id}
                 onPress={() => {
@@ -433,7 +405,6 @@ class myAdress extends Component {
                       },
                       {text: I18n.t('common.cancel'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
                       {text: I18n.t('common.delete'), onPress: () => this.deleteAddress(item.id)},
->>>>>>> Stashed changes
                     ],
                     { cancelable: false }
                   );
@@ -443,11 +414,7 @@ class myAdress extends Component {
             ItemSeparatorComponent={this.renderSeparator}
           />
         </List>
-<<<<<<< Updated upstream
-
-=======
           {this.renderMapModal()}
->>>>>>> Stashed changes
           {this.rendermodal()}
       </View>
     );
@@ -508,8 +475,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
     backgroundColor: '#FFFFFF'
   },
-<<<<<<< Updated upstream
-=======
   button1: {
     alignSelf: 'center',
     marginTop : 5,
@@ -538,6 +503,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     padding: 5,
   },
->>>>>>> Stashed changes
 });
 export default myAdress;

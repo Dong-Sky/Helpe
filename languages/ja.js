@@ -1,12 +1,4 @@
 export default {
-<<<<<<< Updated upstream
-    home: {
-        Search: 'sagasu',
-        More: 'mouskosi',
-        Service: 'saabisu',
-        Ask: 'tasuke',
-    },
-=======
   common: {
     no_name: 'ゲスト',
     yes: 'はい',
@@ -484,5 +476,4 @@ export default {
     t90: '90日',
     t30: '30日',
   }
->>>>>>> Stashed changes
 };

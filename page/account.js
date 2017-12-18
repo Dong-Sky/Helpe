@@ -116,11 +116,9 @@ class account1 extends Component {
         this.setState({user: responseJson.data.user});
       }
       else{
-<<<<<<< Updated upstream
-        console.log(responseJson.err);
-=======
 
->>>>>>> Stashed changes
+        console.log(responseJson.err);
+
       }
     })
     .catch(err => console.log(err))
@@ -176,7 +174,6 @@ class account1 extends Component {
         style={{marginTop: 10,marginLeft: 15}}
         onPress={() => {
           if(!this.state.islogin){
-<<<<<<< Updated upstream
             navigate('login',{
             token:this.state.token,
             uid:this.state.uid,
@@ -186,10 +183,6 @@ class account1 extends Component {
           else{
             alert('已经登录!');
           }
-=======
-            navigate('login');
-          }
->>>>>>> Stashed changes
         }}
         >
         <Image
@@ -263,8 +256,6 @@ class account1 extends Component {
         title: I18n.t('account.fav'),
         icon : (
           <Image
-<<<<<<< Updated upstream
-=======
           source={require('../icon/account/fav.png')}
           style={styles.account_icon}
         />
@@ -311,7 +302,6 @@ class account1 extends Component {
         title: I18n.t('account.order'),
         icon : (
           <Image
->>>>>>> Stashed changes
           source={require('../icon/account/order.png')}
           style={styles.account_icon}
         />
@@ -336,8 +326,6 @@ class account1 extends Component {
         title: I18n.t('account.sale'),
         icon : (
           <Image
-<<<<<<< Updated upstream
-=======
           source={require('../icon/account/sale.png')}
           style={styles.account_icon}
         />
@@ -362,7 +350,6 @@ class account1 extends Component {
         title: I18n.t('account.order'),
         icon : (
           <Image
->>>>>>> Stashed changes
           source={require('../icon/account/order.png')}
           style={styles.account_icon}
         />
@@ -379,103 +366,6 @@ class account1 extends Component {
           }
           else{
             alert(I18n.t('account.noLogin'));
-          }
-        },
-      },
-<<<<<<< Updated upstream
-    ];
-    const list3 = [
-  {
-    id: 1,
-    title: '收藏',
-    icon : (
-      <Image
-      source={require('../icon/account/fav.png')}
-      style={styles.account_icon}
-    />
-  ),
-    icon_color:'#f1a073',
-    x:2,
-    press(state){
-      if(state.islogin) navigate('fav',{
-        uid: state.uid,
-        token: state.token,
-        islogin: state.islogin,
-      })
-      else{
-        alert('请登录！');
-      }
-    },
-  },
-  {
-    id: 2,
-    title: '我的地址',
-    icon: (
-      <Image
-      source={require('../icon/account/address.png')}
-      style={styles.account_icon}
-    />
-  ),
-    icon_color:'#f1a073',
-    x:7,
-    press(state){
-      if(state.islogin){
-        navigate('myAdress',state);
-      }
-      else {
-        alert('请登录！');
-      }
-    },
-  },
-  {
-    id: 3,
-    title: '我的评价',
-    icon: (
-      <Image
-      source={require('../icon/account/content.png')}
-      style={styles.account_icon}
-    />
-  ),
-    icon_color:'#f1a073',
-    x:7,
-    press(){alert('hi');},
-  },
-  {
-    id: 4,
-    title: '订阅',
-    icon: (
-      <Image
-      source={require('../icon/account/ord.png')}
-      style={styles.account_icon}
-    />
-  ),
-    icon_color:'#f1a073',
-    x:5,
-    press(){
-      alert('hi');}
-  },
-=======
-      {
-        id: 4,
-        title: I18n.t('account.sale'),
-        icon : (
-          <Image
-          source={require('../icon/account/sale.png')}
-          style={styles.account_icon}
-        />
-      ),
-        icon_color:'#f1a073',
-        x:2,
-        press(state){
-          if(state.islogin){
-            navigate('mySale_Ask',{
-              token: state.token,
-              uid: state.uid,
-              islogin: state.islogin,
-            })
-          }
-          else{
-            alert(I18n.t('noLogin'));
           }
         },
       },
@@ -519,9 +409,8 @@ class account1 extends Component {
           }
         },
       },
+    ];
 
->>>>>>> Stashed changes
-  ];
    const list4 = [
      {
        id: 1,
@@ -549,13 +438,9 @@ class account1 extends Component {
          <View style={{flex: 1,}}>
          </View>
          <View style={{flex: 1,}}>
-<<<<<<< Updated upstream
-           <Text style={{alignSelf: 'center',fontSize: 16,color: '#333333'}}>
-             我
-=======
+
            <Text style={{alignSelf: 'center',fontSize: 18,color: '#333333'}}>
              {I18n.t('account.me')}
->>>>>>> Stashed changes
            </Text>
          </View>
          <View style={{flex: 1,}}>
@@ -566,32 +451,14 @@ class account1 extends Component {
             <TouchableOpacity style={styles.user} onPress={() => this.onPressHeader(this.state.islogin)}>
               {this.returnAvatar()}
               <Text style={{marginTop:40,marginLeft: 15,fontSize: 16,color: '#333333'}}>
-<<<<<<< Updated upstream
-                {this.state.islogin?this.state.user.name+'的个人主页':'去登录'}
-=======
                 {this.state.islogin?this.state.user.name:I18n.t('account.goLogin')}
->>>>>>> Stashed changes
               </Text>
             </TouchableOpacity>
            <View style={styles.order}>
              <TouchableOpacity
                style={{flex:1,borderRightWidth:1,borderColor: '#e5e5e5',flexDirection: 'column',justifyContent: 'center', alignItems: 'center',}}
-<<<<<<< Updated upstream
-               onPress={() => {
-                 if(this.state.islogin){
-                 navigate('myQRcode',{
-                   uid:this.state.uid,
-                   token:this.state.token,
-                 });
-               }
-               else {
-                 alert('请登录');
-               }
-             }
-           }
-=======
+
                onPress={() => alert(I18n.t('account.not_open'))}
->>>>>>> Stashed changes
                >
               <Image
                    source={require('../icon/account/getmoney.png')}
@@ -605,22 +472,16 @@ class account1 extends Component {
             </TouchableOpacity>
             <TouchableOpacity
               style={{flex:1,borderLeftWidth:1,borderColor: '#e5e5e5',flexDirection: 'column', justifyContent: 'center',alignItems: 'center',}}
-<<<<<<< Updated upstream
-              onPress={() => navigate('scanner')}
-=======
               onPress={() => alert(I18n.t('account.not_open'))}
->>>>>>> Stashed changes
               >
                <Image
                source={require('../icon/account/qrcode.png')}
                style={{width:40,height:40}}
              />
                <Text  style={{color:'#333333',fontWeight:'500',fontSize:14,}}>
-<<<<<<< Updated upstream
-                 付款
-=======
+
                  {I18n.t('account.pay')}
->>>>>>> Stashed changes
+
                </Text>
              </TouchableOpacity>
            </View>
@@ -634,18 +495,7 @@ class account1 extends Component {
              titleStyle={styles.title}
              containerStyle={styles.listContainerStyle}
            />
-<<<<<<< Updated upstream
-           {this.renderSeparator(false)}
-           <ListItem
-             component={TouchableOpacity}
-             title={list1[1].title}
-             leftIcon={list1[1].icon}
-             onPress={() => list1[1].press(this.state)}
-             titleStyle={styles.title}
-             containerStyle={styles.listContainerStyle}
-           />
-=======
->>>>>>> Stashed changes
+
          </List>
          <List containerStyle={styles.list}>
            {
@@ -775,11 +625,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-<<<<<<< Updated upstream
-=======
+
     borderColor: '#e5e5e5',
     borderBottomWidth: 1,
->>>>>>> Stashed changes
+
   },
   userInfo: {
         height: 160,

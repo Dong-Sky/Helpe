@@ -357,31 +357,15 @@ class home1 extends Component {
 
   controlFontStyle = (tp) => {
     if(this.state.tp==tp){
-<<<<<<< Updated upstream
-      return {color: '#FFFFFF'};
-    }
-    else{
-      return {color: '#f1a073'};
-=======
       return {color: '#FFFFFF',fontSize: 16};
     }
     else{
       return {color: '#f1a073',fontSize: 16};
->>>>>>> Stashed changes
     }
   };
 
 
   render() {
-<<<<<<< Updated upstream
-    console.log(this.state);
-    console.log(I18n.t('home.Service'));
-    console.log(I18n.t('home.Ask'));
-    console.log(I18n.t('home.search'));
-    console.log(I18n);
-=======
-
->>>>>>> Stashed changes
     const {params} = this.props.navigation.state;
     const {navigate} = this.props.navigation;
     return (
@@ -399,11 +383,7 @@ class home1 extends Component {
               />
             </View>
             <View style={{flex:1,alignItems: 'center'}}>
-<<<<<<< Updated upstream
-              <View style={{width: 120,height: 30,borderWidth: 2, borderColor: '#f1a073',flexDirection: 'row'}}>
-=======
               <View style={{width: 160,height: 30,borderWidth: 2, borderColor: '#f1a073',flexDirection: 'row'}}>
->>>>>>> Stashed changes
                 <TouchableOpacity style={[styles.choosebar,this.controlChooseBarStyle(0)]} onPress={() => this.reget(0)}>
                   <Text style={[this.controlFontStyle(0)]}>
                     {I18n.t('home.Service')}
@@ -417,28 +397,17 @@ class home1 extends Component {
               </View>
             </View>
             <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end',marginRight: 10}}>
-<<<<<<< Updated upstream
-              <Text
-=======
               <Icon
                 style={{}}
                 name='playlist-play'
                 color='#f1a073'
                 size={32}
->>>>>>> Stashed changes
                 onPress={() => navigate('itemList',{
                   token:this.state.token,
                   uid: this.state.uid,
                   islogin: this.state.islogin,
                 })}
-<<<<<<< Updated upstream
-                style={{color: '#f1a073',fontSize: 14}}
-                >
-                {I18n.t('home.More')}
-              </Text>
-=======
               />
->>>>>>> Stashed changes
             </View>
           </View>
           <View style={{flex:1}}>
@@ -457,38 +426,12 @@ class home1 extends Component {
               scrollEnabled={true}
               onPanDrag={() => console.log('onPanDrag')}
             >
-<<<<<<< Updated upstream
-              {/*<TouchableOpacity style={{marginLeft:10,marginTop: 10}}>
-                <Icon
-                  name={'my-location'}
-                  size={35}
-                  color='#f3456d'
-                  style={{padding: 5,marginLeft: 10,marginRight: 10}}
-                  onPress={() => this.getLocation()}
-                 />
-              </TouchableOpacity>*/}
-              <TouchableOpacity style={{height: 50,width: 50,}} onPress={() => this.getLocation()}>
-=======
               <TouchableOpacity style={{height: 50,width: 50,}} onPress={() => {this.setState({modalVisible: false,modalID: 0});this.getLocation()}}>
->>>>>>> Stashed changes
                 <Image
                   source={require('../icon/tarbar/locate.png')}
                   style={{height: 50,width: 50}}
                 />
               </TouchableOpacity>
-<<<<<<< Updated upstream
-              {/*<TouchableOpacity style={{marginLeft: 10,flexDirection: 'column',justifyContent: 'center',height: 50,width: 50, }}>
-                <Icon
-                  name={'my-location'}
-                  size={35}
-                  color='#f1a073'
-                  style={{paddingVertical: 10}}
-                  onPress={() => this.getLocation()}
-                 />
-              </TouchableOpacity>*/}
-               <MapView.Marker coordinate={this.state.myLocation}/>
-               {this.returnBubble()}
-=======
               <MapView.Marker coordinate={this.state.myLocation}/>
               {
                 this.state.data.map((l,i) => (
@@ -508,8 +451,6 @@ class home1 extends Component {
                   </MapView.Marker>
               ))
             }
-
->>>>>>> Stashed changes
             </MapView>
             {this.returnModal()}
           </View>
@@ -736,7 +677,7 @@ class itemList extends Component {
           refreshing: false
         });
       })
-      .then(() => console.log(this.state.data))
+
       .catch(error => {
         console.log(error);
         this.setState({ error, loading: false });
@@ -1025,41 +966,23 @@ renderModal = () => {
 };
 
   render() {
-    console.log(this.state);
+    
     const { navigate } = this.props.navigation;
     const { params } = this.props.navigation.state;
     return (
       <View style={styles.container}>
         <View style={[styles.StatusBar,{backgroundColor: '#f1a073'}]}>
         </View>
-<<<<<<< Updated upstream
-        <View style={styles.header}>
-          <View style={{flexDirection: 'row',alignSelf: 'stretch',alignItems: 'center',borderColor: '#e5e5e5',borderTopWidth: 1,borderBottomWidth: 1,}}>
-            <Icon
-              style={{marginLeft: 5}}
-              name='chevron-left'
-              color='#f1a073'
-=======
         <View style={[styles.header,{backgroundColor: '#f1a073'}]}>
           <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start'}}>
             <Icon
               style={{marginLeft: 5}}
               name='keyboard-arrow-left'
               color='#FFFFFF'
->>>>>>> Stashed changes
               size={32}
               onPress={() => this.props.navigation.goBack()}
             />
           </View>
-<<<<<<< Updated upstream
-          <View style={{flex: 1}}>
-            <SearchBar
-              containerStyle={{backgroundColor: '#FFFFFF',borderWidth: 0}}
-              inputStyle={{backgroundColor: '#e5e5e5'}}
-              lightTheme
-              placeholder='Type Here...' >
-            </SearchBar>
-=======
           <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
             <Text style={{alignSelf: 'center',color: '#FFFFFF',fontSize: 18}}>
               Helpe
@@ -1074,7 +997,6 @@ renderModal = () => {
                 onPress={() => this.setState({modalVisible: true})}
               />
             </View>
->>>>>>> Stashed changes
           </View>
         </View>
         {this.renderHeader()}
@@ -1093,16 +1015,10 @@ renderModal = () => {
                 subtitleNumberOfLines={2}
                 rightTitle={item.u=='""'||item.u==null? '￥'+item.price:'￥'+item.price+'/'+item.u}
                 avatar={{ uri:Service.BaseUri+item.img  }}
-<<<<<<< Updated upstream
-                avatarContainerStyle={{height:60,width:60}}
-                avatarStyle={{height:60,width:60}}
-                containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF'}}
-=======
                 avatarContainerStyle={{height:50,width:50}}
                 avatarStyle={{height:50,width:50}}
                 rightTitleStyle={{color: '#f1a073'}}
                 containerStyle={{ borderBottomWidth: 0,}}
->>>>>>> Stashed changes
                 onPress={() => {
                   const params = {
                     token: this.state.token,

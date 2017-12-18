@@ -19,11 +19,7 @@ import {
 import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import { Kohana } from 'react-native-textinput-effects';
-<<<<<<< Updated upstream
-import { Button } from 'react-native-elements';
-=======
 import { Button,Icon } from 'react-native-elements';
->>>>>>> Stashed changes
 import FBSDK from 'react-native-fbsdk';
 import {
   LoginButton,
@@ -218,19 +214,11 @@ class login extends Component{
             </TouchableOpacity>
           </View>
           {this.showLoading()}
-<<<<<<< Updated upstream
-          <TouchableOpacity>
-            <Text onPress={() => this.fbLogin()}>
-              fblogin
-            </Text>
-          </TouchableOpacity>
-=======
           {/*<TouchableOpacity>
             <Text onPress={() => this.fbLogin()}>
               fblogin
             </Text>
           </TouchableOpacity>*/}
->>>>>>> Stashed changes
         </View>
     );
   }
