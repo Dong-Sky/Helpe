@@ -1,4 +1,5 @@
 export default {
+  language: 'ja',
   common: {
     no_name: 'ゲスト',
     yes: 'はい',

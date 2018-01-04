@@ -59,13 +59,12 @@ import online from './page/online';
 import mySaleDetail_Service from './page/mySaleDetail_Service';
 import mySaleDetail_Ask from './page/mySaleDetail_Ask';
 import myOrderDetail_Service from './page/myOrderDetail_Service';
-
 import myOrderDetail_Ask from './page/myOrderDetail_Ask';
 import fav from './page/fav';
 import follow from './page/follow';
 import user from './page/user';
 import myFeedback from './page/myFeedback';
-
+import log from './page/log';
 
 var storage = new Storage({
   // 最大容量，默认值1000条数据循环存储
@@ -268,6 +267,7 @@ const EasygoPage = StackNavigator({
     follow: { screen: follow },
     myFeedback: { screen: myFeedback },
     user: { screen: user },
+    log: { screen: log }, 
 }, {
     initialRouteName: 'main', // 默认显示界面
     navigationOptions: {// 屏幕导航的默认选项, 也可以在组件内用 static navigationOptions 设置(会覆盖此处的设置)

@@ -526,6 +526,18 @@ class comment extends Component {
                 subtitle={'这个聊天室不能进入'}
                 avatar={require('../icon/person/default_avatar.png')}
                 containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF' }}
+                onPress={() => {
+                  if(this.state.islogin){
+                    navigate('log',{
+                      uid: this.state.uid,
+                      token: this.state.token,
+                      islogin: this.state.islogin,
+                    })
+                  }
+                  else{
+                    alert(I18n.t('comment.not_login'))
+                  }
+                }}
               />
               {this.renderSeparator()}
               <FlatList

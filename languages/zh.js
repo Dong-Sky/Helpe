@@ -1,5 +1,5 @@
 export default {
-
+  language: 'zh',
   common: {
     no_name: '未命名',
     yes: '是',
