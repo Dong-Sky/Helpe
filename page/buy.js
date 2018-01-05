@@ -14,6 +14,7 @@ import {
   Dimensions,
   ActivityIndicator,
   Alert,
+  Switch,
 } from 'react-native';
 import {
   StackNavigator,
@@ -80,6 +81,7 @@ function isRealNum(val){
       aid: null,
       mark: null,
       changeprice: '0',
+      paytp: 1,
       //
       loading: false
     };
@@ -280,7 +282,7 @@ function isRealNum(val){
 
   //定义下单方法
   buy = () => {
-    const { token,uid,aid,itemId,changeprice,num,mark } = this.state;
+    const { token,uid,aid,itemId,changeprice,num,mark,paytp } = this.state;
     const url = Service.BaseUrl;
     const url1 = Service.BaseUrl+`?a=buy&v=${Service.version}&token=${token}&uid=${uid}&id=${itemId}&aid=${aid}`;
     body =  'a=buy&token='+token+'&uid='+uid+'&aid='+aid+'&id='+itemId+'&v='+Service.version+'&num='+Number(num)+'&changeprice='+Number(changeprice)+'&mark='+mark;
@@ -292,7 +294,7 @@ function isRealNum(val){
         headers:{
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: 'a=buy&tp=0&token='+token+'&uid='+uid+'&aid='+aid+'&id='+itemId+'&v='+Service.version+'&num='+Number(num)+'&changeprice='+Number(changeprice)+'&mark='+mark,
+        body: 'a=buy&tp=0&token='+token+'&uid='+uid+'&aid='+aid+'&id='+itemId+'&v='+Service.version+'&num='+Number(num)+'&changeprice='+Number(changeprice)+'&mark='+mark+'&paytp='+paytp,
       })
       .then(response => response.json())
       .then(responseJson =>{
@@ -531,12 +533,12 @@ function isRealNum(val){
      if(this.state.defaultImg==null||this.state.defaultImg==''){
        return(
          <TouchableOpacity
-           style={{height: 200}}
+           style={{height: 200,alignItems: 'center'}}
            >
              <Image
-               style={styles.img}
+               style={{flex: 1,}}
                source={require('../icon/publish/choose.png')}
-               resizeMode='cover'
+               resizeMode='contain'
              />
          </TouchableOpacity>
        );
@@ -659,16 +661,40 @@ function isRealNum(val){
           </List>
           <List containerStyle={styles.list}>
             <ListItem
-              titleStyle={styles.title}
+              titleStyle={[styles.title,this.state.item.paytp>=1?{}:{color: '#999999'}]}
               title={I18n.t('buy.underline')}
-              rightTitle={this.state.item.paytp>=1?I18n.t('buy.y'):I18n.t('buy.n')}
+              //rightTitle={this.state.item.paytp>=1?I18n.t('buy.y'):I18n.t('buy.n')}
               containerStyle={styles.listContainerStyle}
+              rightIcon={
+                <Switch
+                  value={this.state.paytp==1}
+                  onValueChange={(online) => {
+                    if(this.state.item.paytp>=2){
+                      this.setState({paytp: 1})
+                    }
+
+                  }}
+                  onTintColor='#f1a073'
+                />
+              }
             />
             {this.renderSeparator()}
             <ListItem
-              titleStyle={styles.title}
+              titleStyle={[styles.title,this.state.item.paytp!=1?{}:{color: '#999999'}]}
               title={I18n.t('buy.online')}
-              rightTitle={this.state.item.paytp!=1?I18n.t('buy.y'):I18n.t('buy.n')}
+              rightIcon={
+                <Switch
+                  value={this.state.paytp==0}
+                  onValueChange={(online) => {
+                    if(this.state.item.paytp!=1){
+                      this.setState({paytp: 0})
+                    }
+                  }}
+                  onTintColor='#f1a073'
+                />
+              }
+
+              //rightTitle={this.state.item.paytp!=1?I18n.t('buy.y'):I18n.t('buy.n')}
               containerStyle={styles.listContainerStyle}
             />
           </List>
@@ -684,7 +710,7 @@ function isRealNum(val){
             <ListItem
               titleStyle={styles.title}
               title={I18n.t('buy.remark')}
-              rightTitle={this.state.mark==null?I18n.t('buy.has_remark'):I18n.t('buy.no_remark')}
+              rightTitle={this.state.mark!=null?I18n.t('buy.has_remark'):I18n.t('buy.no_remark')}
               onPress={() => this.setMarkModalVisible(true)}
               containerStyle={styles.listContainerStyle}
             />
@@ -787,7 +813,7 @@ const styles = StyleSheet.create({
     flex:1,
     height: 200,
     width: '100%',
-    //alignSelf: 'center'
+    alignSelf: 'center'
   },
   list: {
 

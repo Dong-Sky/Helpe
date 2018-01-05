@@ -290,7 +290,7 @@ export default {
     Ask: '求助',
     e: '次',
     salenum: '交易次数',
-    online: '上架中',
+    online: '已上架',
     underline: '未上架',
     start: '发布于',
 
@@ -446,11 +446,12 @@ export default {
     contact: '联系方式',
     txt4: '100个字符以内',
     add_photo: '添加图片',
-    txt5: '最多添加6张图片',
+
+    txt5: '输入您的服务名称',
     choose: '请选择',
     S_title: '发布服务',
     Service: '服务',
-    txt5: '输入您的服务名称',
+
     price: '价格',
     u: '单位',
     changeprice: '补差价',
@@ -473,6 +474,8 @@ export default {
     txt6: '请详细地描述您的求助',
     A_title: '发布求助',
     txt7: '输入您的求助名称',
+    txt8: '最多添加6张图片',
+
     Ask: '求助',
     price1: '报酬',
     deadline: '有效期',

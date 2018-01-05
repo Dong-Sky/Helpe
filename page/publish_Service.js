@@ -850,7 +850,7 @@ function isRealNum(val){
              </TouchableOpacity>
              <View style={{height: 100,borderTopWidth: 1,borderBottomWidth: 2,borderColor: '#e1e8e2',alignItems: 'center'}} key={6}>
                <Text>
-                 {I18n.t('publish.txt5')}
+                 {I18n.t('publish.txt8')}
                </Text>
              </View>
            </ScrollView>
@@ -870,9 +870,9 @@ function isRealNum(val){
           onPress={() => this.addPhoto(i)}
           >
             <Image
-              style={styles.img}
+              style={{flex: 1,alignSelf: 'center'}}
               source={require('../icon/publish/choose.png')}
-              resizeMode='center'
+              cover='contain'
             />
         </TouchableOpacity>
       );
@@ -1057,7 +1057,7 @@ function isRealNum(val){
               <ListItem
                 titleStyle={styles.title}
                 title={I18n.t('publish.contact')}
-                rightTitle={this.state.contact==null?I18n.t('publish.is_edit'):I18n.t('publish.no_edit')}
+                rightTitle={this.state.contact!=null?I18n.t('publish.is_edit'):I18n.t('publish.no_edit')}
                 onPress={() => this.setContactModalVisible(true)}
                 containerStyle={styles.listContainerStyle}
               />
@@ -1074,7 +1074,7 @@ function isRealNum(val){
               <ListItem
                 titleStyle={styles.title}
                 title={I18n.t('publish.mark')}
-                rightTitle={this.state.mark==null?I18n.t('publish.is_edit'):I18n.t('publish.no_edit')}
+                rightTitle={this.state.mark!=null?I18n.t('publish.is_edit'):I18n.t('publish.no_edit')}
                 onPress={() => this.setMarkModalVisible(true)}
                 containerStyle={styles.listContainerStyle}
               />
@@ -1180,7 +1180,7 @@ const styles = StyleSheet.create({
     flex:1,
     height: 200,
     width: '100%',
-    //alignSelf: 'center'
+    alignSelf: 'center'
   },
   mark_modal_body: {
     height: 3000,

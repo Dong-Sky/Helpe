@@ -41,7 +41,7 @@ class register extends Component{
     .then((response) => response.json())
     .then((responseJson) => {
       if(!responseJson.status){
-        alert(I18n.t('success.register'));
+        alert(I18n.t('success.register_failed'));
         this.props.navigation.goBack();
       }
       else{

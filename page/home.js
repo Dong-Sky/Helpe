@@ -281,12 +281,18 @@ class home1 extends Component {
             });
           }}
         >
+
           <Image
             style={styles.bubble}
-            source={{ uri: uri }}
-            resizeMode="cover"
-          />
-
+            source={require('../icon/home/bubble1.png')}
+            cover='cover'
+          >
+          {/*  <Image
+              style={styles.bubble}
+              source={{ uri: uri }}
+              resizeMode="cover"
+            />*/}
+        </Image>
 
         </MapView.Marker>
       );
@@ -443,11 +449,22 @@ class home1 extends Component {
                       modalVisible: true,
                     })}
                   >
+
                     <Image
                       style={styles.bubble}
-                      source={{ uri: Service.BaseUri+l.img }}
-                      resizeMode="cover"
-                    />
+                      source={require('../icon/home/bubble.png')}
+                      resizeMode='cover'
+                      overflow='hidden'
+                    >
+
+                        <TouchableOpacity style={{height: 71,width: 71,borderRadius: 36,marginTop: -5,overflow: 'hidden'}}>
+                            <Image
+                              style={{flex: 1,overflow: 'hidden'}}
+                              source={{ uri: Service.BaseUri+l.img }}
+                              resizeMode="cover"
+                            />
+                        </TouchableOpacity>
+                    </Image>
                   </MapView.Marker>
               ))
             }
@@ -491,7 +508,7 @@ class itemList extends Component {
       //列表控制
       tp: -1,
       cid: null,
-      searchtp: 2,
+      searchtp: 1,
       loading: false,
       page: 1,
       seed: 1,
@@ -503,7 +520,7 @@ class itemList extends Component {
       stp: [I18n.t('home.near'),I18n.t('home.more_far'),I18n.t('home.all')],
       type: [I18n.t('home.all')],
       data: [],
-      sorttp: [I18n.t('home.sortByD'),I18n.t('home.sortByT'),I18n.t('home.sortByS')],
+      sorttp: [I18n.t('home.sortByT'),I18n.t('home.sortByD'),I18n.t('home.sortByS')],
       s: 0,
       //模糊匹配
       modalVisible: false,
@@ -656,14 +673,14 @@ class itemList extends Component {
 
 
     var url;
-    if(searchtp==2){
+    if(searchtp==1){
       url = Service.BaseUrl+`?a=item&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&searchtp=${searchtp}&lat=${lat}&lng=${lng}&tp=${tp}&cid=${cid}`;
     }
     else{
       url = Service.BaseUrl+`?a=item&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&searchtp=${searchtp}&tp=${tp}&cid=${cid}`;
     }
     url = url+url1;
-
+    console.log(url);
     this.setState({ loading: true, });
     fetch(url)
       .then(res => res.json())
@@ -779,7 +796,7 @@ class itemList extends Component {
 
   renderHeader = () => {
     return (
-      <View style={{marginBottom: 2,height: 44}}>
+      <View style={{marginBottom: 0,height: 44,backgroundColor: '#ffffff'}}>
 
           <View style={styles.choosebar2}>
             <ModalDropdown
@@ -821,12 +838,14 @@ class itemList extends Component {
               dropdownStyle={styles.Dropdown2}
               dropdownTextHighlightStyle={styles.highlight}
               options={this.state.sorttp}
-              defaultValue={this.state.sorttp[0]}
-              defaultIndex={0}
+              defaultValue={this.state.sorttp[1]}
+              defaultIndex={1}
               onSelect={(sorttp) => {
 
-                if(sorttp==0){ this.state.searchtp = 2; }
-                else { this.state. searchtp = sorttp-1; }
+                /*if(sorttp==0){ this.state.searchtp = 2; }
+                else { this.state.searchtp = sorttp-1; }*/
+
+                this.state.searchtp = sorttp;
                 this.state.page = 1;
                 this.makeRemoteRequest();
               }}
@@ -966,7 +985,7 @@ renderModal = () => {
 };
 
   render() {
-    
+
     const { navigate } = this.props.navigation;
     const { params } = this.props.navigation.state;
     return (
@@ -1000,11 +1019,12 @@ renderModal = () => {
           </View>
         </View>
         {this.renderHeader()}
-        <List containerStyle={{ borderTopWidth: 0,flex:1,backgroundColor: '#FFFFFF' ,marginTop: 0}}>
+        <List containerStyle={{ borderTopWidth: 0,flex:1,backgroundColor: '#f2f2f2' ,marginTop: 0,alignSelf: 'center'}}>
           <FlatList
-            style={{marginTop: 0,borderWidth: 0}}
+            style={{marginTop: 0,borderWidth: 0,alignSelf: 'center'}}
+
             data={this.state.data}
-            renderItem={({ item }) => (
+            /*renderItem={({ item }) => (
               <View>
               <ListItem
                 component={TouchableOpacity}
@@ -1035,9 +1055,54 @@ renderModal = () => {
                 }}
               />
               </View>
+            )}*/
+
+            numColumns={2}
+            renderItem={({item}) => (
+              <TouchableOpacity
+                style={{backgroundColor: '#ffffff',height: 220,width: 0.5*(width-4*6),marginLeft: 4,marginRight: 4,marginBottom: 4,marginTop: 4,borderRadius: 10,overflow:'hidden'}}
+                onPress={() => {
+                  const params = {
+                    token: this.state.token,
+                    uid: this.state.uid,
+                    islogin: this.state.islogin,
+                    itemId: item.id,
+                  };
+                  if(item.tp==0){
+                    navigate('itemDetail_Service',params);
+                  }
+                  else if(item.tp==1){
+                    navigate('itemDetail_Ask',params);
+                  }
+                }}
+                >
+                  <Image
+                    style={{width:0.5*(width-4*6),alignSelf: 'center',height: 120,overflow:'hidden'}}
+                    source={{ uri:Service.BaseUri+item.img }}
+                    resizeMode="cover"
+
+                  />
+                  <Text
+                    style={{marginLeft: 8,marginRight: 8,marginTop: 4,color: '#333333',fontSize: 16,}}
+                    numberOfLines={2}
+                    >
+                      {item.name}
+                  </Text>
+                  <Text
+                    style={{height: 30,marginLeft: 8,marginRight: 8,marginTop: 4,color: '#da695c',fontSize: 14,}}
+                    numberOfLines={1}
+                    >
+                      {item.u=='""'||item.u==null? '￥'+item.price:'￥'+item.price+'/'+item.u}
+                  </Text>
+                  <View style={{flex: 1}}>
+                  </View>
+                  <Text style={{height: 20,fontSize: 12,color: '#999999',marginLeft: 8,marginRight: 8,marginBottom: 2}} numberOfLines={2}>
+                    {item.tp==0?I18n.t('home.Service'):I18n.t('home.Ask')}{' · '}{this.state.category[Number(item.cid)]?this.state.category[Number(item.cid)].name : '?'}
+                  </Text>
+              </TouchableOpacity>
             )}
             keyExtractor={item => item.id}
-            ItemSeparatorComponent={this.renderSeparator}
+            //ItemSeparatorComponent={this.renderSeparator}
             //ListHeaderComponent={this.renderHeader}
             ListFooterComponent={this.renderFooter}
             onRefresh={this.handleRefresh}
@@ -1153,11 +1218,22 @@ const styles = StyleSheet.create({
     backgroundColor: 'red'
   },
   bubble: {
-    height: 62,
-    width: 62,
-    borderRadius: 28,
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
+    height: 80,
+    width: 80,
+    overflow: 'hidden',
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    //borderWidth: 2,
+    //borderColor: '#FFFFFF',
+  },
+  bubble1: {
+    height: 68,
+    width: 68,
+    overflow: 'hidden',
+    //borderRadius: 28,
+    //borderWidth: 2,
+    //borderColor: '#FFFFFF',
   },
   modal: {
     flex: 1,

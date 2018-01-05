@@ -370,6 +370,30 @@ class account1 extends Component {
         },
       },
       {
+        id: 4,
+        title: I18n.t('account.sale'),
+        icon : (
+          <Image
+          source={require('../icon/account/sale.png')}
+          style={styles.account_icon}
+        />
+      ),
+        icon_color:'#f1a073',
+        x:2,
+        press(state){
+          if(state.islogin){
+            navigate('mySale_Ask',{
+              token: state.token,
+              uid: state.uid,
+              islogin: state.islogin,
+            })
+          }
+          else{
+            alert(I18n.t('noLogin'));
+          }
+        },
+      },
+      {
         id: 5,
         title: I18n.t('account.myFollow'),
         icon: (
@@ -450,7 +474,7 @@ class account1 extends Component {
          <View style={styles.userInfo}>
             <TouchableOpacity style={styles.user} onPress={() => this.onPressHeader(this.state.islogin)}>
               {this.returnAvatar()}
-              <Text style={{marginTop:40,marginLeft: 15,fontSize: 16,color: '#333333'}}>
+              <Text style={{alignSelf: 'center',marginTop: 10,marginLeft: 15,fontSize: 16,color: '#333333'}}>
                 {this.state.islogin?this.state.user.name:I18n.t('account.goLogin')}
               </Text>
             </TouchableOpacity>

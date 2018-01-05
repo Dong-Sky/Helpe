@@ -216,8 +216,10 @@ class comment extends Component {
     if(!db){
        db = sqLite.open();
     }
+
+    let offset = (this.state.page-1)*10
     db.transaction((tx)=>{
-    tx.executeSql("select *,COUNT(*) from "+TABLE_MSG+" Where uid="+uid+" Group By uuid Order by t DESC", [],(tx,results)=>{
+    tx.executeSql("select *,COUNT(*) from "+TABLE_MSG+" Where uid="+uid+" Group By uuid Order by t DESC LIMIT 10 OFFSET "+offset, [],(tx,results)=>{
       var len = results.rows.length;
 
       var data = [];
@@ -226,7 +228,7 @@ class comment extends Component {
         //一般在数据查出来之后，  可能要 setState操作，重新渲染页面
         data.push(u);
       }
-
+      console.log(data);
       this.setState({data});
     });
     },(error)=>{//打印异常信息
@@ -516,14 +518,14 @@ class comment extends Component {
               </View>
             </View>
           </View>
-          <ScrollView style={{flex: 1}}>
-            <List containerStyle={{ borderTopWidth: 0,backgroundColor: '#f2f2f2' ,marginTop: 0,height: '100%'}}>
+          <ScrollView>
+           <List containerStyle={{ borderTopWidth: 0,backgroundColor: '#f2f2f2' ,marginTop: 0,height: '100%'}}>
               <ListItem
                 roundAvatar
                 component={TouchableOpacity}
                 key={1}
-                title={'机器人'}
-                subtitle={'这个聊天室不能进入'}
+                title={'官方助手'}
+                subtitle={'新的消息'}
                 avatar={require('../icon/person/default_avatar.png')}
                 containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF' }}
                 onPress={() => {
@@ -540,7 +542,29 @@ class comment extends Component {
                 }}
               />
               {this.renderSeparator()}
-              <FlatList
+              <ListItem
+                roundAvatar
+                component={TouchableOpacity}
+                key={2}
+                title={'全部聊天'}
+                subtitle={'点击查看全部会话'}
+                avatar={require('../icon/person/default_avatar.png')}
+                containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF' }}
+                onPress={() => {
+                  if(this.state.islogin){
+                    navigate('log',{
+                      uid: this.state.uid,
+                      token: this.state.token,
+                      islogin: this.state.islogin,
+                    })
+                  }
+                  else{
+                    alert(I18n.t('comment.not_login'))
+                  }
+                }}
+              />
+              {this.renderSeparator()}
+              {/*<FlatList
                 style={{marginTop: 0,borderWidth: 0,flex: 1,}}
                 data={this.state.data}
                 renderItem={({ item }) => (
@@ -576,8 +600,41 @@ class comment extends Component {
                 refreshing={this.state.refreshing}
                 //onEndReached={this.handleLoadMore}
                 onEndReachedThreshold={50}
-              />
+              />*/}
+
+              {this.state.data.map((item,i) => (
+                <View key={i}>
+                  <ListItem
+                    roundAvatar
+                    component={TouchableOpacity}
+                    key={item.i}
+                    title={item.uuname==''?I18n.t('common.no_name'):item.uuname}
+                    subtitle={item.msg}
+                    avatar={{ uri: Service.BaseUri+item.uuface  }}
+                    containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF' }}
+                    onPress={
+                      () => navigate('chatroom',
+                      {
+                        item:item,
+                        token: this.state.token,
+                        uid: this.state.uid,
+                        user: this.state.user,
+                        uuid: item.uuid,
+                        islogin: this.state.islogin,
+                        uuface: item.uuface,
+                        uuname: item.uuname,
+                        //ws: this.state.ws,
+                      })
+                    }
+                  />
+                  {this.state.data.length-1!=i?this.renderSeparator():undefined}
+                </View>
+
+
+              ))}
+
             </List>
+
           </ScrollView>
         </View>
 

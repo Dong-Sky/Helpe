@@ -129,7 +129,7 @@ class follow extends Component {
     fetch(url)
     .then(response => response.json())
     .then(responseJson => {
-      
+
       if(!responseJson.status){
         alert(I18n.t('success.delete'));
       }
@@ -216,7 +216,7 @@ class follow extends Component {
           </View>
           <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
             <Text style={{alignSelf: 'center',color: '#333333',fontSize: 18}}>
-              我的关注
+              {I18n.t('follow.follow')}
             </Text>
           </View>
           <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>

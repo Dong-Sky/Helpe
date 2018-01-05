@@ -383,7 +383,8 @@ class myAdress extends Component {
                 titleStyle={styles.title}
                 containerStyle={styles.listContainerStyle}
                 titleNumberOfLines={3}
-                keyExtractor={item => item.id}
+                key={i}
+                //keyExtractor={item => item.id}
                 onPress={() => {
                   Alert.alert(
                     I18n.t('myAddress.choose'),
@@ -411,6 +412,7 @@ class myAdress extends Component {
                 }}
               />
             )}
+            keyExtractor={item => item.id}
             ItemSeparatorComponent={this.renderSeparator}
           />
         </List>

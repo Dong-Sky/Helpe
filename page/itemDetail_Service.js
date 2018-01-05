@@ -839,7 +839,7 @@ function formatDate(t){
             <ListItem
               component={TouchableOpacity}
               titleStyle={styles.title}
-              title={I18n.t('itemDetail.ablum')}
+              title={I18n.t('itemDetail.album')}
               containerStyle={styles.listContainerStyle}
               onPress={() => this.setState({albumModalVisible: true})}
             />

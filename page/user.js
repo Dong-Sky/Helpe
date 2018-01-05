@@ -240,7 +240,7 @@ export default class user extends Component {
                    roundAvatar
                    key={item.id}
                    title={item.name}
-                   subtitle={(item.tp==0?I18n.t('user.tp1'):I18n.t('user.tp2'))+'\n '+I18n.t('user.start')+";"+formatDate(item.t)}
+                   subtitle={(item.tp==0?I18n.t('user.tp1'):I18n.t('user.tp2'))+'\n'+'('+formatDate(item.t+')')}
                    subtitleNumberOfLines={2}
                    rightTitle={item.u=='""'||item.u==null? '￥'+item.price:'￥'+item.price+'/'+item.u}
                    avatar={{ uri:Service.BaseUri+item.img  }}
@@ -456,7 +456,21 @@ export default class user extends Component {
              />
            </TouchableOpacity>
          </View>
-         <View style={[styles.list,{marginTop: 0}]}>
+         <ScrollView style={{height: 90,borderTopWidth: 1,borderBottomWidth: 1,borderColor: '#e5e5e5'}} horizontal={true}>
+          {
+            this.state.itemList.slice(0,6).map((item,i) => (
+
+              <Image
+                key={i}
+                style={{height: 80,width: 80,borderColor: '#e5e5e5',borderWidth: 1,borderRadius: 5,alignSelf: 'center',marginLeft: 2,marginRight: 2,backgroundColor: '#FFFFFF'}}
+                source={{uri: Service.BaseUri+item.img }}
+                resizeMode="cover"
+              />
+
+          ))
+          }
+        </ScrollView>
+        <View style={[styles.list,{marginTop: 0}]}>
            <FlatList
              data={list1}
              renderItem={({ item }) => (

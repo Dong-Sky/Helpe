@@ -290,7 +290,7 @@ export default class setting extends Component{
 
               value={this.state.new_pass}
               onChangeText={(new_pass) => this.setState({new_pass})}
-              placeholder = {I18n.t('setting.txt1')}
+              //placeholder = {I18n.t('setting.txt1')}
               clearButtonMode='always'
               autoCapitalize='none'
               autoCorrect={false}
@@ -301,7 +301,7 @@ export default class setting extends Component{
             <FormInput
               value={this.state.new_pass1}
               onChangeText={(new_pass1) => this.setState({new_pass1})}
-              placeholder = {I18n.t('setting.txt2')}
+              //placeholder = {I18n.t('setting.txt2')}
               clearButtonMode='always'
               autoCapitalize='none'
               autoCorrect={false}

@@ -115,7 +115,7 @@ export default class personal extends Component {
    const { token,uid } = this.state;
    const url = Service.BaseUrl+`?a=user&m=info&token=${token}&uid=${uid}&id=${uid}&v=${Service.version}`;
 
-   this.setState({loading: true,})
+   this.setState({loading: true,});
    fetch(url)
    .then(response => response.json())
    .then(responseJson => {
@@ -126,8 +126,11 @@ export default class personal extends Component {
        alert(I18n.t('error.fetch_failed')+'\n'+responseJson.err);
      }
    })
-   .then(() =>  this.setState({loading: false,}))
-   .catch(err => console.log(err))
+   .then(() => this.setState({loading: false},))
+   .catch(err => {
+     console.log(err);
+     this.setState({loading: false});
+   })
  };
 
 
@@ -296,7 +299,7 @@ export default class personal extends Component {
 
  //修改生日
  handleDatePicked = (date) => {
-
+   this.setState({isDateTimePickerVisible: false})
    const { token ,uid } = this.state;
 
    const birthdate = date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate();
@@ -309,12 +312,14 @@ export default class personal extends Component {
      console.log(responseJson);
      if(!responseJson.status){
        alert(I18n.t('success.update'));
+
      }
      else{
        alert(I18n.t('error.update_failed')+'\n'+responseJson.err);
      }
+
    })
-   .then(() => this.getUserInfo())
+   .then(() =>  this.getUserInfo())
    .catch(err =>  console.log(error))
  };
 
@@ -527,7 +532,7 @@ export default class personal extends Component {
             [
 
               {text: I18n.t('common.no'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-              {text: I18n.t('user.common.yes'), onPress: () => this.UpdateSex()},
+              {text: I18n.t('common.yes'), onPress: () => this.UpdateSex()},
             ],
             { cancelable: false }
           );

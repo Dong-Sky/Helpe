@@ -73,7 +73,7 @@ log_zh(id,data){
     case 2:
       return {
         title: '求助响应',
-        sub: data.username+'申请解决您的求助「'+data.itemname+'」,赶快去查看详情！',
+        sub: data.username+'想要接受您的求助「'+data.itemname+'」,赶快去查看详情！',
         next: 'mySale_Ask',
       };
       break;
