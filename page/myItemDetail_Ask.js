@@ -825,7 +825,7 @@ function isRealNum(val){
             style={styles.button1}
             backgroundColor='#f1a073'
             borderRadius={5}
-            title={I18n.t('itemDetail.finish')}
+            title={I18n.t('common.finish')}
             onPress={() => this.setState({markModalVisible: false,})}
           />
       </Modalbox>

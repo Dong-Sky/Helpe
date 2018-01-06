@@ -204,126 +204,126 @@ log_ja(id,data){
     case 1:
       return {
         title: '新的订单',
-        sub: data.username+'想要购买您的服务「'+data.itemname+'」,赶快去查看详情!',
+        sub: data.username+'さんはあなたのサービス「'+data.itemname+'」を申し込みました。',
         next: 'mySale_Service',
       };
       break;
     case 2:
       return {
         title: '求助响应',
-        sub: data.username+'申请解决您的求助「'+data.itemname+'」,赶快去查看详情！',
+        sub: data.username+'さんはあなたのリクエスト「'+data.itemname+'」に応募しました。',
         next: 'mySale_Ask',
       };
       break;
     case 3:
       return {
         title: '接受订单',
-        sub:  '您的订单已被对方接受(「'+data.itemname+'」)。',
+        sub: data.username+'さんはこれからあなたに「'+data.itemname+'」に応募しました。',
         next: 'myOrder_Service',
       };
       break;
     case 4:
       return {
         title: '接受申请',
-        sub: data.username+'接受了您的申请，快去帮助他/她！',
+        sub: data.username+'さんは「'+data.itemname+'」のリクエストを受け取りました。',
         next: 'myOrder_Ask',
       };
       break;
     case 5:
       return {
         title: '订单完成',
-        sub: data.username+'已确认服务完成，订单结束(「'+data.itemname+'」)!',
+        sub: data.username+'さんとの「'+data.itemname+'」のやりとりを完成しました。',
         next: 'mySale_Service',
       };
       break;
     case 6:
       return {
         title: '求助完成',
-        sub: '您的求助「'+data.itemname+'」已解决,别忘了感谢对方哦!',
+        sub: data.username+'さんとの「'+data.itemname+'」のやりとりを完成しました。',
         next: 'mySale_Ask',
       };
       break;
     case 7:
       return {
         title: '订单完成',
-        sub: '服务「'+data.itemname+'」已完成,赶快去添加评价吧!',
+        sub: data.username+'さんとの「'+data.itemname+'」のやりとりを完成しました。',
         next: 'myOrder_Service',
       };
       break;
     case 8:
       return {
         title: '求助完成',
-        sub: '求助「'+data.itemname+'」已解决,感谢您的帮助!有没有收到小小的报酬呢？点击这里可以去评价对方哦！',
+        sub: data.username+'さんとの「'+data.itemname+'」のやりとりを完成しました。',
         next: 'myOrder_Ask',
       };
       break;
     case 9:
       return {
         title: '新的关注',
-        sub: '您有一个新的关注,来自用户「'+data.username+'」。',
+        sub: data.username+'さんはあなたをフォローしました。',
         next: 'personal',
       };
       break;
     case 10:
       return {
         title: '新的评价',
-        sub: data.username+'添加了对您的评价，关于「'+data.itemname+'」,赶快去查看吧!',
+        sub: data.username+'さんはあなたを評価しました。',
         next: 'myFeedback',
       };
       break;
     case 11:
       return {
         title: '拒绝订单',
-        sub: '已拒绝来自用户「'+data.username+'」的订单。',
+        sub: data.username+'さんへの「'+data.itemname+'」の販売を断りました。',
         next: 'mySale_Service',
       };
       break;
     case 12:
       return {
         title: '订单被拒绝',
-        sub: data.username+'拒绝了您的订单。',
+        sub: data.username+'さん販売の「'+data.itemname+'」の購入は、残念ながら断られてしまいました。',
         next: 'myOrder_Service',
       };
       break;
     case 13:
       return {
         title: '拒绝帮助申请',
-        sub: '您已拒绝了来自用户「'+data.username+'」的申请。',
+        sub: data.username+'さん依頼の「'+data.itemname+'」への提供は、残念ながら断られてしまいました。',
         next: 'mySale_Ask',
       };
       break;
     case 14:
       return {
         title: '申请被拒绝',
-        sub: data.username+'拒绝了您关于求助「'+data.username+'」的申请',
+        sub: data.username+'さんからの「'+data.itemname+'」の提供を断りました。',
         next: 'myOrder_Ask',
       };
       break;
     case 15:
       return {
         title: '订单已取消',
-        sub: '很遗憾,服务「'+data.itemname+'」已被中止,订单结束!',
+        sub:  data.username+'さんは「'+data.itemname+'」の購入を残念ながらキャンセルしました。',
         next: 'mySale_Service',
       };
       break;
     case 16:
       return {
         title: '订单已取消',
-        sub: '很遗憾,服务「'+data.itemname+'」已被中止,订单结束!',
+        sub: data.username+'さんの「'+data.itemname+'」の購入をキャンセルしました。',
         next: 'myOrder_Service',
       };
       break;
     case 17:
       return {
         title: '求助已取消',
-        sub: '很遗憾,求助「'+data.itemname+'」已被取消!',
+        sub: data.username+'さんの「'+data.itemname+'」への提供をキャンセルしました。',
         next: 'mySale_Ask',
       };
       break;
     case 18:
       return {
         title: '求助已取消',
-        sub: '很遗憾,求助「'+data.itemname+'」已被取消!',
+        sub: data.username+'さんは「'+data.itemname+'」への提供を残念ながらキャンセルしました。',
         next: 'mySale_Ask',
       }
   }

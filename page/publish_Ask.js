@@ -779,7 +779,7 @@ function isRealNum(val){
   renderContactModal = () => {
     return(
       <Modalbox
-        style={{height: 240,width: 300,alignItems: 'center',}}
+        style={{height: 250,width: 300,alignItems: 'center',}}
         isOpen={this.state.contactModalVisible}
         isDisabled={this.state.isDisabled}
         position='center'
@@ -798,7 +798,7 @@ function isRealNum(val){
               underlineColorAndroid="transparent"
               autoCapitalize='none'
               maxLength={100}
-              placeholder={I18n.t('common.contact')}
+              placeholder={I18n.t('publish.contact')}
               editable={true}
               onChangeText={(contact) => this.setState({contact})}
               value={this.state.contact}
@@ -808,7 +808,7 @@ function isRealNum(val){
             style={styles.button1}
             backgroundColor='#f1a073'
             borderRadius={5}
-            title={I18n.t('publish.finish')}
+            title={I18n.t('common.finish')}
             onPress={() => this.setState({contactModalVisible: false,})}
           />
       </Modalbox>
@@ -995,6 +995,7 @@ function isRealNum(val){
   };
 
   render() {
+    
     return (
         <View style={styles.container}>
           <View style={styles.StatusBar}>
@@ -1116,7 +1117,7 @@ function isRealNum(val){
                 titleStyle={styles.title}
                 containerStyle={styles.listContainerStyle}
                 title={I18n.t('publish.contact')}
-                rightTitle={this.state.contact!=null?I18n.t('publish.is_edit'):I18n.t('publish.no_edit')}
+                rightTitle={this.state.contact!=null&&this.state.contact!=''?I18n.t('publish.is_edit'):I18n.t('publish.no_edit')}
                 onPress={() => this.setContactModalVisible(true)}
               />
             </List>
@@ -1133,7 +1134,7 @@ function isRealNum(val){
               <ListItem
                 titleStyle={styles.title}
                 title={I18n.t('publish.mark')}
-                rightTitle={this.state.mark!=null?I18n.t('publish.is_edit'):I18n.t('publish.no_edit')}
+                rightTitle={this.state.mark!=null&&this.state.contact!=''?I18n.t('publish.is_edit'):I18n.t('publish.no_edit')}
                 onPress={() => this.setMarkModalVisible(true)}
                 containerStyle={styles.listContainerStyle}
               />

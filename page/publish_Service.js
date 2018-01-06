@@ -760,7 +760,7 @@ function isRealNum(val){
   renderContactModal = () => {
     return(
       <Modalbox
-        style={{height: 240,width: 300,alignItems: 'center',}}
+        style={{height: 250,width: 300,alignItems: 'center',}}
         isOpen={this.state.contactModalVisible}
         isDisabled={this.state.isDisabled}
         position='center'
@@ -1057,7 +1057,7 @@ function isRealNum(val){
               <ListItem
                 titleStyle={styles.title}
                 title={I18n.t('publish.contact')}
-                rightTitle={this.state.contact!=null?I18n.t('publish.is_edit'):I18n.t('publish.no_edit')}
+                rightTitle={(this.state.contact!=null&&this.state.contact!='')?I18n.t('publish.is_edit'):I18n.t('publish.no_edit')}
                 onPress={() => this.setContactModalVisible(true)}
                 containerStyle={styles.listContainerStyle}
               />
