@@ -270,25 +270,31 @@ class comment extends Component {
 
     ws.onmessage = (e) => {
       //解析数据
-      console.log(unescape(ab2str(e.data)));
-      let d = JSON.parse(unescape(ab2str(e.data)));
+      try{
+        let d = JSON.parse(unescape(ab2str(e.data)));
+        
+        console.log(d);
+        if(d.O==5&&d.D!=undefined){
+          //在线数据
+          let data = JSON.parse(unescape(d.D));
+          console.log(data);
+          //存入数据库
+          this.Record_online(data);
+        }
+        else if(d.O==6&&d.D!=undefined){
+          //离线数据
+          let messages = JSON.parse(d.D);
+          this.Record_offline(messages);
+        }
+        else{
+          //未知数据
+        }
+      }catch(e){
+        console.log(e);
+      }
 
-      console.log(d);
-      if(d.O==5&&d.D!=undefined){
-        //在线数据
-        let data = JSON.parse(unescape(d.D));
 
-        //存入数据库
-        this.Record_online(data);
-      }
-      else if(d.O==6&&d.D!=undefined){
-        //离线数据
-        let messages = JSON.parse(d.D);
-        this.Record_offline(messages);
-      }
-      else{
-        //未知数据
-      }
+
 
       this.getChatList();
     };
@@ -323,6 +329,7 @@ class comment extends Component {
       //发送消息
       var da = e.da;
       var data = e.data;
+      console.log(data);
       if(ws){
 
         try {
