@@ -57,6 +57,13 @@
 		800E49711FBB208500695887 /* libRCTCameraRoll.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 800E49551FBB206C00695887 /* libRCTCameraRoll.a */; };
 		80134A581F28EDDB0086648E /* QBImagePicker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 80134A571F28EDDB0086648E /* QBImagePicker.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		80134A891F28EEA50086648E /* RSKImageCropper.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 80134A881F28EEA50086648E /* RSKImageCropper.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		8077D42B20050ADE0007D2A2 /* UMCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8077D40720050ADE0007D2A2 /* UMCommon.framework */; };
+		8077D42F20050B1A0007D2A2 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8077D42E20050B110007D2A2 /* CoreTelephony.framework */; };
+		8077D43120050B330007D2A2 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 8077D43020050B330007D2A2 /* libz.tbd */; };
+		8077D43320050B440007D2A2 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 8077D43220050B430007D2A2 /* libsqlite3.tbd */; };
+		8077D43520050B600007D2A2 /* UMAnalytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8077D43420050B600007D2A2 /* UMAnalytics.framework */; };
+		8077D43720050B6F0007D2A2 /* UMPush.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8077D43620050B6E0007D2A2 /* UMPush.framework */; };
+		8077D43920050B880007D2A2 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8077D43820050B7A0007D2A2 /* UserNotifications.framework */; };
 		80D2B9ED1FCD3BB000AAA1FB /* RCTHttpCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 80D2B9EC1FCD3BB000AAA1FB /* RCTHttpCache.m */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; settings = {ATTRIBUTES = (Required, ); }; };
 		890B0422139B4D59A03DA743 /* MaterialCommunityIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 40DBE72EC15F4AE9A87C6330 /* MaterialCommunityIcons.ttf */; };
@@ -385,6 +392,14 @@
 		800E494A1FBB206B00695887 /* RCTCameraRoll.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTCameraRoll.xcodeproj; path = "../node_modules/react-native/Libraries/CameraRoll/RCTCameraRoll.xcodeproj"; sourceTree = "<group>"; };
 		80134A571F28EDDB0086648E /* QBImagePicker.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QBImagePicker.framework; path = "../../../../Library/Developer/Xcode/DerivedData/easygo-gbbureszvnwzjmhcgtjkrqjilfuc/Build/Products/Debug-iphoneos/QBImagePicker.framework"; sourceTree = "<group>"; };
 		80134A881F28EEA50086648E /* RSKImageCropper.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RSKImageCropper.framework; path = "../../../../Library/Developer/Xcode/DerivedData/easygo-gbbureszvnwzjmhcgtjkrqjilfuc/Build/Products/Debug-iphoneos/RSKImageCropper.framework"; sourceTree = "<group>"; };
+		8077D40720050ADE0007D2A2 /* UMCommon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = UMCommon.framework; sourceTree = "<group>"; };
+		8077D42E20050B110007D2A2 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
+		8077D43020050B330007D2A2 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		8077D43220050B430007D2A2 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		8077D43420050B600007D2A2 /* UMAnalytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = UMAnalytics.framework; sourceTree = "<group>"; };
+		8077D43620050B6E0007D2A2 /* UMPush.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = UMPush.framework; sourceTree = "<group>"; };
+		8077D43820050B7A0007D2A2 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
+		8077D43A20050CBB0007D2A2 /* easygo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = easygo.entitlements; path = easygo/easygo.entitlements; sourceTree = "<group>"; };
 		80D2B9C81FCD3BAF00AAA1FB /* RCTHttpCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCTHttpCache.h; path = easygo/RCTHttpCache.h; sourceTree = "<group>"; };
 		80D2B9EC1FCD3BB000AAA1FB /* RCTHttpCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCTHttpCache.m; path = easygo/RCTHttpCache.m; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
@@ -417,7 +432,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8077D43920050B880007D2A2 /* UserNotifications.framework in Frameworks */,
+				8077D42F20050B1A0007D2A2 /* CoreTelephony.framework in Frameworks */,
+				8077D43120050B330007D2A2 /* libz.tbd in Frameworks */,
 				800E49711FBB208500695887 /* libRCTCameraRoll.a in Frameworks */,
+				8077D43520050B600007D2A2 /* UMAnalytics.framework in Frameworks */,
 				80134A891F28EEA50086648E /* RSKImageCropper.framework in Frameworks */,
 				80134A581F28EDDB0086648E /* QBImagePicker.framework in Frameworks */,
 				146834051AC3E58100842450 /* libReact.a in Frameworks */,
@@ -429,6 +448,7 @@
 				00C302E81ABCBA2D00DB3ED1 /* libRCTImage.a in Frameworks */,
 				8001D2801FB447D1009DC377 /* Bolts.framework in Frameworks */,
 				133E29F31AD74F7200F7D852 /* libRCTLinking.a in Frameworks */,
+				8077D43320050B440007D2A2 /* libsqlite3.tbd in Frameworks */,
 				00C302E91ABCBA2D00DB3ED1 /* libRCTNetwork.a in Frameworks */,
 				8001D27E1FB447D1009DC377 /* FBSDKLoginKit.framework in Frameworks */,
 				139105C61AF99C1200B5F7CC /* libRCTSettings.a in Frameworks */,
@@ -439,11 +459,13 @@
 				139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */,
 				1042432379024B3AA5EC0970 /* libRNVectorIcons.a in Frameworks */,
 				58B6A7E227F741CEA966491C /* libRCTCamera.a in Frameworks */,
+				8077D43720050B6F0007D2A2 /* UMPush.framework in Frameworks */,
 				A2EE6554258C4B02AB3459F5 /* libAirMaps.a in Frameworks */,
 				8001D27D1FB447D1009DC377 /* FBSDKCoreKit.framework in Frameworks */,
 				34B4AB56104242E59EF79DA9 /* libimageCropPicker.a in Frameworks */,
 				1E08DA463EBA4B03A4A218F2 /* libRNImagePicker.a in Frameworks */,
 				0EE6064F9B6C4F729480DF54 /* libRNI18n.a in Frameworks */,
+				8077D42B20050ADE0007D2A2 /* UMCommon.framework in Frameworks */,
 				17DC93D29F1E44BCBB0E515B /* libRCTFBSDK.a in Frameworks */,
 				4E0238A24D534307B779E731 /* libSQLite.a in Frameworks */,
 				A548CB8505DD40A79DD4494E /* libsqlite3.0.tbd in Frameworks */,
@@ -555,6 +577,7 @@
 		13B07FAE1A68108700A75B9A /* easygo */ = {
 			isa = PBXGroup;
 			children = (
+				8077D43A20050CBB0007D2A2 /* easygo.entitlements */,
 				80D2B9C81FCD3BAF00AAA1FB /* RCTHttpCache.h */,
 				80D2B9EC1FCD3BB000AAA1FB /* RCTHttpCache.m */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
@@ -647,6 +670,10 @@
 		80134A561F28EDDA0086648E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8077D43820050B7A0007D2A2 /* UserNotifications.framework */,
+				8077D43220050B430007D2A2 /* libsqlite3.tbd */,
+				8077D43020050B330007D2A2 /* libz.tbd */,
+				8077D42E20050B110007D2A2 /* CoreTelephony.framework */,
 				8001D26A1FB4476A009DC377 /* FBSDKCoreKit.framework */,
 				8001D26B1FB4476A009DC377 /* FBSDKCoreKit.framework */,
 				8001D26C1FB4476A009DC377 /* Bolts.framework */,
@@ -769,6 +796,9 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				8077D43620050B6E0007D2A2 /* UMPush.framework */,
+				8077D43420050B600007D2A2 /* UMAnalytics.framework */,
+				8077D40720050ADE0007D2A2 /* UMCommon.framework */,
 				13B07FAE1A68108700A75B9A /* easygo */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* easygoTests */,
@@ -882,6 +912,11 @@
 					};
 					13B07F861A680F5B00A75B9A = {
 						DevelopmentTeam = 33279NQCXQ;
+						SystemCapabilities = {
+							com.apple.Push = {
+								enabled = 1;
+							};
+						};
 					};
 					2D02E47A1E0B4A5D006451C7 = {
 						CreatedOnToolsVersion = 8.2.1;
@@ -1472,6 +1507,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = easygo/easygo.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = 33279NQCXQ;
@@ -1510,6 +1546,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = easygo/easygo.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 33279NQCXQ;
 				FRAMEWORK_SEARCH_PATHS = (
