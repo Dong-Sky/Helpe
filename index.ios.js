@@ -66,6 +66,17 @@ import user from './page/user';
 import myFeedback from './page/myFeedback';
 import log from './page/log';
 
+import AnalyticsUtil from './common/AnalyticsUtil';
+import PushUtil from './common/PushUtil';
+
+
+global.AnalyticsUtil = AnalyticsUtil;
+global.PushUtil = PushUtil;
+AnalyticsUtil.onEvent('index');
+console.log(PushUtil);
+
+
+
 var storage = new Storage({
   // 最大容量，默认值1000条数据循环存储
   size: 1000,
@@ -103,6 +114,7 @@ global.I18n = I18n;
 
 
 class welcome extends Component {
+
   render() {
     const { navigate } = this.props.navigation;
     const { params } = this.props.navigation.state;
@@ -130,6 +142,8 @@ class easygo extends Component {
 
 
   componentWillMount(){
+
+
     this.getLoginState();
   };
 
@@ -267,7 +281,7 @@ const EasygoPage = StackNavigator({
     follow: { screen: follow },
     myFeedback: { screen: myFeedback },
     user: { screen: user },
-    log: { screen: log }, 
+    log: { screen: log },
 }, {
     initialRouteName: 'main', // 默认显示界面
     navigationOptions: {// 屏幕导航的默认选项, 也可以在组件内用 static navigationOptions 设置(会覆盖此处的设置)
