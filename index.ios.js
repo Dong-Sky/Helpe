@@ -66,6 +66,9 @@ import user from './page/user';
 import myFeedback from './page/myFeedback';
 import log from './page/log';
 
+import AnalyticsUtil from './common/AnalyticsUtil';
+
+
 var storage = new Storage({
   // 最大容量，默认值1000条数据循环存储
   size: 1000,
@@ -88,6 +91,8 @@ var storage = new Storage({
   // 或是在任何时候，直接对storage.sync进行赋值修改
   //sync: require('./sync')  // 这个sync文件是要你自己写的
 })
+
+global.AnalyticsUtil = AnalyticsUtil;
 global.storage = storage;
 global.I18n = I18n;
 /*storage.save({
@@ -130,6 +135,8 @@ class easygo extends Component {
 
 
   componentWillMount(){
+    AnalyticsUtil.onEvent('index');
+
     this.getLoginState();
   };
 
@@ -267,7 +274,7 @@ const EasygoPage = StackNavigator({
     follow: { screen: follow },
     myFeedback: { screen: myFeedback },
     user: { screen: user },
-    log: { screen: log }, 
+    log: { screen: log },
 }, {
     initialRouteName: 'main', // 默认显示界面
     navigationOptions: {// 屏幕导航的默认选项, 也可以在组件内用 static navigationOptions 设置(会覆盖此处的设置)

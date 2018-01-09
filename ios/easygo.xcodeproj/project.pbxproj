@@ -64,6 +64,9 @@
 		8077D43520050B600007D2A2 /* UMAnalytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8077D43420050B600007D2A2 /* UMAnalytics.framework */; };
 		8077D43720050B6F0007D2A2 /* UMPush.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8077D43620050B6E0007D2A2 /* UMPush.framework */; };
 		8077D43920050B880007D2A2 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8077D43820050B7A0007D2A2 /* UserNotifications.framework */; };
+		8077D44120050ED50007D2A2 /* RNUMConfigure.m in Sources */ = {isa = PBXBuildFile; fileRef = 8077D43C20050ED40007D2A2 /* RNUMConfigure.m */; };
+		8077D44220050ED50007D2A2 /* UMAnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 8077D43D20050ED40007D2A2 /* UMAnalyticsModule.m */; };
+		8077D44320050ED50007D2A2 /* UMPushModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 8077D44020050ED50007D2A2 /* UMPushModule.m */; };
 		80D2B9ED1FCD3BB000AAA1FB /* RCTHttpCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 80D2B9EC1FCD3BB000AAA1FB /* RCTHttpCache.m */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; settings = {ATTRIBUTES = (Required, ); }; };
 		890B0422139B4D59A03DA743 /* MaterialCommunityIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 40DBE72EC15F4AE9A87C6330 /* MaterialCommunityIcons.ttf */; };
@@ -400,6 +403,12 @@
 		8077D43620050B6E0007D2A2 /* UMPush.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = UMPush.framework; sourceTree = "<group>"; };
 		8077D43820050B7A0007D2A2 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		8077D43A20050CBB0007D2A2 /* easygo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = easygo.entitlements; path = easygo/easygo.entitlements; sourceTree = "<group>"; };
+		8077D43B20050ED40007D2A2 /* RNUMConfigure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RNUMConfigure.h; path = RNBridge/RNUMConfigure.h; sourceTree = "<group>"; };
+		8077D43C20050ED40007D2A2 /* RNUMConfigure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RNUMConfigure.m; path = RNBridge/RNUMConfigure.m; sourceTree = "<group>"; };
+		8077D43D20050ED40007D2A2 /* UMAnalyticsModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UMAnalyticsModule.m; path = RNBridge/UMAnalyticsModule.m; sourceTree = "<group>"; };
+		8077D43E20050ED40007D2A2 /* UMAnalyticsModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UMAnalyticsModule.h; path = RNBridge/UMAnalyticsModule.h; sourceTree = "<group>"; };
+		8077D43F20050ED50007D2A2 /* UMPushModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UMPushModule.h; path = RNBridge/UMPushModule.h; sourceTree = "<group>"; };
+		8077D44020050ED50007D2A2 /* UMPushModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UMPushModule.m; path = RNBridge/UMPushModule.m; sourceTree = "<group>"; };
 		80D2B9C81FCD3BAF00AAA1FB /* RCTHttpCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCTHttpCache.h; path = easygo/RCTHttpCache.h; sourceTree = "<group>"; };
 		80D2B9EC1FCD3BB000AAA1FB /* RCTHttpCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCTHttpCache.m; path = easygo/RCTHttpCache.m; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
@@ -577,6 +586,8 @@
 		13B07FAE1A68108700A75B9A /* easygo */ = {
 			isa = PBXGroup;
 			children = (
+				8077D44420050EE70007D2A2 /* RNBirdge */,
+				8077D44020050ED50007D2A2 /* UMPushModule.m */,
 				8077D43A20050CBB0007D2A2 /* easygo.entitlements */,
 				80D2B9C81FCD3BAF00AAA1FB /* RCTHttpCache.h */,
 				80D2B9EC1FCD3BB000AAA1FB /* RCTHttpCache.m */,
@@ -716,6 +727,18 @@
 				80660F9D1EC943D0004B8CF3 /* libRNVectorIcons.a */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		8077D44420050EE70007D2A2 /* RNBirdge */ = {
+			isa = PBXGroup;
+			children = (
+				8077D43B20050ED40007D2A2 /* RNUMConfigure.h */,
+				8077D43C20050ED40007D2A2 /* RNUMConfigure.m */,
+				8077D43E20050ED40007D2A2 /* UMAnalyticsModule.h */,
+				8077D43D20050ED40007D2A2 /* UMAnalyticsModule.m */,
+				8077D43F20050ED50007D2A2 /* UMPushModule.h */,
+			);
+			name = RNBirdge;
 			sourceTree = "<group>";
 		};
 		807ABD091EE66FD60089FB63 /* Products */ = {
@@ -1371,7 +1394,10 @@
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				80D2B9ED1FCD3BB000AAA1FB /* RCTHttpCache.m in Sources */,
+				8077D44120050ED50007D2A2 /* RNUMConfigure.m in Sources */,
+				8077D44320050ED50007D2A2 /* UMPushModule.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				8077D44220050ED50007D2A2 /* UMAnalyticsModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
