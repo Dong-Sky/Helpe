@@ -101,7 +101,7 @@ log_zh(id,data){
     case 6:
       return {
         title: '求助完成',
-        sub: '您的求助「'+data.itemname+'」已解决,别忘了感谢对方哦!',
+        sub: '您的求助「'+data.itemname+'」已解决,快去评价对方吧!',
         next: 'mySale_Ask',
       };
       break;
@@ -115,7 +115,7 @@ log_zh(id,data){
     case 8:
       return {
         title: '求助完成',
-        sub: '求助「'+data.itemname+'」已解决,感谢您的帮助!有没有收到小小的报酬呢？点击这里可以去评价对方哦！',
+        sub: '求助「'+data.itemname+'」已解决,感谢您的帮助！',
         next: 'myOrder_Ask',
       };
       break;
@@ -203,126 +203,126 @@ log_ja(id,data){
   switch(id){
     case 1:
       return {
-        title: '新的订单',
+        title: '新しい申込',
         sub: data.username+'さんはあなたのサービス「'+data.itemname+'」を申し込みました。',
         next: 'mySale_Service',
       };
       break;
     case 2:
       return {
-        title: '求助响应',
+        title: '新しい応募',
         sub: data.username+'さんはあなたのリクエスト「'+data.itemname+'」に応募しました。',
         next: 'mySale_Ask',
       };
       break;
     case 3:
       return {
-        title: '接受订单',
-        sub: data.username+'さんはこれからあなたに「'+data.itemname+'」に応募しました。',
+        title: 'オーダーが受け入れた',
+        sub: data.username+'さんはこれからあなたに「'+data.itemname+'」のサービスを提供します。',
         next: 'myOrder_Service',
       };
       break;
     case 4:
       return {
-        title: '接受申请',
+        title: 'リクエストが受け入れた',
         sub: data.username+'さんは「'+data.itemname+'」のリクエストを受け取りました。',
         next: 'myOrder_Ask',
       };
       break;
     case 5:
       return {
-        title: '订单完成',
-        sub: data.username+'さんとの「'+data.itemname+'」のやりとりを完成しました。',
+        title: 'やりとりが完成した',
+        sub: data.username+'さんとの「'+data.itemname+'」のやりとりが完成しました。',
         next: 'mySale_Service',
       };
       break;
     case 6:
       return {
-        title: '求助完成',
-        sub: data.username+'さんとの「'+data.itemname+'」のやりとりを完成しました。',
+        title: 'やりとりが完成した',
+        sub: data.username+'さんとの「'+data.itemname+'」のやりとりが完成しました。一言でコメントしよう！',
         next: 'mySale_Ask',
       };
       break;
     case 7:
       return {
-        title: '订单完成',
-        sub: data.username+'さんとの「'+data.itemname+'」のやりとりを完成しました。',
+        title: 'やりとりが完成した',
+        sub: data.username+'さんとの「'+data.itemname+'」のやりとりが完成しました。一言でコメントしよう！',
         next: 'myOrder_Service',
       };
       break;
     case 8:
       return {
-        title: '求助完成',
-        sub: data.username+'さんとの「'+data.itemname+'」のやりとりを完成しました。',
+        title: 'やりとりが完成した',
+        sub: data.username+'さんとの「'+data.itemname+'」のやりとりが完成しました。',
         next: 'myOrder_Ask',
       };
       break;
     case 9:
       return {
-        title: '新的关注',
+        title: '新しいフォロー',
         sub: data.username+'さんはあなたをフォローしました。',
         next: 'personal',
       };
       break;
     case 10:
       return {
-        title: '新的评价',
+        title: '新しいレビュー',
         sub: data.username+'さんはあなたを評価しました。',
         next: 'myFeedback',
       };
       break;
     case 11:
       return {
-        title: '拒绝订单',
+        title: 'オーダーが拒否された',
         sub: data.username+'さんへの「'+data.itemname+'」の販売を断りました。',
         next: 'mySale_Service',
       };
       break;
     case 12:
       return {
-        title: '订单被拒绝',
+        title: 'オーダーが拒否された',
         sub: data.username+'さん販売の「'+data.itemname+'」の購入は、残念ながら断られてしまいました。',
         next: 'myOrder_Service',
       };
       break;
     case 13:
       return {
-        title: '拒绝帮助申请',
+        title: 'オーダーが拒否された请',
         sub: data.username+'さん依頼の「'+data.itemname+'」への提供は、残念ながら断られてしまいました。',
         next: 'mySale_Ask',
       };
       break;
     case 14:
       return {
-        title: '申请被拒绝',
+        title: 'オーダーが拒否された',
         sub: data.username+'さんからの「'+data.itemname+'」の提供を断りました。',
         next: 'myOrder_Ask',
       };
       break;
     case 15:
       return {
-        title: '订单已取消',
+        title: 'オーダーがキャンセルした',
         sub:  data.username+'さんは「'+data.itemname+'」の購入を残念ながらキャンセルしました。',
         next: 'mySale_Service',
       };
       break;
     case 16:
       return {
-        title: '订单已取消',
+        title: 'オーダーがキャンセルした',
         sub: data.username+'さんの「'+data.itemname+'」の購入をキャンセルしました。',
         next: 'myOrder_Service',
       };
       break;
     case 17:
       return {
-        title: '求助已取消',
+        title: 'オーダーがキャンセルした',
         sub: data.username+'さんの「'+data.itemname+'」への提供をキャンセルしました。',
         next: 'mySale_Ask',
       };
       break;
     case 18:
       return {
-        title: '求助已取消',
+        title: 'オーダーがキャンセルした',
         sub: data.username+'さんは「'+data.itemname+'」への提供を残念ながらキャンセルしました。',
         next: 'mySale_Ask',
       }
@@ -330,6 +330,7 @@ log_ja(id,data){
 
   return result;
 },
+
 
 
 }

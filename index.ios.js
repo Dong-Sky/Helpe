@@ -67,6 +67,10 @@ import myFeedback from './page/myFeedback';
 import log from './page/log';
 
 import AnalyticsUtil from './common/AnalyticsUtil';
+import PushUtil from './common/PushUtil.js';
+
+console.log(PushUtil);
+console.log(AnalyticsUtil);
 
 
 var storage = new Storage({
@@ -93,6 +97,7 @@ var storage = new Storage({
 })
 
 global.AnalyticsUtil = AnalyticsUtil;
+global.PushUtil = PushUtil;
 global.storage = storage;
 global.I18n = I18n;
 /*storage.save({

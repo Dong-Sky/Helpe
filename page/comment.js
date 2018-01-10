@@ -272,7 +272,7 @@ class comment extends Component {
       //解析数据
       try{
         let d = JSON.parse(unescape(ab2str(e.data)));
-        
+
         console.log(d);
         if(d.O==5&&d.D!=undefined){
           //在线数据

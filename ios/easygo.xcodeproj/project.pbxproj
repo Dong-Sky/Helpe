@@ -587,7 +587,6 @@
 			isa = PBXGroup;
 			children = (
 				8077D44420050EE70007D2A2 /* RNBirdge */,
-				8077D44020050ED50007D2A2 /* UMPushModule.m */,
 				8077D43A20050CBB0007D2A2 /* easygo.entitlements */,
 				80D2B9C81FCD3BAF00AAA1FB /* RCTHttpCache.h */,
 				80D2B9EC1FCD3BB000AAA1FB /* RCTHttpCache.m */,
@@ -732,6 +731,7 @@
 		8077D44420050EE70007D2A2 /* RNBirdge */ = {
 			isa = PBXGroup;
 			children = (
+				8077D44020050ED50007D2A2 /* UMPushModule.m */,
 				8077D43B20050ED40007D2A2 /* RNUMConfigure.h */,
 				8077D43C20050ED40007D2A2 /* RNUMConfigure.m */,
 				8077D43E20050ED40007D2A2 /* UMAnalyticsModule.h */,
