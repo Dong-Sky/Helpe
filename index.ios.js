@@ -67,10 +67,9 @@ import myFeedback from './page/myFeedback';
 import log from './page/log';
 
 import AnalyticsUtil from './common/AnalyticsUtil';
-import PushUtil from './common/PushUtil.js';
+import PushUtil from './common/PushUtil';
+import Util from './common/util';
 
-console.log(PushUtil);
-console.log(AnalyticsUtil);
 
 
 var storage = new Storage({
@@ -100,6 +99,7 @@ global.AnalyticsUtil = AnalyticsUtil;
 global.PushUtil = PushUtil;
 global.storage = storage;
 global.I18n = I18n;
+
 /*storage.save({
       key: 'loginState',  // 注意:请不要在key中使用_下划线符号!
       data: {
@@ -111,6 +111,16 @@ global.I18n = I18n;
       expires: null,
     })*/
 
+/*PushUtil.addAlias('answer','Helpe',(code) =>{
+  console.log(code);
+
+})*/
+
+/*PushUtil.deleteAlias('answer',"Helpe",(code) =>{
+
+
+  console.log(code);
+})*/
 
 class welcome extends Component {
   render() {
@@ -171,7 +181,11 @@ class easygo extends Component {
             storage.remove({
               key:'loginState',
             })
-            .then(() => {DeviceEventEmitter.emit('login',false);})
+            .then(() => {
+              Util.deleteAlias(ret.uid);
+
+              DeviceEventEmitter.emit('login',false);
+            })
             .then(() => alert('登录已失效'));
 
           }

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+  import React, { Component } from 'react';
 import {
   AppRegistry,
   StyleSheet,
@@ -27,6 +27,7 @@ import {
   LoginManager,
 } from 'react-native-fbsdk';
 import Service from '../common/service';
+import Util from '../common/util';
 
 class login extends Component{
   constructor(props) {
@@ -37,6 +38,8 @@ class login extends Component{
             loading: false,
       }
     };
+
+
 
   //定义登录跳转方法
   login = () => {
@@ -64,8 +67,12 @@ class login extends Component{
       	expires: null,
       })
       .then(() => {
+
+        Util.addAlias(responseJson.data.uid);
+        
         alert(I18n.t('success.login'));
         DeviceEventEmitter.emit('login',true);
+
       })
       .then(() => this.props.navigation.goBack())
       ;

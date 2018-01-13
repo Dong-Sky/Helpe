@@ -31,7 +31,8 @@ UIKIT_EXTERN NSString * __nonnull const kUMessageAliasTypeDouban;
 UIKIT_EXTERN NSString * __nonnull const kUMessageAliasTypeFacebook;
 //twitter
 UIKIT_EXTERN NSString * __nonnull const kUMessageAliasTypeTwitter;
-
+//Helpe
+UIKIT_EXTERN NSString * __nonnull const kUMessageAliasTypeHelpe;
 
 //error for handle
 extern NSString * __nonnull const kUMessageErrorDomain;

@@ -1,12 +1,13 @@
 
-  import React, { Component } from 'react';
-  import {
+import React, { Component } from 'react';
+import {
     AppRegistry,
     StyleSheet,
     Text,
     View
   } from 'react-native';
-  import { getLanguages } from 'react-native-i18n';
+import { getLanguages } from 'react-native-i18n';
+const ALIAS_TYPE = 'Helpe';
 
 export default{
 /*
@@ -43,6 +44,30 @@ getRequest(url,param,successCallback,failedCallback){
   .then((response) => response.json())
   .then((responseJson) => successCallback(responseJson))
   .catch((error) => failedCallback(error))
+},
+
+addAlias(alias){
+  PushUtil.addAlias(alias,ALIAS_TYPE,(code) =>{
+    if(code == 200){
+      console.log('绑定成功');
+    }
+    else{
+      alert('绑定设备失败，您无法及时收到通知消息，请尝试重新登录');
+    }
+  })
+},
+
+deleteAlias(alias){
+  PushUtil.deleteAlias(alias,ALIAS_TYPE,(code) =>{
+    if(code == 200){
+      console.log('解除绑定');
+    }
+    else{
+      alert('解除绑定失败');
+    }
+  })
+
+
 },
 
 log(id,data){

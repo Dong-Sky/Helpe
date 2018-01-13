@@ -26,7 +26,8 @@ import Storage from 'react-native-storage';
 import util from '../common/util';
 import DeviceStorage from '../common/DeviceStorage';
 import Modalbox from 'react-native-modalbox';
-import Service from '../common/service'
+import Service from '../common/service';
+import Util from '../common/util';
 
 export default class setting extends Component{
   constructor(props) {
@@ -136,54 +137,44 @@ export default class setting extends Component{
     })
   };
 
-  //用户登出方法loginOut()
-  loginOut(url,v,token,uid,successCallback,failedCallback){
+
+
+  //登出方法
+  out = () => {
+    const {params} = this.props.navigation.state;
+    const { uid,token } = this.state;
+    const url = Service.BaseUrl;
     fetch(url, {
       method: 'post',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body:'a=user&m=out&v='+v+'&token='+token+'&uid='+uid,
+      body:'a=user&m=out&v='+Service.version+'&token='+token+'&uid='+uid,
     })
     .then((response) => response.json())
-    .then((responseJson) => successCallback(responseJson))
-    .catch((error) => failedCallback(error))
-  }
+    .then((responseJson) => {
+      if(!responseJson.status){
+        storage.remove({
+          key:'loginState',
+        })
+        .then(() => {
 
-  out = () => {
-    const {params} = this.props.navigation.state;
-    this.loginOut(
-    Service.BaseUrl,
-    Service.version,
-    this.state.token,
-    this.state.uid,
-    function(response){
+          console.log(uid);
 
-      //服务器端登出后还需要消除本地的登录状态。
-      storage.remove({
-        key:'loginState',
-      })
-    /*  .then(
-      this.props.navigation.dispatch(NavigationActions.reset({
-      index: 0,
-      actions: [
-        NavigationActions.navigate({  routeName: 'welcome',  })
-        ]
-      })
-     )
-   )*/
-    .then(() => {
-      alert(I18n.t('success.out'));
-      DeviceEventEmitter.emit('login',false);
+          Util.deleteAlias(uid);
+
+          alert(I18n.t('success.out'));
+          DeviceEventEmitter.emit('login',false);
+
+        })
+        .then(() => this.props.navigation.goBack())
+      }
+      else{
+        alert(I18n.t('error.out_failed'));
+      }
     })
-    .then(() => this.props.navigation.goBack())
+    .catch((error) => console.log(error))
 
-    }.bind(this),
-    function(err){
-      console.log(err);
-      alert(I18n.t('error.out_failed'));
-    }.bind(this)
-  );
   };
 
   update_pass = () => {
@@ -337,7 +328,7 @@ export default class setting extends Component{
 
   //end
   render(){
-    console.log(NativeModules.HttpCache);
+
     const {params} = this.props.navigation.state;
     const {navigate} = this.props.navigation;
 

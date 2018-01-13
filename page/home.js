@@ -55,15 +55,21 @@ function getDisance(lat1, lng1, lat2, lng2) {
 
 
     var d =  parseInt(dis * 6378137);
-    if(d<500){
+    if(d<=200){
+      return '<200m';
+    }
+    if(d>200&d<=500){
       return  '<500m';
     }
-    else if(d>500&&d<1000){
-      return '<1000m';
+    else if(d>500&&d<=1000){
+      return '<1km';
     }
-    else if(d>1000){
-      var x = Number(d).toFixed(1);
+    else if(d>1000&d<=100000){
+      var x = Number(d/1000).toFixed(1);
       return (x.toString()+'km');
+    }
+    else if(d>100000){
+      return '>100km';
     }
     else{
       return '???m';
@@ -680,7 +686,7 @@ class itemList extends Component {
       url = Service.BaseUrl+`?a=item&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&searchtp=${searchtp}&tp=${tp}&cid=${cid}`;
     }
     url = url+url1;
-    console.log(url);
+
     this.setState({ loading: true, });
     fetch(url)
       .then(res => res.json())
@@ -1076,29 +1082,51 @@ renderModal = () => {
                   }
                 }}
                 >
-                  <Image
-                    style={{width:0.5*(width-4*6),alignSelf: 'center',height: 120,overflow:'hidden'}}
-                    source={{ uri:Service.BaseUri+item.img }}
-                    resizeMode="cover"
 
-                  />
-                  <Text
-                    style={{marginLeft: 8,marginRight: 8,marginTop: 4,color: '#333333',fontSize: 16,}}
-                    numberOfLines={2}
-                    >
-                      {item.name}
-                  </Text>
-                  <Text
-                    style={{height: 30,marginLeft: 8,marginRight: 8,marginTop: 4,color: '#da695c',fontSize: 14,}}
-                    numberOfLines={1}
-                    >
-                      {item.u=='""'||item.u==null? '￥'+item.price:'￥'+item.price+'/'+item.u}
-                  </Text>
-                  <View style={{flex: 1}}>
-                  </View>
-                  <Text style={{height: 20,fontSize: 12,color: '#999999',marginLeft: 8,marginRight: 8,marginBottom: 2}} numberOfLines={2}>
-                    {item.tp==0?I18n.t('home.Service'):I18n.t('home.Ask')}{' · '}{this.state.category[Number(item.cid)]?this.state.category[Number(item.cid)].name : '?'}
-                  </Text>
+                    <Image
+                      style={{width:0.5*(width-4*6),alignSelf: 'center',height: 120,overflow:'hidden'}}
+                      source={{ uri:Service.BaseUri+item.img }}
+                      resizeMode="cover"
+
+                    />
+                    <View style={{height: 100,width:0.5*(width-4*6)}}>
+                      <View style={{height: 70,}}>
+                        <Text
+                          style={{marginLeft: 8,marginRight: 8,marginTop: 4,color: '#333333',fontSize: 14}}
+                          numberOfLines={2}
+                          >
+                            {item.name}
+                        </Text>
+                       <Text
+                          style={{height: 30,marginLeft: 8,marginRight: 8,marginTop: 4,color: '#da695c',fontSize: 14,}}
+                          numberOfLines={1}
+                          >
+                            {item.u=='""'||item.u==null? '￥'+item.price:'￥'+item.price+'/'+item.u}
+                        </Text>
+                      </View>
+                      <View style={{height: 30,width: 0.5*(width-4*6),flexDirection: 'row',justifyContent: 'flex-start',}}>
+                        <View style={{marginLeft: 8,marginBottom: 4,flex: 4,flexDirection: 'column',justifyContent: 'flex-end' }}>
+                         <Text
+                            style={{fontSize: 12,color: '#999999',}}
+                            numberOfLines={1}
+                          >
+                            {item.tp==0?I18n.t('home.Service'):I18n.t('home.Ask')}{' · '}{this.state.category[Number(item.cid)]?this.state.category[Number(item.cid)].name : '?'}
+                          </Text>
+                        </View>
+                        <View style={{marginRight: 6,marginBottom: 4,flex: 2,flexDirection: 'column',justifyContent: 'flex-end'}}>
+                          <Text
+                             style={{fontSize: 12,color: '#999999',textAlign: 'right'}}
+                             numberOfLines={1}
+                           >
+                             {getDisance(this.state.region.latitude,this.state.region.longitude,item.lat,item.lng)}
+                           </Text>
+                        </View>
+                      </View>
+                    </View>
+
+
+
+
               </TouchableOpacity>
             )}
             keyExtractor={item => item.id}
