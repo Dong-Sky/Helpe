@@ -14,6 +14,7 @@ import {
   Dimensions,
   ActivityIndicator,
   Alert,
+  Switch
 } from 'react-native';
 import {
   StackNavigator,
@@ -205,7 +206,7 @@ function isRealNum(val){
   renderBackModal = () => {
     return(
       <Modalbox
-        style={{height: 180,width: 300,alignItems: 'center',}}
+        style={{height: 180,width: 300,alignItems: 'center',borderRadius: 10}}
         isOpen={this.state.backModalVisible}
         isDisabled={this.state.isDisabled1}
         position='center'
@@ -291,10 +292,10 @@ function isRealNum(val){
      if(this.state.defaultImg==null||this.state.defaultImg==''){
        return(
          <TouchableOpacity
-           style={{height: 200,alignItems: 'center'}}
+           style={{height: 200,alignItems: 'center',width: '100%',marginLeft: 1,marginRight: 1}}
            >
              <Image
-               style={{flex: 1}}
+               style={{flex: 1,alignSelf: 'center'}}
                source={require('../icon/publish/choose.png')}
                resizeMode='contain'
              />
@@ -388,7 +389,10 @@ function isRealNum(val){
               titleStyle={styles.title}
               title={I18n.t('buy.pay')}
               rightIcon={<View></View>}
-              rightTitle={this.state.item.price}
+              textInput={true}
+              textInputEditable={false}
+              textInputStyle={{color: '#999999'}}
+              textInputValue={this.state.item.price}
               containerStyle={styles.listContainerStyle}
             />
             {this.renderSeparator()}
@@ -476,14 +480,14 @@ function isRealNum(val){
         <Button
           style={styles.button}
           buttonStyle={{marginTop:5,marginBottom:5,}}
-          borderRadius={5}
+          borderRadius={10}
           onPress={() => {
             if(this.total()<0){
               alert(I18n.t('buy.price_err'));
             }
             else {
               Alert.alert(
-                I18n.t('buy.text3'),
+                I18n.t('buy.txt3'),
                 I18n.t('buy.n')+': '+this.state.num+'\n'+I18n.t('buy.changeprice')+': '+this.state.changeprice+'\n'+I18n.t('buy.total')+': '+this.total().toString(),
                 [
                   {text: I18n.t('common.cancel'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},

@@ -141,14 +141,14 @@ class mySaleDetail extends Component{
         state.press = () => this.operate_order('accept');
         break;
       case 10:
-        state.title = I18n.t('myOrder.sa10');
+        state.title = '确认完成';
         state.press = () => {
           Alert.alert(
             I18n.t('myOrder.satxt1'),
             I18n.t('myOrder.satxt2'),
             [
               {text: I18n.t('common.cancel'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-              {text: I18n.t('common.confirm'), onPress: () => this.operate_order('arrival')},
+              {text: I18n.t('common.confirm'), onPress: () => this.operate_order('finish')},
             ],
             { cancelable: false }
           )
@@ -190,7 +190,7 @@ class mySaleDetail extends Component{
     const body = 'a=order&m='+m+'&token='+token+'&uid='+uid+'&v='+Service.version+'&id='+order.id;
 
 
-
+    console.log(url+'?'+body);
     this.setState({loading: true})
     fetch(url,{
       method: 'POST',
@@ -205,7 +205,7 @@ class mySaleDetail extends Component{
       if(!responseJson.status){
 
         DeviceEventEmitter.emit('operate_Sale');
-        
+
         var txt = I18n.t('success.fetch');
         switch (m){
           case 'accept':
@@ -220,6 +220,10 @@ class mySaleDetail extends Component{
           case 'getmoney':
             txt = I18n.t('myOrder.sdtxt10');
             break;
+          case 'finish':
+            txt = '求助完成'
+            break;
+
           case 'cancel':
             txt = I18n.t('myOrder.sdtxt11');
             break;
