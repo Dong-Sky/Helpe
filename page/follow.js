@@ -583,7 +583,9 @@ class Follow2 extends Component {
                             const params = {
                               token: this.state.token,
                               uid: this.state.uid,
+                              islogin: this.state.islogin,
                               uuid: item.id,
+                            };
                             navigate('user',params);
                         }
                        },
