@@ -39,7 +39,7 @@ returnState = (status) => {
       title = I18n.t('myOrder.s30');
       break;
     case 40:
-      title = I18n.t('myOrder.s40');
+      title = Number(fd)>0?'已评论':I18n.t('myOrder.s40');
       break;
     case 50:
       title = I18n.t('myOrder.s50');
@@ -234,8 +234,8 @@ class myOrderDetail extends Component{
 
   //评价
   feedback = () => {
-    const { token,uid,score,content,item } = this.state;
-    const url = Service.BaseUrl+`?a=feedback&m=save&v=${Service.version}&token=${token}&uid=${uid}&id=${item.id}&score=${20*score}&content=${content}`;
+    const { token,uid,score,content,item,order } = this.state;
+    const url = Service.BaseUrl+`?a=feedback&m=save&v=${Service.version}&token=${token}&uid=${uid}&id=${order.id}&score=${20*score}&content=${content}`;
     console.log(url);
 
     this.setState({loading: true})
@@ -258,7 +258,7 @@ class myOrderDetail extends Component{
   renderPayModal = () => {
     return(
       <Modalbox
-        style={{height: 280,width: 300,alignItems: 'center',}}
+        style={{height: 280,width: 300,alignItems: 'center',borderRadius: 10}}
         isOpen={this.state.payModalVisible}
         isDisabled={this.state.isDisabled1}
         position='center'
@@ -317,7 +317,7 @@ class myOrderDetail extends Component{
   renderFeedbackModal = () => {
     return(
       <Modalbox
-        style={{height: 330,width: 300,alignItems: 'center',}}
+        style={{height: 330,width: 300,alignItems: 'center',borderRadius: 10}}
         isOpen={this.state.feedbackModalVisible}
         isDisabled={this.state.isDisabled2}
         position='center'
@@ -571,7 +571,7 @@ class myOrderDetail extends Component{
             <ListItem
               titleStyle={styles.title1}
               title={I18n.t('myOrder.order_status')}
-              rightTitle={returnState(this.state.order.status)}
+              rightTitle={returnState(this.state.order.status,this.state.order.fd)}
               containerStyle={styles.listContainerStyle}
             />
             {this.renderSeparator()}

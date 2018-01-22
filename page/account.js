@@ -299,7 +299,7 @@ class account1 extends Component {
     const list3 = [
       {
         id: 1,
-        title: I18n.t('account.order'),
+        title: '购买的服务',
         icon : (
           <Image
           source={require('../icon/account/order.png')}
@@ -323,7 +323,7 @@ class account1 extends Component {
       },
       {
         id: 2,
-        title: I18n.t('account.sale'),
+        title: '出售的服务',
         icon : (
           <Image
           source={require('../icon/account/sale.png')}
@@ -347,7 +347,7 @@ class account1 extends Component {
       },
       {
         id: 3,
-        title: I18n.t('account.order'),
+        title: '帮助他人',
         icon : (
           <Image
           source={require('../icon/account/order.png')}
@@ -371,7 +371,7 @@ class account1 extends Component {
       },
       {
         id: 4,
-        title: I18n.t('account.sale'),
+        title: '发布的求助',
         icon : (
           <Image
           source={require('../icon/account/sale.png')}
