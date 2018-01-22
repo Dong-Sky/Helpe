@@ -23,14 +23,9 @@ import {
 import Geolocation from 'Geolocation' ;
 import { List, ListItem,Icon,Button,Avatar,SearchBar } from 'react-native-elements';
 import ModalDropdown from 'react-native-modal-dropdown';
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 import ScrollableTabView from 'react-native-scrollable-tab-view';
 import Interactable from 'react-native-interactable';
-=======
->>>>>>> parent of 45185480... ios 1.0.0
-=======
->>>>>>> parent of 45185480... ios 1.0.0
 
 
 
@@ -62,8 +57,7 @@ function getDisance(lat1, lng1, lat2, lng2) {
     return parseInt(dis * 6378137);
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 class follow extends Component {
   constructor(props) {
       super(props);
@@ -120,13 +114,10 @@ class follow extends Component {
 }
 
 
-=======
->>>>>>> parent of 45185480... ios 1.0.0
-=======
->>>>>>> parent of 45185480... ios 1.0.0
 
 
-class follow extends Component {
+
+class Follow1 extends Component {
   static navigationOptions = {
     tabBarLabel: 'home',
     tabBarIcon: ({ tintColor }) => (
@@ -358,8 +349,147 @@ class follow extends Component {
         </List>
       </View>
     );
-<<<<<<< HEAD
-<<<<<<< HEAD
+  };
+}
+
+class Follow2 extends Component {
+  static navigationOptions = {
+    tabBarLabel: 'home',
+    tabBarIcon: ({ tintColor }) => (
+      <Image
+        source={require('../icon/tarbar/home.png')}
+        style={[styles.icon, {tintColor: tintColor}]}
+      />
+    ),
+  }
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      //用户登录信息
+      token: null,
+      uid: null ,
+      islogin: false,
+      //列表控制
+      loading: false,
+      page: 1,
+      seed: 1,
+      error: null,
+      refreshing: false,
+      //
+      data: [],
+    };
+  };
+
+  componentWillMount() {
+    const { params } = this.props.navigation.state;
+    this.state.token = params.token;
+    this.state.uid = params.uid;
+    this.state.islogin = params.islogin;
+    this.makeRemoteRequest();
+  };
+
+  componentDidMount() {
+  };
+
+  makeRemoteRequest = () => {
+    const { token, uid } = this.state;
+    const url = Service.BaseUrl+`?a=follow&m=my&v=${Service.version}&token=${token}&uid=${uid}`;
+
+
+    this.setState({loading: true})
+    fetch(url)
+    .then(response => response.json())
+    .then(responseJson => {
+
+      if(!responseJson.status){
+        this.setState({data: responseJson.data});
+      }
+      else{
+        alert(I18n.t('error.fetch_failed')+'\n'+responseJson.err);
+      }
+    })
+    .then(() => this.setState({loading: false,refreshing: false,}))
+    .catch(err => {console.log(err) ; this.setState({loading: false,refreshing: false})})
+  };
+
+
+
+  //收藏
+  delfollow = (id) =>{
+    const { token,uid, } = this.state;
+    const url = Service.BaseUrl+`?a=follow&m=del&token=${token}&uid=${uid}&id=${id}&v=${Service.version}`;
+    console.log(url);
+    this.setState({loading: true})
+    fetch(url)
+    .then(response => response.json())
+    .then(responseJson => {
+
+      if(!responseJson.status){
+        alert(I18n.t('success.delete'));
+      }
+      else{
+        alert(I18n.t('error.delete_failed')+'\n'+responseJson.err);
+      }
+    })
+    .then(() => this.setState({loading: false,}))
+    .then(() => this.makeRemoteRequest())
+    .catch(err => {console.log(err);this.setState({loading: false,})})
+  };
+
+  handleRefresh = () => {
+    this.setState(
+      {
+        page: 1,
+        seed: this.state.seed + 1,
+        refreshing: true
+      },
+      () => {
+        this.makeRemoteRequest();
+      }
+    );
+  };
+
+  handleLoadMore = () => {
+    this.setState(
+      {
+        page: this.state.page + 1
+      },
+      () => {
+        this.makeRemoteRequest();
+      }
+    );
+  };
+
+
+  renderSeparator = () => {
+    return (
+      <View
+        style={{
+          height: 1,
+          width: "95%",
+          backgroundColor: "#e5e5e5",
+          marginLeft: "5%"
+        }}
+      />
+    );
+  };
+
+  renderFooter = () => {
+    if (!this.state.loading) return null;
+
+    return (
+      <View
+        style={{
+          paddingVertical: 20,
+          borderTopWidth: 1,
+          borderColor: "#CED0CE",
+        }}
+      >
+        <ActivityIndicator animating size="large" />
+      </View>
+    );
   };
 
   render() {
@@ -367,11 +497,32 @@ class follow extends Component {
     const { navigate } = this.props.navigation;
     const { params } = this.props.navigation.state;
     return (
+      <View style={styles.container}>
+        <View style={styles.StatusBar}>
+        </View>
+        <View style={styles.header}>
+          <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start'}}>
+            <Icon
+              style={{marginLeft: 5}}
+              name='keyboard-arrow-left'
+              color='#f1a073'
+              size={32}
+              onPress={() => this.props.navigation.goBack()}
+            />
+          </View>
+          <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
+            <Text style={{alignSelf: 'center',color: '#333333',fontSize: 18}}>
+              {I18n.t('follow.follow')}
+            </Text>
+          </View>
+          <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
+          </View>
+        </View>
         <List containerStyle={{ borderTopWidth: 1,flex:1,backgroundColor: '#FFFFFF' ,marginTop: 0,borderColor: '#e5e5e5'}}>
           <FlatList
             style={{marginTop: 0,borderWidth: 0}}
             data={this.state.data}
-            renderItem = {({item}) => (
+            renderItem={({ item }) => (
               <Interactable.View
                 horizontalOnly={true}
                 style={{height: 50,width: width+50,backgroundColor: '#FFFFFF',flexDirection: 'row'}}
@@ -404,60 +555,23 @@ class follow extends Component {
                                 token: this.state.token,
                                 uid: this.state.uid,
                                 islogin: this.state.islogin,
-                                uuid: item.id,
+                                uuid: item.uuid,
                               };
                               navigate('user',params);
                           }
                          },
                         {text: I18n.t('common.cancel'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                        {text: I18n.t('common.delete'), onPress: () => this.delfollow(item.id)},
                       ],
                       { cancelable: false }
                     )
                   }}
                 />
-                <View style={{width: 50,height: '100%',backgroundColor: 'orange'}}>
+                <View style={{backgroundColor: 'orange',height: '100%',width: 50}}>
                 </View>
               </Interactable.View>
-            )}
 
-            /*
-            renderItem={({ item }) => (
-              <ListItem
-                component={TouchableOpacity}
-                roundAvatar
-                key={item.id}
-                title={item.name}
-                subtitle={I18n.t('follow.start')+':'+formatDate(item.t)+'\n'+I18n.t('follow.sale')+' :'+item.sale+'次'}
-                subtitleNumberOfLines={3}
-                //rightTitle={item.flag==0?'未上架':'已上架'}
-                avatar={{ uri:Service.BaseUri+item.face  }}
-                avatarContainerStyle={{height:60,width:60}}
-                avatarStyle={{height:60,width:60}}
-                containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF'}}
-                onPress={() => {
-                  Alert.alert(
-                    I18n.t('follow.choose'),
-                    '',
-                    [
-                      {
-                        text: I18n.t('follow.go'),
-                        onPress: () => {
-                            const params = {
-                              token: this.state.token,
-                              uid: this.state.uid,
-                              islogin: this.state.islogin,
-                              uuid: item.id,
-                            };
-                            navigate('user',params);
-                        }
-                       },
-                      {text: I18n.t('common.cancel'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                    ],
-                    { cancelable: false }
-                  )
-                }}
-              />
-            )}*/
+            )}
             keyExtractor={item => item.id}
             ItemSeparatorComponent={this.renderSeparator}
             //ListHeaderComponent={this.renderHeader}
@@ -468,12 +582,9 @@ class follow extends Component {
             onEndReachedThreshold={50}
           />
         </List>
+      </View>
     );
-=======
->>>>>>> parent of 45185480... ios 1.0.0
-=======
->>>>>>> parent of 45185480... ios 1.0.0
-  }
+  };
 }
 
 
