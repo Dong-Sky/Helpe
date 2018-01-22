@@ -24,8 +24,11 @@ import Geolocation from 'Geolocation' ;
 import { List, ListItem,Icon,Button,Avatar,SearchBar } from 'react-native-elements';
 import ModalDropdown from 'react-native-modal-dropdown';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import ScrollableTabView from 'react-native-scrollable-tab-view';
 import Interactable from 'react-native-interactable';
+=======
+>>>>>>> parent of 45185480... ios 1.0.0
 =======
 >>>>>>> parent of 45185480... ios 1.0.0
 
@@ -59,6 +62,7 @@ function getDisance(lat1, lng1, lat2, lng2) {
     return parseInt(dis * 6378137);
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 class follow extends Component {
   constructor(props) {
@@ -116,6 +120,8 @@ class follow extends Component {
 }
 
 
+=======
+>>>>>>> parent of 45185480... ios 1.0.0
 =======
 >>>>>>> parent of 45185480... ios 1.0.0
 
@@ -353,6 +359,7 @@ class follow extends Component {
       </View>
     );
 <<<<<<< HEAD
+<<<<<<< HEAD
   };
 
   render() {
@@ -462,6 +469,8 @@ class follow extends Component {
           />
         </List>
     );
+=======
+>>>>>>> parent of 45185480... ios 1.0.0
 =======
 >>>>>>> parent of 45185480... ios 1.0.0
   }
