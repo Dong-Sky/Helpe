@@ -25,7 +25,7 @@ import { List, ListItem,Icon,Button,Avatar,SearchBar } from 'react-native-elemen
 import ModalDropdown from 'react-native-modal-dropdown';
 
 import ScrollableTabView from 'react-native-scrollable-tab-view';
-import Interactable from 'react-native-interactable';
+
 
 
 
@@ -92,7 +92,6 @@ class follow extends Component {
        </View>
 
        <ScrollableTabView
-         locked={true}
          tabBarUnderlineStyle={{backgroundColor:'#f1a073'}}
          tabBarActiveTextColor='#f1a073'
          style={{backgroundColor: '#FFFFFF'}}
@@ -288,54 +287,42 @@ class Follow1 extends Component {
             style={{marginTop: 0,borderWidth: 0}}
             data={this.state.data}
             renderItem={({ item }) => (
-              <Interactable.View
-                horizontalOnly={true}
-                style={{height: 50,width: width+50,backgroundColor: '#FFFFFF',flexDirection: 'row'}}
-                snapPoints={[{x: 0}, {x: -50}]}
-                //onSnap={this.onDrawerSnap}
-
-              >
-                <ListItem
-                  component={TouchableOpacity}
-                  roundAvatar
-                  key={item.id}
-                  title={item.name}
-                  subtitle={I18n.t('follow.start')+':'+formatDate(item.t)+'\n'+I18n.t('follow.sale')+' :'+item.sale+'次'}
-                  subtitleNumberOfLines={3}
-                  //rightTitle={item.flag==0?'未上架':'已上架'}
-                  avatar={{ uri:Service.BaseUri+item.face  }}
-                  avatarContainerStyle={{height:60,width:60}}
-                  avatarStyle={{height:60,width:60}}
-                  containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF',width: width}}
-                  rightIcon={<View></View>}
-                  onPress={() => {
-                    Alert.alert(
-                      I18n.t('follow.choose'),
-                      '',
-                      [
-                        {
-                          text: I18n.t('follow.go'),
-                          onPress: () => {
-                              const params = {
-                                token: this.state.token,
-                                uid: this.state.uid,
-                                islogin: this.state.islogin,
-                                uuid: item.uuid,
-                              };
-                              navigate('user',params);
-                          }
-                         },
-                        {text: I18n.t('common.cancel'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                        {text: I18n.t('common.delete'), onPress: () => this.delfollow(item.id)},
-                      ],
-                      { cancelable: false }
-                    )
-                  }}
-                />
-                <View style={{backgroundColor: 'orange',height: '100%',width: 50}}>
-                </View>
-              </Interactable.View>
-
+              <ListItem
+                component={TouchableOpacity}
+                roundAvatar
+                key={item.id}
+                title={item.name}
+                subtitle={I18n.t('follow.start')+':'+formatDate(item.t)+'\n'+I18n.t('follow.sale')+' :'+item.sale+'次'}
+                subtitleNumberOfLines={3}
+                //rightTitle={item.flag==0?'未上架':'已上架'}
+                avatar={{ uri:Service.BaseUri+item.face  }}
+                avatarContainerStyle={{height:60,width:60}}
+                avatarStyle={{height:60,width:60}}
+                containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF'}}
+                onPress={() => {
+                  Alert.alert(
+                    I18n.t('follow.choose'),
+                    '',
+                    [
+                      {
+                        text: I18n.t('follow.go'),
+                        onPress: () => {
+                            const params = {
+                              token: this.state.token,
+                              uid: this.state.uid,
+                              islogin: this.state.islogin,
+                              uuid: item.uuid,
+                            };
+                            navigate('user',params);
+                        }
+                       },
+                      {text: I18n.t('common.cancel'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                      {text: I18n.t('common.delete'), onPress: () => this.delfollow(item.id)},
+                    ],
+                    { cancelable: false }
+                  )
+                }}
+              />
             )}
             keyExtractor={item => item.id}
             ItemSeparatorComponent={this.renderSeparator}
@@ -523,6 +510,7 @@ class Follow2 extends Component {
             style={{marginTop: 0,borderWidth: 0}}
             data={this.state.data}
             renderItem={({ item }) => (
+<<<<<<< HEAD
               <Interactable.View
                 horizontalOnly={true}
                 style={{height: 50,width: width+50,backgroundColor: '#FFFFFF',flexDirection: 'row'}}
@@ -571,6 +559,41 @@ class Follow2 extends Component {
                 </View>
               </Interactable.View>
 
+=======
+              <ListItem
+                component={TouchableOpacity}
+                roundAvatar
+                key={item.id}
+                title={item.name}
+                subtitle={I18n.t('follow.start')+':'+formatDate(item.t)+'\n'+I18n.t('follow.sale')+' :'+item.sale+'次'}
+                subtitleNumberOfLines={3}
+                //rightTitle={item.flag==0?'未上架':'已上架'}
+                avatar={{ uri:Service.BaseUri+item.face  }}
+                avatarContainerStyle={{height:60,width:60}}
+                avatarStyle={{height:60,width:60}}
+                containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF'}}
+                onPress={() => {
+                  Alert.alert(
+                    I18n.t('follow.choose'),
+                    '',
+                    [
+                      {
+                        text: I18n.t('follow.go'),
+                        onPress: () => {
+                            const params = {
+                              token: this.state.token,
+                              uid: this.state.uid,
+                              uuid: item.id,
+                            navigate('user',params);
+                        }
+                       },
+                      {text: I18n.t('common.cancel'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                    ],
+                    { cancelable: false }
+                  )
+                }}
+              />
+>>>>>>> parent of 28575dfd... ios 1.0.0
             )}
             keyExtractor={item => item.id}
             ItemSeparatorComponent={this.renderSeparator}

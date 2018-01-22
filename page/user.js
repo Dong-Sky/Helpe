@@ -543,7 +543,7 @@ export default class user extends Component {
          style={styles.button}
          //containerStyle={styles.buttonContainer}
          backgroundColor='#f1a073'
-         borderRadius={10}
+         borderRadius={5}
          title={I18n.t('user.send')}
          onPress={
            () => {

@@ -995,7 +995,7 @@ function isRealNum(val){
   };
 
   render() {
-
+    
     return (
         <View style={styles.container}>
           <View style={styles.StatusBar}>
@@ -1161,7 +1161,7 @@ function isRealNum(val){
         <Button
         style={styles.button}
         backgroundColor='#f1a073'
-        borderRadius={10}
+        borderRadius={5}
         title={I18n.t('common.submit')}
         onPress={() => {
           console.log((this.state.online||this.state.underline));

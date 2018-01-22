@@ -102,7 +102,6 @@ import Swiper from 'react-native-swiper';
         </View>
         <ScrollView>
           <Card
-            containerStyle={{borderRadius: 10}}
             title={I18n.t('compass.welcome')}
             image={require('../icon/other/kfc.jpg')}>
             <Text style={{marginBottom: 10}}>

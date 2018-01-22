@@ -538,7 +538,7 @@ function formatDate(t){
   renderMarkModal = () => {
     return(
       <Modalbox
-        style={{height: '90%',width: '90%',alignItems: 'center',borderRadius: 10}}
+        style={{height: '80%',width: '90%',alignItems: 'center',}}
         isOpen={this.state.markModalVisible}
         isDisabled={this.state.isDisabled2}
         position='center'
@@ -562,7 +562,7 @@ function formatDate(t){
           <Button
             style={styles.button1}
             backgroundColor='#f1a073'
-            borderRadius={10}
+            borderRadius={5}
             title={I18n.t('common.back')}
             onPress={() => this.setState({markModalVisible: false,})}
           />

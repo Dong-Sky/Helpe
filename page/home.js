@@ -1027,7 +1027,7 @@ renderModal = () => {
         {this.renderHeader()}
         <List containerStyle={{ borderTopWidth: 0,flex:1,backgroundColor: '#f2f2f2' ,marginTop: 0,alignSelf: 'center'}}>
           <FlatList
-            style={{marginTop: 0,borderWidth: 0,alignSelf: 'center',width: width}}
+            style={{marginTop: 0,borderWidth: 0,alignSelf: 'center'}}
 
             data={this.state.data}
             /*renderItem={({ item }) => (

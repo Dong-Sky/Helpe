@@ -250,7 +250,7 @@ function isRealNum(val){
   renderBackModal = () => {
     return(
       <Modalbox
-        style={{height: 180,width: 300,alignItems: 'center',borderRadius: 10}}
+        style={{height: 180,width: 300,alignItems: 'center',}}
         isOpen={this.state.backModalVisible}
         isDisabled={this.state.isDisabled1}
         position='center'
@@ -533,11 +533,10 @@ function isRealNum(val){
      if(this.state.defaultImg==null||this.state.defaultImg==''){
        return(
          <TouchableOpacity
-           style={{height: 200,width: '100%',marginLeft: 1,marginRight: 1}}
-           onPress={() => {}}
+           style={{height: 200,alignItems: 'center'}}
            >
              <Image
-               style={{flex: 1,alignSelf: 'center'}}
+               style={{flex: 1,}}
                source={require('../icon/publish/choose.png')}
                resizeMode='contain'
              />
@@ -631,10 +630,7 @@ function isRealNum(val){
               titleStyle={styles.title}
               title={I18n.t('buy.price')}
               rightIcon={<View></View>}
-              textInput={true}
-              textInputEditable={false}
-              textInputValue={this.state.item.price}
-              textInputStyle={{color: '#999999'}}
+              rightTitle={this.state.item.price}
               containerStyle={styles.listContainerStyle}
             />
             {this.renderSeparator()}
@@ -731,7 +727,7 @@ function isRealNum(val){
         <Button
           style={styles.button}
           buttonStyle={{marginTop:5,marginBottom:5,}}
-          borderRadius={10}
+          borderRadius={5}
           onPress={() => {
             if(this.state.aid==null){
               alert(I18n.t('buy.choose_addr'));
