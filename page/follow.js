@@ -511,6 +511,7 @@ class Follow2 extends Component {
             data={this.state.data}
             renderItem={({ item }) => (
 <<<<<<< HEAD
+<<<<<<< HEAD
               <Interactable.View
                 horizontalOnly={true}
                 style={{height: 50,width: width+50,backgroundColor: '#FFFFFF',flexDirection: 'row'}}
@@ -560,6 +561,8 @@ class Follow2 extends Component {
               </Interactable.View>
 
 =======
+=======
+>>>>>>> parent of 28575dfd... ios 1.0.0
               <ListItem
                 component={TouchableOpacity}
                 roundAvatar
@@ -595,6 +598,9 @@ class Follow2 extends Component {
                   )
                 }}
               />
+<<<<<<< HEAD
+>>>>>>> parent of 28575dfd... ios 1.0.0
+=======
 >>>>>>> parent of 28575dfd... ios 1.0.0
             )}
             keyExtractor={item => item.id}
