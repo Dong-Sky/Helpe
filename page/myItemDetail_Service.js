@@ -527,7 +527,7 @@ function isRealNum(val){
     fetch(url)
     .then(response => response.json())
     .then(responseJson => {
-      
+
       if(!responseJson.status){
         alert(I18n.t('success.online'));
       }
@@ -1093,6 +1093,7 @@ function isRealNum(val){
     );
   };
 
+  
   render(){
     const { navigate } = this.props.navigation;
     const { params } = this.props.navigation.state;

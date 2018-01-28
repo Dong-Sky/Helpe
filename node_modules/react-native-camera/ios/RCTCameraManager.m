@@ -42,48 +42,35 @@ RCT_EXPORT_MODULE();
   return self.camera;
 }
 
-+ (BOOL)requiresMainQueueSetup
-{
-  return NO;
-}
-
 - (NSDictionary *)constantsToExport
 {
-
-    NSMutableDictionary * runtimeBarcodeTypes = [NSMutableDictionary dictionary];
-    [runtimeBarcodeTypes setDictionary:@{
-                                         @"upce": AVMetadataObjectTypeUPCECode,
-                                         @"code39": AVMetadataObjectTypeCode39Code,
-                                         @"code39mod43": AVMetadataObjectTypeCode39Mod43Code,
-                                         @"ean13": AVMetadataObjectTypeEAN13Code,
-                                         @"ean8":  AVMetadataObjectTypeEAN8Code,
-                                         @"code93": AVMetadataObjectTypeCode93Code,
-                                         @"code128": AVMetadataObjectTypeCode128Code,
-                                         @"pdf417": AVMetadataObjectTypePDF417Code,
-                                         @"qr": AVMetadataObjectTypeQRCode,
-                                         @"aztec": AVMetadataObjectTypeAztecCode
-                                         }];
-
-    if (&AVMetadataObjectTypeInterleaved2of5Code != NULL) {
-        [runtimeBarcodeTypes setObject:AVMetadataObjectTypeInterleaved2of5Code forKey:@"interleaved2of5"];
-    }
-
-    if(&AVMetadataObjectTypeITF14Code != NULL){
-        [runtimeBarcodeTypes setObject:AVMetadataObjectTypeITF14Code forKey:@"itf14"];
-    }
-
-    if(&AVMetadataObjectTypeDataMatrixCode != NULL){
-        [runtimeBarcodeTypes setObject:AVMetadataObjectTypeDataMatrixCode forKey:@"datamatrix"];
-    }
-
-
   return @{
            @"Aspect": @{
                @"stretch": @(RCTCameraAspectStretch),
                @"fit": @(RCTCameraAspectFit),
                @"fill": @(RCTCameraAspectFill)
                },
-           @"BarCodeType": runtimeBarcodeTypes,
+           @"BarCodeType": @{
+               @"upce": AVMetadataObjectTypeUPCECode,
+               @"code39": AVMetadataObjectTypeCode39Code,
+               @"code39mod43": AVMetadataObjectTypeCode39Mod43Code,
+               @"ean13": AVMetadataObjectTypeEAN13Code,
+               @"ean8":  AVMetadataObjectTypeEAN8Code,
+               @"code93": AVMetadataObjectTypeCode93Code,
+               @"code128": AVMetadataObjectTypeCode128Code,
+               @"pdf417": AVMetadataObjectTypePDF417Code,
+               @"qr": AVMetadataObjectTypeQRCode,
+               @"aztec": AVMetadataObjectTypeAztecCode
+               #ifdef AVMetadataObjectTypeInterleaved2of5Code
+               ,@"interleaved2of5": AVMetadataObjectTypeInterleaved2of5Code
+               # endif
+               #ifdef AVMetadataObjectTypeITF14Code
+               ,@"itf14": AVMetadataObjectTypeITF14Code
+               # endif
+               #ifdef AVMetadataObjectTypeDataMatrixCode
+               ,@"datamatrix": AVMetadataObjectTypeDataMatrixCode
+               # endif
+               },
            @"Type": @{
                @"front": @(RCTCameraTypeFront),
                @"back": @(RCTCameraTypeBack)
@@ -247,7 +234,7 @@ RCT_CUSTOM_VIEW_PROPERTY(flashMode, NSInteger, RCTCamera) {
 - (void)setFlashMode {
     AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
     NSError *error = nil;
-
+    
     if (![device hasFlash]) return;
     if (![device lockForConfiguration:&error]) {
         NSLog(@"%@", error);
@@ -306,7 +293,7 @@ RCT_CUSTOM_VIEW_PROPERTY(captureAudio, BOOL, RCTCamera) {
   }
 }
 
-- (NSArray *)customBubblingEventTypes
+- (NSArray *)customDirectEventTypes
 {
     return @[
       @"focusChanged",
@@ -600,37 +587,32 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
           NSMutableDictionary *imageMetadata = [(NSDictionary *) CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL)) mutableCopy];
 
           // create cgimage
-          CGImageRef cgImage = CGImageSourceCreateImageAtIndex(source, 0, NULL);
+          CGImageRef CGImage;
+          CGImage = CGImageSourceCreateImageAtIndex(source, 0, NULL);
 
           // Rotate it
           CGImageRef rotatedCGImage;
           if ([options objectForKey:@"rotation"]) {
             float rotation = [[options objectForKey:@"rotation"] floatValue];
-            rotatedCGImage = [self newCGImageRotatedByAngle:cgImage angle:rotation];
-          } else if ([[options objectForKey:@"fixOrientation"] boolValue] == YES) {
+            rotatedCGImage = [self newCGImageRotatedByAngle:CGImage angle:rotation];
+          } else {
             // Get metadata orientation
             int metadataOrientation = [[imageMetadata objectForKey:(NSString *)kCGImagePropertyOrientation] intValue];
 
-            bool rotated = false;
-            //see http://www.impulseadventure.com/photo/exif-orientation.html
             if (metadataOrientation == 6) {
-              rotatedCGImage = [self newCGImageRotatedByAngle:cgImage angle:270];
-              rotated = true;
+              rotatedCGImage = [self newCGImageRotatedByAngle:CGImage angle:270];
+            } else if (metadataOrientation == 1) {
+              rotatedCGImage = [self newCGImageRotatedByAngle:CGImage angle:0];
             } else if (metadataOrientation == 3) {
-              rotatedCGImage = [self newCGImageRotatedByAngle:cgImage angle:180];
-              rotated = true;
+              rotatedCGImage = [self newCGImageRotatedByAngle:CGImage angle:180];
             } else {
-              rotatedCGImage = cgImage;
+              rotatedCGImage = [self newCGImageRotatedByAngle:CGImage angle:0];
             }
-
-            if(rotated) {
-              [imageMetadata setObject:[NSNumber numberWithInteger:1] forKey:(NSString *)kCGImagePropertyOrientation];
-              CGImageRelease(cgImage);
-            }
-          } else {
-            rotatedCGImage = cgImage;
           }
+          CGImageRelease(CGImage);
 
+          // Erase metadata orientation
+          [imageMetadata removeObjectForKey:(NSString *)kCGImagePropertyOrientation];
           // Erase stupid TIFF stuff
           [imageMetadata removeObjectForKey:(NSString *)kCGImagePropertyTIFFDictionary];
 
@@ -690,8 +672,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
   else if (target == RCTCameraCaptureTargetCameraRoll) {
     [[[ALAssetsLibrary alloc] init] writeImageDataToSavedPhotosAlbum:imageData metadata:metadata completionBlock:^(NSURL* url, NSError* error) {
       if (error == nil) {
-        //path isn't really applicable here (this is an asset uri), but left it in for backward comparability
-        resolve(@{@"path":[url absoluteString], @"mediaUri":[url absoluteString]});
+        resolve(@{@"path":[url absoluteString]});
       }
       else {
         reject(RCTErrorUnspecified, nil, RCTErrorWithMessage(error.description));
@@ -972,18 +953,16 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
             AVCaptureDevice *device = [[self videoCaptureDeviceInput] device];
             if([device isFocusPointOfInterestSupported] &&
                [device isFocusModeSupported:AVCaptureFocusModeAutoFocus]) {
-                CGRect cameraViewRect = [[self camera] bounds];
-                double cameraViewWidth = cameraViewRect.size.width;
-                double cameraViewHeight = cameraViewRect.size.height;
-                double focus_x = atPoint.x/cameraViewWidth;
-                double focus_y = atPoint.y/cameraViewHeight;
-                CGPoint cameraViewPoint = CGPointMake(focus_x, focus_y);
+                CGRect screenRect = [[UIScreen mainScreen] bounds];
+                double screenWidth = screenRect.size.width;
+                double screenHeight = screenRect.size.height;
+                double focus_x = atPoint.x/screenWidth;
+                double focus_y = atPoint.y/screenHeight;
                 if([device lockForConfiguration:nil]) {
-                    [device setFocusPointOfInterest:cameraViewPoint];
+                    [device setFocusPointOfInterest:CGPointMake(focus_x,focus_y)];
                     [device setFocusMode:AVCaptureFocusModeAutoFocus];
-                    if ([device isExposurePointOfInterestSupported] && [device isExposureModeSupported:AVCaptureExposureModeAutoExpose]) {
+                    if ([device isExposureModeSupported:AVCaptureExposureModeAutoExpose]){
                         [device setExposureMode:AVCaptureExposureModeAutoExpose];
-                        [device setExposurePointOfInterest:cameraViewPoint];
                     }
                     [device unlockForConfiguration];
                 }

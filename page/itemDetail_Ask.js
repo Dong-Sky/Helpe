@@ -84,7 +84,7 @@ function formatDate(t){
   //获取商品详细数据
   getItemInfo = () => {
     const { token,uid,itemId } = this.state;
-    const url = Service.BaseUrl+`?a=item&m=info&v=${Service.version}&token=${token}&uid=${uid}&id=${itemId}`;
+    const url = Service.BaseUrl+`?a=item&m=info&v=${Service.version}&token=${token}&uid=${uid}&itemid=${itemId}`;
     this.setState({loading: true})
     fetch(url)
     .then(response => response.json())

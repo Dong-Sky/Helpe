@@ -21,8 +21,9 @@ import {
 import { Icon,Button,Card, ListItem,SocialIcon,List,CheckBox,Rating  } from 'react-native-elements';
 import Modalbox from 'react-native-modalbox';
 import Service from '../common/service';
+import DropdownAlert from 'react-native-dropdownalert';
 
-returnState = (status) => {
+returnState = (status,fd) => {
   var title = '?';
   switch(Number(status)){
     //0: 待接受,10: 已接受,20: 已收货/求助完成,30: 已付款,40: 确认付款,50: '已拒绝',60: '已取消'
@@ -39,7 +40,7 @@ returnState = (status) => {
       title = I18n.t('myOrder.s30');
       break;
     case 40:
-      title = Number(fd)>0?'已评论':I18n.t('myOrder.s40');
+      title = Number(fd)>0?I18n.t('myOrder.S401'):I18n.t('myOrder.s40');
       break;
     case 50:
       title = I18n.t('myOrder.s50');
@@ -72,18 +73,22 @@ class myOrderDetail extends Component{
       orderaddr: {},
       user: {},
       uuser: {},
+      feedback: {},
       //窗口
       payModalVisible: false,
       feedbackModalVisible: false,
+      feedbackModalVisible1: false,
       isMarkModalVisible: false,
       isDisabled1: false,
       isDisabled2: false,
       isDisabled3: false,
+      isDisabled4: false,
       methodOfPay:1,
       //评价
       content: null,
       score: 2.5,
       //
+      fd: 0,
       loading: false,
     };
   };
@@ -97,13 +102,33 @@ class myOrderDetail extends Component{
     this.state.islogin = params.islogin;
     this.state.porder = params.order;
     this.getOrderInfo();
+    this.getFeedback();
   };
 
   componentDidMount(){
+
   };
 
+  AlertOnSuccess = (txt) => {
+    if (txt) {
+      this.dropdown.alertWithType('success', 'Success', txt);
+    }
+  };
+
+  AlertOnError = (err) => {
+    if (err) {
+      this.dropdown.alertWithType('error', 'Error', err);
+    }
+  };
+  // ...
+  onClose(data) {
+    // data = {type, title, message, action}
+    // action means how the alert was closed.
+    // returns: automatic, programmatic, tap, pan or cancel
+  }
+
   returnButtonState = () => {
-    const { uid } = this.state;
+    const { uid,fd } = this.state;
     const { status }= this.state.order;
     var state = {
       title : '?',
@@ -118,11 +143,11 @@ class myOrderDetail extends Component{
         state.title = I18n.t('myOrder.od10');
         state.press = () => {
           Alert.alert(
-            I18n.t('myOrder.dtxt1'),
-            I18n.t('myOrder.dtxt2'),
+            I18n.t('common.finish'),
+            '',
             [
               {text: I18n.t('common.cancel'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-              {text: I18n.t('myOrder.confirm'), onPress: () => this.operate_order('arrival')},
+              {text: I18n.t('common.confirm'), onPress: () => this.operate_order('finish')},
             ],
             { cancelable: false }
           )
@@ -137,8 +162,15 @@ class myOrderDetail extends Component{
         state.press = () => alert(I18n.t('myOrder.dtxt3'));
         break;
       case 40:
-        state.title = I18n.t('myOrder.od40');
-        state.press = () => this.setState({feedbackModalVisible: true});
+        state.title = Number(fd)>0?I18n.t('myOrder.oa401'):I18n.t('myOrder.od40');
+        state.press = () => {
+          if(Number(fd)>0){
+            this.setState({feedbackModalVisible1: true});
+          }
+          else{
+            this.setState({feedbackModalVisible: true});
+          }
+        };
         break;
       case 50:
         state.title = I18n.t('myOrder.od50');
@@ -156,6 +188,8 @@ class myOrderDetail extends Component{
     return state;
   };
 
+
+
   //获取订单
   getOrderInfo = () => {
     const { token,uid,porder } = this.state;
@@ -164,7 +198,7 @@ class myOrderDetail extends Component{
     fetch(url)
     .then(response => response.json())
     .then(responseJson => {
-
+      console.log(responseJson);
       if(!responseJson.status){
         this.setState({
           item: responseJson.data.item,
@@ -172,6 +206,7 @@ class myOrderDetail extends Component{
           uuser: responseJson.data.uuser,
           order: responseJson.data.order,
           orderaddr: responseJson.data.orderaddr,
+          fd: Number(responseJson.data.order.fd),
         })
       }
       else{
@@ -215,21 +250,45 @@ class myOrderDetail extends Component{
           case 'getmoney':
             txt = I18n.t('myOrder.dtxt8');
             break;
+          case 'finish':
+            txt = I18n.t('common.service_ok');
+            break;
           case 'cancel':
             txt = I18n.t('myOrder.dtxt9');
             break;
           default:
 
         }
-        alert(txt);
+        this.AlertOnSuccess(txt);
       }
       else{
-        alert(I18n.t('error.fetch_failed')+'\n'+responseJson.err);
+        this.AlertOnError(I18n.t('error.fetch_failed')+'\n'+responseJson.err);
       }
     })
     .then(() => this.getOrderInfo())
     .then(() => this.setState({loading: false,payModalVisible: false,}))
-    .catch(err => console.log(err))
+    .catch(err => {console.log(err);this.setState({loading: false,})})
+  };
+
+  getFeedback = () => {
+    const { token, uid ,porder } = this.state;
+    const url = Service.BaseUrl+`?a=feedback&v=${Service.version}&token=${token}&uid=${uid}&id=${porder.oid}`;
+    console.log(url);
+
+    //this.setState({loading: true})
+    fetch(url)
+    .then(response => response.json())
+    .then(responseJson => {
+      console.log(responseJson);
+      if(!responseJson.status){
+        this.setState({feedback: responseJson.data[0]?responseJson.data[0]:{}});
+      }
+      else{
+        console.log(I18n.t('error.fetch_failed')+'\n'+responseJson.err);
+      }
+    })
+    .then(() => this.setState({loading: false,refreshing: false}))
+    .catch(err => {console.log(err) ; this.setState({loading: false,refreshing: false,})})
   };
 
   //评价
@@ -238,19 +297,19 @@ class myOrderDetail extends Component{
     const url = Service.BaseUrl+`?a=feedback&m=save&v=${Service.version}&token=${token}&uid=${uid}&id=${order.id}&score=${20*score}&content=${content}`;
     console.log(url);
 
-    this.setState({loading: true})
+    this.setState({loading: true,feedbackModalVisible: false,content: null,})
     fetch(url)
     .then(response => response.json())
     .then(responseJson => {
-
       if(!responseJson.status){
-        alert(I18n.t('success.feedback'));
+        this.AlertOnSuccess(I18n.t('success.feedback'));
       }
       else{
-        alert(I18n.t('error.fetch_failed')+'\n'+responseJson.err);
+        this.AlertOnError(I18n.t('error.fetch_failed')+'\n'+responseJson.err);
       }
+      return !responseJson.status?1:0;
     })
-    .then(() => this.setState({loading: false,feedbackModalVisible: false,content: null}))
+    .then((fd) => this.setState({loading: false,fd: 1},this.getFeedback))
     .catch(err => {console.log(err);this.setState({loading: false,content: null})})
   };
 
@@ -352,6 +411,55 @@ class myOrderDetail extends Component{
             borderRadius={5}
             title={I18n.t('myOrder.feedback')}
             onPress={() => this.feedback()}
+          />
+      </Modalbox>
+    );
+  };
+
+
+  renderFeedbackModal1 = () => {
+    const score = this.state.feedback.score?Number(this.state.feedback.score): 0;
+    const content = this.state.feedback.content?this.state.feedback.content: '';
+    return(
+      <Modalbox
+        style={{height: 330,width: 300,alignItems: 'center',borderRadius: 10}}
+        isOpen={this.state.feedbackModalVisible1}
+        isDisabled={this.state.isDisabled4}
+        position='center'
+        backdrop={true}
+        backButtonClose={true}
+        onClosed={() => this.setState({feedbackModalVisible1: false,score: 2.5,content: null,})}
+        >
+          <View style={{flex: 1,marginTop: 0, alignSelf: 'stretch'}}>
+            <Rating
+              showRating
+              type="bell"
+              ratingCount={5}
+              imageSize={35}
+              fractions={1}
+              readonly
+              startingValue={score==undefined||score==null?0:Number(score)}
+              //startingValue={2.5}
+              //onFinishRating={(score) => this.setState({score})}
+              style={{alignSelf: 'center',paddingVertical: 10}}
+            />
+            <TextInput
+              style={styles.feedbackInput}
+              autoCapitalize='none'
+              multiline = {true}
+              underlineColorAndroid="transparent"
+              maxLength={140}
+              editable={false}
+              value={content!=undefined?content:''}
+              //onChangeText ={(content) => this.setState({content})}
+            />
+          </View>
+          <Button
+            style={styles.button1}
+            backgroundColor='#f1a073'
+            borderRadius={5}
+            title={I18n.t('common.back')}
+            onPress={() => this.setState({feedbackModalVisible1: false})}
           />
       </Modalbox>
     );
@@ -571,7 +679,7 @@ class myOrderDetail extends Component{
             <ListItem
               titleStyle={styles.title1}
               title={I18n.t('myOrder.order_status')}
-              rightTitle={returnState(this.state.order.status,this.state.order.fd)}
+              rightTitle={returnState(this.state.order.status,this.state.fd)}
               containerStyle={styles.listContainerStyle}
             />
             {this.renderSeparator()}
@@ -709,6 +817,10 @@ class myOrderDetail extends Component{
         {this.renderFeedbackModal()}
         {this.renderMarkModal()}
         {this.showLoading()}
+        {this.renderFeedbackModal1()}
+        <DropdownAlert
+          ref={ref => this.dropdown = ref} onClose={data => this.onClose(data)}
+         />
       </View>
     );
   };

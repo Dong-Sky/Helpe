@@ -14,6 +14,7 @@ import {
   Dimensions,
   ActivityIndicator,
   Alert,
+  Switch,
 } from 'react-native';
 import {
   StackNavigator,
@@ -483,7 +484,7 @@ function isRealNum(val){
             }
             else {
               Alert.alert(
-                I18n.t('buy.text3'),
+                I18n.t('buy.txt3'),
                 I18n.t('buy.n')+': '+this.state.num+'\n'+I18n.t('buy.changeprice')+': '+this.state.changeprice+'\n'+I18n.t('buy.total')+': '+this.total().toString(),
                 [
                   {text: I18n.t('common.cancel'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},

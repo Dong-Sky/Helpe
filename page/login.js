@@ -20,6 +20,7 @@ import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import { Kohana } from 'react-native-textinput-effects';
 import { Button,Icon } from 'react-native-elements';
+import { Platform } from 'react-native';
 import FBSDK from 'react-native-fbsdk';
 import {
   LoginButton,
@@ -44,7 +45,8 @@ class login extends Component{
   //定义登录跳转方法
   login = () => {
     const { username, password } = this.state;
-    const url = Service.BaseUrl+`?a=oauth&v=${Service.version}&username=${username}&password=${password}`;
+    const os = Platform.OS==='ios'?0 : 1;
+    const url = Service.BaseUrl+`?a=oauth&v=${Service.version}&username=${username}&password=${password}&os=${os}`;
 
     this.setState({ loading: true });
     fetch(url)
@@ -69,7 +71,7 @@ class login extends Component{
       .then(() => {
 
         Util.addAlias(responseJson.data.uid);
-        
+
         alert(I18n.t('success.login'));
         DeviceEventEmitter.emit('login',true);
 

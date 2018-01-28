@@ -129,7 +129,7 @@ function formatDate(t){
 
   getContent = () => {
     const { token,uid,itemId } = this.state;
-    const url = Service.BaseUrl+`?a=feedback&v=${Service.version}&token=${token}&uid=${uid}&id=${itemId}`;
+    const url = Service.BaseUrl+`?a=feedback&v=${Service.version}&token=${token}&uid=${uid}&itemid=${itemId}`;
     console.log(url);
 
     fetch(url)

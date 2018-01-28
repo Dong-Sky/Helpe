@@ -26,6 +26,7 @@ import MapView, { marker,Callout,} from 'react-native-maps';
 import Toast, {DURATION} from 'react-native-easy-toast';
 import Modalbox from 'react-native-modalbox';
 import Service from '../common/service';
+import DropdownAlert from 'react-native-dropdownalert';
 
 //获取屏幕宽高
 const width = Dimensions.get('window').width;
@@ -101,6 +102,18 @@ function isRealNum(val){
     this.getLocation();
     this.getItemInfo();
   };
+
+  AlertDropDown = (txt)=> {
+  if (txt) {
+    this.dropdown.alertWithType('success', 'success', '下单成功，请等待对方接受');
+  }
+};
+// ...
+onClose(data) {
+  // data = {type, title, message, action}
+  // action means how the alert was closed.
+  // returns: automatic, programmatic, tap, pan or cancel
+}
 
   //打开地址选择窗口
   setAddressModalVisible(visible) {
@@ -307,6 +320,7 @@ function isRealNum(val){
         }
       })
       .then(() => this.setState({loading: false}))
+      .then(() => this.AlertDropDown('hello'))
       .catch(error => {console.log(error);this.setState({loading: false})});
   };
 
@@ -753,6 +767,7 @@ function isRealNum(val){
         {this.renderMarkModal()}
         {this.showLoading()}
         {this.renderBackModal()}
+         <DropdownAlert ref={ref => this.dropdown = ref} onClose={data => this.onClose(data)} />
       </View>
 
     );

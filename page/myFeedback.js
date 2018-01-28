@@ -289,6 +289,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
+    borderColor: '#e5e5e5',
+    borderBottomWidth: 1,
   },
   choosebar: {
     flex:1,

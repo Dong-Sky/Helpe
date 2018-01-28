@@ -23,6 +23,7 @@ import { List, ListItem } from 'react-native-elements';
 import { Icon,Button,Avatar } from 'react-native-elements';
 import ScrollableTabView from 'react-native-scrollable-tab-view';
 import Service from '../common/service';
+import DropdownAlert from 'react-native-dropdownalert';
 
 //时间戳转换字符
 function formatDate(t){
@@ -69,6 +70,18 @@ class myOrder extends Component {
       }
   };
 
+  AlertOnSuccess = (txt) => {
+  if (txt) {
+    this.dropdown.alertWithType('success', 'success', txt);
+  }
+  };
+  // ...
+  onClose(data) {
+    // data = {type, title, message, action}
+    // action means how the alert was closed.
+    // returns: automatic, programmatic, tap, pan or cancel
+  }
+
 
  render() {
    return (
@@ -114,6 +127,9 @@ class myOrder extends Component {
           navigation={this.props.navigation}
         />
       </ScrollableTabView>
+      <DropdownAlert
+
+        ref={ref => this.dropdown = ref} onClose={data => this.onClose(data)} />
      </View>
    );
  }

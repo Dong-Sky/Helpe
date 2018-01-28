@@ -14,6 +14,7 @@ import {
   Keyboard,
   Alert,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native';
 import ReactNative from 'react-native';
 import {
@@ -28,7 +29,13 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import { Kohana } from 'react-native-textinput-effects';
 import Modalbox from 'react-native-modalbox';
 import MapView, { marker,Callout,} from 'react-native-maps';
+import Interactable from 'react-native-interactable';
 import Service from '../common/service';
+
+
+//获取屏幕尺寸
+const width = Dimensions.get('window').width;
+const height = Dimensions.get('window').height;
 
 class myAdress extends Component {
 
@@ -374,47 +381,56 @@ class myAdress extends Component {
             </View>
           </View>
         </View>
-        <List containerStyle={{borderWidth: 1,borderColor: '#e5e5e5',marginTop: 0}}>
+        <List containerStyle={{borderWidth: 1,borderColor: '#e5e5e5',marginTop: 0,flex: 1}}>
           <FlatList
+            style={{flex: 1}}
             data={this.state.data}
-            renderItem={({ item }) => (
-              <ListItem
-                title={item.info}
-                titleStyle={styles.title}
-                containerStyle={styles.listContainerStyle}
-                titleNumberOfLines={3}
-                key={i}
-                //keyExtractor={item => item.id}
-                onPress={() => {
-                  Alert.alert(
-                    I18n.t('myAddress.choose'),
-                    '',
-                    [
-                      {
-                        text: I18n.t('myAddress.go'),
-                        onPress: () => {
-                          var addr = {
-                            latitude: item.lat/1,
-                            longitude: item.lng/1,
-                            latitudeDelta: 0.00629157290689264,
-                            longitudeDelta: 0.004999999999881766,
-                            info: item.info,
-                          };
-                          console.log(addr);
-                          this.setState({addr: addr,mapModalVisible: true,});
-                        }
-                      },
-                      {text: I18n.t('common.cancel'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                      {text: I18n.t('common.delete'), onPress: () => this.deleteAddress(item.id)},
-                    ],
-                    { cancelable: false }
-                  );
-                }}
-              />
+            renderItem={({item}) => (
+              <Interactable.View
+                style={{height: 40,width: width+50,flexDirection: 'row',alignItems: 'center',backgroundColor: '#FFFFFF'}}
+                horizontalOnly={true}
+                key={item.id}
+                snapPoints={[{x: 0}, {x: -50}]}
+                >
+                <ListItem
+                  component={TouchableOpacity}
+                  title={item.info}
+                  titleStyle={styles.title}
+                  containerStyle={[styles.listContainerStyle,{height: 40,width: width,alignSelf: 'center'}]}
+                  titleNumberOfLines={2}
+                  rightIcon={<View></View>}
+                  onPress = {() => {
+                    var addr = {
+                      latitude: item.lat/1,
+                      longitude: item.lng/1,
+                      latitudeDelta: 0.00629157290689264,
+                      longitudeDelta: 0.004999999999881766,
+                      info: item.info,
+                    };
+                    console.log(addr);
+                    this.setState({addr: addr,mapModalVisible: true,});
+                  }}
+                />
+                <View style={{height: 40,width: 50,backgroundColor: '#f1a073',flexDirection: 'column',justifyContent: 'center'}}>
+                  <Icon
+                    style={{alignSelf: 'center'}}
+                    name='delete'
+                    color='#FFFFFF'
+                    size={30}
+                    onPress={() => this.deleteAddress(item.id)}
+                  />
+                </View>
+              </Interactable.View>
             )}
             keyExtractor={item => item.id}
             ItemSeparatorComponent={this.renderSeparator}
+            ListFooterComponent={() => {
+              return (
+                <View style={{height: 1,backgroundColor: '#e5e5e5',width: width}}></View>
+              )
+            }}
           />
+
         </List>
           {this.renderMapModal()}
           {this.rendermodal()}
@@ -425,10 +441,10 @@ class myAdress extends Component {
 
 const styles = StyleSheet.create({
   container: {
-        flex: 1,
-        flexDirection: 'column',
-        //justifyContent: 'center',
-        alignItems: 'stretch'
+      flex: 1,
+      flexDirection: 'column',
+      //justifyContent: 'center',
+      alignItems: 'stretch',
   },
   map: {
     ...StyleSheet.absoluteFillObject,
@@ -447,13 +463,13 @@ const styles = StyleSheet.create({
     borderColor: '#e5e5e5'
   },
   body: {
-        flex:1,
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'stretch',
-        backgroundColor: '#FFFFFF',
-        borderWidth: 1,
-        borderColor: '#e1e8e2',
+    flex:1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'stretch',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#e1e8e2',
   },
   modal_body: {
     flex: 1,
@@ -475,7 +491,9 @@ const styles = StyleSheet.create({
   },
   listContainerStyle:{
     borderBottomWidth: 0,
-    backgroundColor: '#FFFFFF'
+    backgroundColor: '#FFFFFF',
+    //height: 50,
+    //width: 200,
   },
   button1: {
     alignSelf: 'center',

@@ -12,7 +12,8 @@ export default {
     delete: '删除',
     refuse: '拒绝',
     update: '修改',
-
+    service_ok: '服务完成',
+    ask_ok: '求助完成',
   },
   error: {
     getLocation_failed: '获取位置失败',
@@ -303,6 +304,8 @@ export default {
     s20: '待付款',
     s30: '已付款',
     s40: '可以评价',
+    s401: '已评价',
+    s402: '查看评价',
     s50: '已拒绝',
     s60: '已取消',
     o1: '待接受',
@@ -364,6 +367,7 @@ export default {
     oa20: '等待支付',
     oa30: '确认收款',
     oa40: '添加评论',
+    oa401: '查看评价',
     oa50: '已拒绝',
     oa60: '已取消',
     atxt1: '请等待确认求助完成，并支付报酬',
