@@ -15,6 +15,9 @@ import {
   NativeModules,
   NetInfo,
   DeviceEventEmitter,
+  ScrollView,
+  TouchableHighlight,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import {
   StackNavigator,
@@ -105,6 +108,7 @@ class home1 extends Component {
         latitude: 35.707091,
         longitude: 139.766671,
       },
+
       locate: true,
       //列表控制
       searchtp: 1,
@@ -315,7 +319,7 @@ class home1 extends Component {
     //console.log(this.state.item);
     return (
       <Modalbox
-        style={{width:0.84*width,height: 70,marginTop: -20,borderWidth: 1,borderColor: '#e5e5e5'}}
+        style={{width:0.84*width,height: 70,marginTop: -20,borderWidth: 1,borderColor: '#e5e5e5',borderRadius: 20,overflow: 'hidden'}}
         isOpen={this.state.modalVisible}
         isDisabled={this.state.isDisabled}
         position='bottom'
@@ -330,10 +334,11 @@ class home1 extends Component {
             roundAvatar
             style={{flex: 1}}
             containerStyle={{borderBottomWidth: 0}}
-            rightTitleStyle={{color: '#da695c'}}
+            subtitleStyle={{color: '#fd586d',fontSize: 16}}
             title={item.name}
-            subtitle={I18n.t('home.far')+': '+getDisance(this.state.region.latitude,this.state.region.longitude,item.lat,item.lng)}
-            rightTitle={item.u=='""'||item.u==null? '￥'+item.price:'￥'+item.price+'/'+item.u}
+            rightTitle={getDisance(this.state.region.latitude,this.state.region.longitude,item.lat,item.lng)}
+            subtitle={'￥'+item.price}
+            //rightTitle={item.u=='""'||item.u==null? '￥'+item.price:'￥'+item.price+'/'+item.u}
             subtitleNumberOfLines={1}
             avatar={item.img==''?'':Service.BaseUri+item.img}
             onPressRightIcon={() => {
@@ -360,7 +365,7 @@ class home1 extends Component {
 
   controlChooseBarStyle = (tp) => {
     if(this.state.tp==tp){
-      return {backgroundColor: '#f1a073'};
+      return {backgroundColor: '#fd586d'};
     }
     else{
       return {};
@@ -372,7 +377,7 @@ class home1 extends Component {
       return {color: '#FFFFFF',fontSize: 16};
     }
     else{
-      return {color: '#f1a073',fontSize: 16};
+      return {color: '#fd586d',fontSize: 16};
     }
   };
 
@@ -388,14 +393,14 @@ class home1 extends Component {
             <View style={{flex: 1,flexDirection: 'row',alignSelf: 'stretch',alignItems: 'center',marginLeft: 10}}>
               <Icon
                 style={{}}
-                name='search'
-                color='#f1a073'
-                size={32}
+                name='refresh'
+                color='#fd586d'
+                size={28}
                 onPress={() => this.getItemList()}
               />
             </View>
             <View style={{flex:1,alignItems: 'center'}}>
-              <View style={{width: 160,height: 30,borderWidth: 2, borderColor: '#f1a073',flexDirection: 'row'}}>
+              <View style={{width: 160,height: 30,borderWidth: 2, borderColor: '#fd586d',flexDirection: 'row'}}>
                 <TouchableOpacity style={[styles.choosebar,this.controlChooseBarStyle(0)]} onPress={() => this.reget(0)}>
                   <Text style={[this.controlFontStyle(0)]}>
                     {I18n.t('home.Service')}
@@ -412,7 +417,7 @@ class home1 extends Component {
               <Icon
                 style={{}}
                 name='playlist-play'
-                color='#f1a073'
+                color='#fd586d'
                 size={32}
                 onPress={() => navigate('itemList',{
                   token:this.state.token,
@@ -513,18 +518,21 @@ class itemList extends Component {
       },
       //列表控制
       tp: -1,
-      cid: null,
+      cid: 0,
       searchtp: 1,
       loading: false,
       page: 1,
       seed: 1,
       error: null,
       refreshing: false,
+      a: false,
+      b: false,
+      c: false,
       //
       category: [],
       DropTp: [I18n.t('home.all'),I18n.t('home.Service'),I18n.t('home.Ask')],
       stp: [I18n.t('home.near'),I18n.t('home.more_far'),I18n.t('home.all')],
-      type: [I18n.t('home.all')],
+      type: [],
       data: [],
       sorttp: [I18n.t('home.sortByT'),I18n.t('home.sortByD'),I18n.t('home.sortByS')],
       s: 0,
@@ -534,6 +542,7 @@ class itemList extends Component {
       txt: null,
       fuzzyData: [],
       refreshing1: false,
+
     };
   };
 
@@ -637,10 +646,8 @@ class itemList extends Component {
       if(!responseJson.status){
         console.log(responseJson.data.data);
         var category = responseJson.data.data;
-        var type = [I18n.t('home.all')];
-        for(i=0;i<category.length;i++){
-          type.push(category[i].name);
-        }
+        var type = [{name: I18n.t('home.all'),id: 0}];
+        type = type.concat(category);
         this.state.category = category;
         this.state.type = type;
       }
@@ -653,6 +660,8 @@ class itemList extends Component {
 
   makeRemoteRequest = () => {
     const { token,uid,page,searchtp,region,tp,cid,s } = this.state;
+    //
+
     const lat = region.latitude;
     const lng = region.longitude;
 
@@ -680,10 +689,10 @@ class itemList extends Component {
 
     var url;
     if(searchtp==1){
-      url = Service.BaseUrl+`?a=item&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&searchtp=${searchtp}&lat=${lat}&lng=${lng}&tp=${tp}&cid=${cid}`;
+      url = Service.BaseUrl+`?a=item&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&searchtp=${searchtp}&lat=${lat}&lng=${lng}&tp=${tp}&cid=${cid==0?null: cid}`;
     }
     else{
-      url = Service.BaseUrl+`?a=item&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&searchtp=${searchtp}&tp=${tp}&cid=${cid}`;
+      url = Service.BaseUrl+`?a=item&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&searchtp=${searchtp}&tp=${tp}&cid=${cid==0?null:cid}`;
     }
     url = url+url1;
 
@@ -800,80 +809,6 @@ class itemList extends Component {
     );
   };
 
-  renderHeader = () => {
-    return (
-      <View style={{marginBottom: 0,height: 44,backgroundColor: '#ffffff'}}>
-
-          <View style={styles.choosebar2}>
-            <ModalDropdown
-              style={styles.Dropdown}
-              textStyle={styles.DropText}
-              dropdownStyle={styles.Dropdown2}
-              dropdownTextHighlightStyle={styles.highlight}
-              options={this.state.DropTp}
-              defaultValue={this.state.DropTp[0]}
-              defaultIndex={0}
-              onSelect={(DropTp) => {
-
-                if(DropTp==0){ this.state.tp = -1; }
-                else if(DropTp==1){ this.state.tp = 0 ;}
-                else if(DropTp==2){ this.state.tp = 1; }
-                this.state.page = 1;
-                this.makeRemoteRequest();
-              }}
-            />
-            <ModalDropdown
-              style={styles.Dropdown}
-              textStyle={styles.DropText}
-              dropdownStyle={styles.Dropdown2}
-              dropdownTextHighlightStyle={styles.highlight}
-              options={this.state.type}
-              defaultValue={this.state.type[0]}
-              defaultIndex={0}
-              onSelect={(type) => {
-
-                if(type==0){ this.state.cid = null; }
-                else{ this.state.cid = type; }
-                this.state.page = 1;
-                this.makeRemoteRequest();
-              }}
-            />
-            <ModalDropdown
-              style={styles.Dropdown}
-              textStyle={styles.DropText}
-              dropdownStyle={styles.Dropdown2}
-              dropdownTextHighlightStyle={styles.highlight}
-              options={this.state.sorttp}
-              defaultValue={this.state.sorttp[1]}
-              defaultIndex={1}
-              onSelect={(sorttp) => {
-
-                /*if(sorttp==0){ this.state.searchtp = 2; }
-                else { this.state.searchtp = sorttp-1; }*/
-
-                this.state.searchtp = sorttp;
-                this.state.page = 1;
-                this.makeRemoteRequest();
-              }}
-            />
-            <ModalDropdown
-              style={styles.Dropdown}
-              textStyle={styles.DropText}
-              dropdownStyle={styles.Dropdown2}
-              dropdownTextHighlightStyle={styles.highlight}
-              options={this.state.stp}
-              defaultValue={this.state.stp[0]}
-              defaultIndex={0}
-              onSelect={(s) => {
-                this.state.s = s;
-                this.state.page = 1;
-                this.makeRemoteRequest();
-              }}
-            />
-          </View>
-      </View>
-    );
-  };
 
   renderFooter = () => {
     if (!this.state.loading) return null;
@@ -905,41 +840,44 @@ renderModal = () => {
       onClosed={() => this.setState({modalVisible: false})}
       >
         <View style={styles.container}>
-          <View style={[styles.StatusBar,{backgroundColor: '#f1a073'}]}>
+          <View style={[styles.StatusBar,{}]}>
           </View>
-          <View style={[styles.header,{backgroundColor: '#f1a073'}]}>
-            <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start'}}>
-              <Icon
-                style={{marginLeft: 5}}
-                name='keyboard-arrow-left'
-                color='#FFFFFF'
-                size={32}
-                onPress={() => this.setState({modalVisible: false,fuzzyData: [],txt: null,})}
-              />
+          <View style={[styles.header,{height: 34,}]}>
+            <View style={{flex: 1,height: 34,width: 40,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start',}}>
+              <View style={{marginLeft: 5}}>
+                <Icon
+                  style={{}}
+                  name='keyboard-arrow-left'
+                  color='#fd586d'
+                  size={36}
+                  onPress={() => this.setState({modalVisible: false,fuzzyData: [],txt: null,})}
+                />
+              </View>
             </View>
-            <View style={{flex: 5,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
+            <View style={{height: 34,width: width-80,flexDirection: 'row',alignItems: 'center',justifyContent: 'center',}}>
               <TextInput
-                style={{backgroundColor: '#FFFFFF',borderColor: '#e5e5e5',borderWidth: 1,marginRight: 5,marginLeft: 5,height: 30,width: '100%',padding: 5,fontSize: 16,borderRadius: 5}}
+                style={{height: 24,width: width-80-20,borderRadius: 14,backgroundColor: '#f3f3f3',borderColor: '#e5e5e5',borderWidth: 1,marginRight: 5,marginLeft: 5,paddingLeft: 14,fontSize: 14,marginTop: 5,}}
                 placeholder={I18n.t('home.default_txt')}
                 placeholderTextColor='#999999'
                 returnKeyType='done'
                 clearButtonMode='always'
                 value={this.state.txt}
                 onChangeText={(txt) => this.setState({txt})}
+                autoFocus={true}
               />
             </View>
-            <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
+            <View style={{height: 34,width: 40,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
               <View style={{marginRight: 10}}>
                 <Icon
                   name='search'
-                  color='#FFFFFF'
+                  color='#fd586d'
                   size={28}
                   onPress={() => this.fuzzy_matching()}
                 />
               </View>
             </View>
           </View>
-          <List containerStyle={{ borderTopWidth: 0,flex:1,backgroundColor: '#FFFFFF' ,marginTop: 0}}>
+          <List containerStyle={{ borderTopWidth: 0,flex:1,backgroundColor: '#f3f3f3' ,marginTop: 0}}>
             <FlatList
               style={{marginTop: 0,borderWidth: 0}}
               data={this.state.fuzzyData}
@@ -957,7 +895,7 @@ renderModal = () => {
                   avatarContainerStyle={{height:50,width:50}}
                   avatarStyle={{height:50,width:50}}
                   rightTitleStyle={{color: '#f1a073'}}
-                  containerStyle={{ borderBottomWidth: 0,}}
+                  containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF'}}
                   onPress={() => {
                     const params = {
                       token: this.state.token,
@@ -988,7 +926,51 @@ renderModal = () => {
         </View>
     </Modalbox>
   );
-};
+  };
+
+  CateStyle = (bool) => {
+
+    if(bool){
+
+      return { color: '#fd586d'}
+    }
+    else{
+      return {color: '#999999'}
+    }
+
+
+  }
+
+  CateStyle1 = (bool) => {
+
+    if(bool){
+
+      return {borderColor: '#fd586d'}
+    }
+    else{
+      return {borderColor: '#FFFFFF'}
+    }
+
+  }
+
+  renderRow(rowData, rowID, highlighted) {
+  let icon = highlighted ? <Image style={{height: 30,width: 30}} source={require('../icon/home/ischoosed.png')}/> : <View style={{height: 32,width: 30}}/>;
+
+  return (
+    <TouchableOpacity style={{height: 32,flexDirection: 'row',alignItems: 'center'}}>
+        <View style={{height: 32,alignItems: 'center',justifyContent: 'center'}}>
+          {
+            icon
+          }
+        </View>
+        <Text style={highlighted? styles.highlight:styles.DropText}>
+          {rowData}
+        </Text>
+    </TouchableOpacity>
+  );
+}
+
+
 
   render() {
 
@@ -996,77 +978,174 @@ renderModal = () => {
     const { params } = this.props.navigation.state;
     return (
       <View style={styles.container}>
-        <View style={[styles.StatusBar,{backgroundColor: '#f1a073'}]}>
+        <View style={[styles.StatusBar,{}]}>
         </View>
-        <View style={[styles.header,{backgroundColor: '#f1a073'}]}>
-          <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start'}}>
-            <Icon
-              style={{marginLeft: 5}}
-              name='keyboard-arrow-left'
-              color='#FFFFFF'
-              size={32}
-              onPress={() => this.props.navigation.goBack()}
-            />
+        <View style={[styles.header,{height: 34,borderWidth: 0,borderBottomWidth: 0}]}>
+          <View style={{height: 34,width: 40,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start'}}>
+
+            <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
+              <Image
+                source={require('../icon/home/map.png')}
+                style={{height: 24,width: 24,marginLeft: 10}}
+              />
+            </TouchableOpacity>
           </View>
-          <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
-            <Text style={{alignSelf: 'center',color: '#FFFFFF',fontSize: 18}}>
-              Helpe
-            </Text>
+          <View style={{height: 34,width:width-2*40,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
+            <TouchableWithoutFeedback onPress={() => this.setState({modalVisible: true})}>
+              <View style={{flexDirection: 'row',height: 24,width:width-2*40-20,borderRadius: 14,backgroundColor: '#f3f3f3',alignItems: 'center'}}>
+                <Image
+                  source={require('../icon/home/search.png')}
+                  style={{height: 24,width: 24,marginLeft: 5}}
+                />
+                <Text style={{fontSize: 14,color: '#999999'}}>
+                  {I18n.t('home.Search')}
+                </Text>
+              </View>
+            </TouchableWithoutFeedback>
           </View>
-          <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
+          <View style={{height: 34,width: 40,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
             <View style={{marginRight: 10}}>
               <Icon
                 name='search'
-                color='#FFFFFF'
+                color='#fd586d'
                 size={28}
                 onPress={() => this.setState({modalVisible: true})}
               />
             </View>
           </View>
         </View>
-        {this.renderHeader()}
-        <List containerStyle={{ borderTopWidth: 0,flex:1,backgroundColor: '#f2f2f2' ,marginTop: 0,alignSelf: 'center'}}>
+        <View style={{height: 40,width: width,borderBottomWidth: 1,borderColor: '#fd586d',backgroundColor: '#FFFFFF'}}>
+          <ScrollView horizontal={true}>
+            {
+              this.state.type.map((item,i) => (
+                <TouchableOpacity
+                  style={[this.CateStyle1(item.id==this.state.cid),{height: 40,borderBottomWidth: 4,marginLeft: 10,marginRight: 10,backgroundColor: '#FFFFFF',justifyContent: 'center',alignItems: 'center'}]}
+                  onPress={() => this.setState({cid: item.id},this.makeRemoteRequest)}
+                  key={i}
+
+                  >
+                  <Text style={[this.CateStyle(item.id==this.state.cid),{fontSize: 14}]} >
+                    {item.name}
+                  </Text>
+                </TouchableOpacity>
+              ))
+            }
+          </ScrollView>
+
+        </View>
+        <View style={{height: 40,width: width,flexDirection: 'row',alignItems: 'center',backgroundColor: '#FFFFFF'}}>
+          <View style={{flex: 1,height: 40,flexDirection: 'row',justifyContent: 'flex-start',alignItems: 'center',marginLeft: 10}}>
+            <TouchableOpacity style={{flexDirection: 'row',alignItems: 'center'}} onPress={() => {this.refs.a.show();this.setState({a: true})}}>
+              <Text style={[this.CateStyle(this.state.a),{fontSize: 14}]} >
+                分类
+              </Text>
+              <Image
+                source={this.state.a?require('../icon/home/drop2.png'):require('../icon/home/drop1.png')}
+                style={{height: 30,width: 30}}
+              />
+            </TouchableOpacity>
+          </View>
+          <View style={{flex: 1,height: 40,flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
+            <TouchableOpacity style={{flexDirection: 'row',alignItems: 'center'}} onPress={() => {this.refs.b.show();this.setState({b: true})}}>
+              <Text style={[this.CateStyle(this.state.b),{fontSize: 14}]} >
+                距离
+              </Text>
+              <Image
+                source={this.state.b?require('../icon/home/drop2.png'):require('../icon/home/drop1.png')}
+                style={{height: 30,width: 30}}
+              />
+            </TouchableOpacity>
+          </View>
+          <View style={{flex: 1,height: 40,flexDirection: 'row',justifyContent: 'flex-end',alignItems: 'center',marginRight: 10}}>
+            <TouchableOpacity style={{flexDirection: 'row',alignItems: 'center'}} onPress={() => {this.refs.c.show();this.setState({c: true})}}>
+              <Text style={[this.CateStyle(this.state.c),{fontSize: 14}]} >
+                排序
+              </Text>
+              <Image
+                source={this.state.c?require('../icon/home/drop2.png'):require('../icon/home/drop1.png')}
+                style={{height: 30,width: 30}}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View style={{height: 0,width: width}}>
+          <ModalDropdown
+            ref='a'
+            style={styles.Dropdown}
+            dropdownTextStyle={styles.DropText}
+            dropdownStyle={[styles.Dropdown2,{height: 106,}]}
+            dropdownTextHighlightStyle={styles.highlight}
+            options={this.state.DropTp}
+            defaultValue={this.state.DropTp[0]}
+            defaultIndex={0}
+            renderRow={this.renderRow.bind(this)}
+            onSelect={(DropTp) => {
+              if(DropTp==0){ this.state.tp = -1; }
+              else if(DropTp==1){ this.state.tp = 0 ;}
+              else if(DropTp==2){ this.state.tp = 1; }
+              this.state.page = 1;
+              this.makeRemoteRequest();
+            }}
+            renderSeparator={() => {
+              return (<View style={{height: 1,backgroundColor: '#f3f3f3',width: width}}></View>)
+            }}
+            onDropdownWillHide={() => this.setState({a: false})}
+          />
+          <ModalDropdown
+            ref='b'
+            style={styles.Dropdown}
+            dropdownTextStyle={styles.DropText}
+            dropdownStyle={[styles.Dropdown2,{height: 106}]}
+            dropdownTextHighlightStyle={styles.highlight}
+            options={this.state.stp}
+            defaultValue={this.state.stp[0]}
+            defaultIndex={0}
+            renderRow={this.renderRow.bind(this)}
+            onSelect={(s) => {
+              this.state.s = s;
+              this.state.page = 1;
+              this.makeRemoteRequest();
+            }}
+            renderSeparator={() => {
+              return (<View style={{height: 1,backgroundColor: '#f3f3f3',width: width}}></View>)
+            }}
+            onDropdownWillHide={() => this.setState({b: false})}
+          />
+          <ModalDropdown
+            ref='c'
+            style={styles.Dropdown}
+            dropdownTextStyle={styles.DropText}
+            dropdownStyle={[styles.Dropdown2,{height: 106}]}
+            dropdownTextHighlightStyle={styles.highlight}
+            options={this.state.sorttp}
+            defaultValue={this.state.sorttp[1]}
+            defaultIndex={1}
+            renderRow={this.renderRow.bind(this)}
+            onSelect={(sorttp) => {
+
+              /*if(sorttp==0){ this.state.searchtp = 2; }
+              else { this.state.searchtp = sorttp-1; }*/
+
+              this.state.searchtp = sorttp;
+              this.state.page = 1;
+              this.makeRemoteRequest();
+            }}
+            renderSeparator={() => {
+              return (<View style={{height: 1,backgroundColor: '#f3f3f3',width: width}}></View>)
+            }}
+            onDropdownWillHide={() => this.setState({c: false})}
+          />
+        </View>
+
+        <List containerStyle={{ borderTopWidth: 0,flex:1,backgroundColor: '#f3f3f3' ,marginTop: 0,alignSelf: 'center',}}>
           <FlatList
-            style={{marginTop: 0,borderWidth: 0,alignSelf: 'center'}}
+            style={{marginTop: 0,borderWidth: 0,alignSelf: 'center',flex: 1,width: width,}}
 
             data={this.state.data}
-            /*renderItem={({ item }) => (
-              <View>
-              <ListItem
-                component={TouchableOpacity}
-                roundAvatar
-                key={item.id}
-                title={item.name}
-                subtitle={I18n.t('home.salenum')+': '+item.salenum+I18n.t('home.e')+'\n'+I18n.t('home.far')+': '+getDisance(this.state.region.latitude,this.state.region.longitude,item.lat,item.lng)}
-                subtitleNumberOfLines={2}
-                rightTitle={item.u=='""'||item.u==null? '￥'+item.price:'￥'+item.price+'/'+item.u}
-                avatar={{ uri:Service.BaseUri+item.img  }}
-                avatarContainerStyle={{height:50,width:50}}
-                avatarStyle={{height:50,width:50}}
-                rightTitleStyle={{color: '#f1a073'}}
-                containerStyle={{ borderBottomWidth: 0,}}
-                onPress={() => {
-                  const params = {
-                    token: this.state.token,
-                    uid: this.state.uid,
-                    islogin: this.state.islogin,
-                    itemId: item.id,
-                  };
-                  if(item.tp==0){
-                    navigate('itemDetail_Service',params);
-                  }
-                  else if(item.tp==1){
-                    navigate('itemDetail_Ask',params);
-                  }
-                }}
-              />
-              </View>
-            )}*/
-
             numColumns={2}
             renderItem={({item}) => (
               <TouchableOpacity
-                style={{backgroundColor: '#ffffff',height: 220,width: 0.5*(width-4*6),marginLeft: 4,marginRight: 4,marginBottom: 4,marginTop: 4,borderRadius: 10,overflow:'hidden'}}
+                style={{backgroundColor: '#ffffff',height: 200,width: 0.5*(width-4*8),marginLeft: 8,marginRight: 8,marginBottom: 5,marginTop: 5,borderRadius: 10,overflow:'hidden'}}
                 onPress={() => {
                   const params = {
                     token: this.state.token,
@@ -1084,13 +1163,13 @@ renderModal = () => {
                 >
 
                     <Image
-                      style={{width:0.5*(width-4*6),alignSelf: 'center',height: 120,overflow:'hidden'}}
+                      style={{width:0.5*(width-4*6),alignSelf: 'center',height: 100,overflow:'hidden'}}
                       source={{ uri:Service.BaseUri+item.img }}
                       resizeMode="cover"
 
                     />
-                    <View style={{height: 100,width:0.5*(width-4*6)}}>
-                      <View style={{height: 70,}}>
+                    <View style={{height: 100,width:0.5*(width-4*8)}}>
+                      <View style={{}}>
                         <Text
                           style={{marginLeft: 8,marginRight: 8,marginTop: 4,color: '#333333',fontSize: 14}}
                           numberOfLines={2}
@@ -1098,14 +1177,14 @@ renderModal = () => {
                             {item.name}
                         </Text>
                        <Text
-                          style={{height: 30,marginLeft: 8,marginRight: 8,marginTop: 4,color: '#da695c',fontSize: 14,}}
+                          style={{height: 20,marginLeft: 8,marginRight: 8,marginTop: 4,color: '#fd586d',fontSize: 18,}}
                           numberOfLines={1}
                           >
-                            {item.u=='""'||item.u==null? '￥'+item.price:'￥'+item.price+'/'+item.u}
+                            {'￥'+item.price}
                         </Text>
                       </View>
-                      <View style={{height: 30,width: 0.5*(width-4*6),flexDirection: 'row',justifyContent: 'flex-start',}}>
-                        <View style={{marginLeft: 8,marginBottom: 4,flex: 4,flexDirection: 'column',justifyContent: 'flex-end' }}>
+                      <View style={{flex: 1,width: 0.5*(width-4*8),flexDirection: 'row',justifyContent: 'flex-start',}}>
+                        <View style={{marginLeft: 10,marginBottom: 5,flex: 4,flexDirection: 'column',justifyContent: 'flex-end' }}>
                          <Text
                             style={{fontSize: 12,color: '#999999',}}
                             numberOfLines={1}
@@ -1113,7 +1192,7 @@ renderModal = () => {
                             {item.tp==0?I18n.t('home.Service'):I18n.t('home.Ask')}{' · '}{this.state.category[Number(item.cid)]?this.state.category[Number(item.cid)].name : '?'}
                           </Text>
                         </View>
-                        <View style={{marginRight: 6,marginBottom: 4,flex: 2,flexDirection: 'column',justifyContent: 'flex-end'}}>
+                        <View style={{marginRight: 10,marginBottom: 5,flex: 2,flexDirection: 'column',justifyContent: 'flex-end'}}>
                           <Text
                              style={{fontSize: 12,color: '#999999',textAlign: 'right'}}
                              numberOfLines={1}
@@ -1170,7 +1249,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         //justifyContent: 'center',
         alignItems: 'stretch',
-        backgroundColor: '#FFFFFF'
+        backgroundColor: '#f3f3f3'
   },
   map: {
     ...StyleSheet.absoluteFillObject,
@@ -1207,26 +1286,27 @@ const styles = StyleSheet.create({
 
   },
   Dropdown: {
-    alignSelf: 'center',
-    height: 22,
-    borderWidth: 0,
-    borderRightWidth: 0,
-    borderLeftWidth: 0,
-    borderColor: '#e5e5e5',
-    width: '25%',
-    backgroundColor: '#FFFFFF'
+    width: width,
+
   },
   Dropdown2: {
-    width: width/4,
+    width: width,
+    //height: 32 ,
+    borderWidth: 1,
+    borderColor: '#e5e5e5'
   },
   DropText: {
-    alignSelf: 'center',
+    //marginLeft: 10,
+    //alignSelf: 'center',
     fontSize: 14,
-    color: '#333333',
-    textAlign: 'center',
+    color: '#999999',
+    //textAlign: 'center',
   },
   highlight: {
-    color: '#f1a073'
+    //marginLeft: 10,
+    //alignSelf: 'center',
+    fontSize: 14,
+    color: '#fd586d'
   },
   instructions: {
     textAlign: 'center',

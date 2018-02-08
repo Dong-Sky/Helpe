@@ -139,7 +139,7 @@ const height = Dimensions.get('window').height;
                  >
                  <Icon
                    name='store'
-                   color='#f9dac9'
+                   color='#ffdee2'
                    size={70}
                  />
                  <Text style={{fontSize: 18,color: '#333333',marginTop: 20}}>
@@ -165,7 +165,7 @@ const height = Dimensions.get('window').height;
                   >
                  <Icon
                    name='help'
-                   color='#f9dac9'
+                   color='#ffdee2'
                    size={70}
                  />
                  <Text style={{fontSize: 18,color: '#333333',marginTop: 20}}>
@@ -270,6 +270,7 @@ const styles = StyleSheet.create({
   icon: {
     width: 32,
     height: 32,
+    tintColor: '#fd586d',
   },
   icon_send: {
     width: 25,

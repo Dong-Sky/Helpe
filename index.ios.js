@@ -100,27 +100,7 @@ global.PushUtil = PushUtil;
 global.storage = storage;
 global.I18n = I18n;
 
-/*storage.save({
-      key: 'loginState',  // 注意:请不要在key中使用_下划线符号!
-      data: {
-        token:null,
-        uid:null,
-      },
-      // 如果不指定过期时间，则会使用defaultExpires参数
-      // 如果设为null，则永不过期
-      expires: null,
-    })*/
 
-/*PushUtil.addAlias('answer','Helpe',(code) =>{
-  console.log(code);
-
-})*/
-
-/*PushUtil.deleteAlias('answer',"Helpe",(code) =>{
-
-
-  console.log(code);
-})*/
 
 class welcome extends Component {
   render() {
@@ -243,8 +223,8 @@ const main = TabNavigator({
   swipeEnabled: false, // 禁止左右滑动
   backBehavior: 'none', // 按 back 键是否跳转到第一个 Tab， none 为不跳转
   tabBarOptions: {
-      activeTintColor: '#f1a073', // 文字和图片选中颜色
-      inactiveTintColor: '#595959', // 文字和图片默认颜色
+      activeTintColor: '#fd586d', // 文字和图片选中颜色
+      inactiveTintColor: '#999999', // 文字和图片默认颜色
       showIcon: true, // android 默认不显示 icon, 需要设置为 true 才会显示
       showLabel: false,
       indicatorStyle: {height: 0}, // android 中TabBar下面会显示一条线，高度设为 0 后就不显示线了， 不知道还有没有其它方法隐藏？？？
