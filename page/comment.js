@@ -11,7 +11,9 @@ import {
   DeviceEventEmitter,
   ScrollView,
   TouchableOpacity,
-  ListView
+  ListView,
+  Dimensions,
+  RefreshControl
 } from 'react-native';
 import {
   StackNavigator,
@@ -20,6 +22,12 @@ import {
 } from 'react-navigation';
 import { List, ListItem, SearchBar,Icon } from "react-native-elements";
 import Service from '../common/service';
+import Util from '../common/util';
+import Log from './log';
+
+
+const width = Dimensions.get('window').width;
+const height = Dimensions.get('window').height;
 
 import SQLite from '../db/SQLite';
 var sqLite = new SQLite();
@@ -30,6 +38,12 @@ var ws,heartbeat,disConnect;
 function ab2str(buf) {
    return String.fromCharCode.apply(null, new Uint8Array(buf));
 }
+
+//时间戳转换字符
+function formatDate(t){
+  return new Date(parseInt(t) * 1000).toLocaleDateString().replace(/\//g, "/");
+}
+
 
 
 
@@ -55,6 +69,7 @@ class comment extends Component {
       Ws: null,
       chatID: null,
       user: {},
+
       //
       loading: false,
       data: [],
@@ -68,12 +83,13 @@ class comment extends Component {
   };
 
   componentWillMount(){
+    this.getLoginState();
+
     this.subscription0 = DeviceEventEmitter.addListener('login',
     (e) => {
 
-      //e==true登录,e==false登出
+      //e==0登录,e!=0登出
       if(e){
-        //登录状态
         this.getLoginState();
       }
       else{
@@ -81,38 +97,9 @@ class comment extends Component {
           token: null,
           uid: null,
           islogin: false,
-          data: [],
-          chatID: null,
-          user: {},
-        },() => {
-
-            ws.close();
-
         })
       }
 
-    });
-
-    if(!db){
-    db = sqLite.open();
-    }
-
-    sqLite.createTable();
-    this.getLoginState();
-    //sqLite.deleteAllData()
-    //获取聊天室的对象
-    this.subscription = DeviceEventEmitter.addListener('chating',
-    (id) => {
-
-      this.setState({chatID: id})
-      }
-    );
-
-    //销毁聊天对象
-    this.subscription1 = DeviceEventEmitter.addListener('chating_end',
-    (id) => {
-
-      this.setState({chatID: null });
       }
     );
 
@@ -120,29 +107,23 @@ class comment extends Component {
 
   componentDidMount() {
 
-    this.subscription3 = DeviceEventEmitter.addListener('update_user',() => this.getUserInfo())
   };
 
   componentWillUnmount() {
-    console.log('clear');
-    try{
-      this.subscription0.remove();
-      this.subscription1.remove();
-      /*if(this.subscription2){
-        this.subscription2.remove();
-      }*/
-      this.subscription3.remove();
+    try {
+      if(this.subscription0){
+        this.subscription0.close();
+      }
+    } catch (e) {
 
-    }catch(e){
-      console.log(e);
+    } finally {
+
     }
+  };
 
 
 
 
-    clearInterval(heartbeat);
-    ws.close();
-    };
 
 
 
@@ -162,27 +143,64 @@ class comment extends Component {
           uid: ret.uid,
           islogin: ret.token!=null&ret.uid!=null?true: false,
           ws: ret.ws,
-        },
-        () => {
-
-          this.getUserInfo();
-          //建立连接
-          const wsUri = ret.ws+`uid=${ret.uid}&token=${ret.token}`;
-          this.CreateWs(wsUri);
-
-          this.getChatList();
-        }
-      )
-
-
-
-
+        },this.getLog)
       }
     )
     .catch(error => {
       console.log(error);
     })
+
+};
+
+
+
+
+
+  returnLogElement = (log) => {
+
+    let result = {
+      title: '',
+      sub: '',
+      next: '',
+    };
+
+    let data = JSON.parse(log.data);
+    result = Util.log(Number(log.tpid),data);
+
+    return result;
+  }
+
+  getLog = () => {
+    console.log(123);
+    const { token,uid,islogin} = this.state;
+
+    if(!islogin){
+
+      return;
+    }
+    const url = Service.BaseUrl+Service.v+`/mlog?t=${token}&page=1&per-page=${10}`
+    this.setState({loading: true});
+    fetch(url)
+    .then(res => res.json())
+    .then(res => {
+      console.log(res);
+      if(!parseInt(res.status)){
+        this.setState({
+
+          data: res.data.data,
+        })
+      }
+      else{
+        alert(res.err)
+      }
+    })
+    .then(() => this.setState({loading: false}))
+    .catch(err => {
+      console.log(err);
+      this.setState({loading: false});
+    })
   };
+
 
   //获取用户信息
   getUserInfo = () => {
@@ -204,238 +222,11 @@ class comment extends Component {
   };
 
 
-  //get聊天列表
-
-  getChatList = () => {
-    const uid = this.state.uid;
-    this.SelectNearAndGroup(uid);
-  };
-
-  SelectNearAndGroup = (uid) => {
-    //获取聊天列表
-    if(!db){
-       db = sqLite.open();
-    }
-
-    let offset = (this.state.page-1)*10
-    db.transaction((tx)=>{
-    tx.executeSql("select *,COUNT(*) from "+TABLE_MSG+" Where uid="+uid+" Group By uuid Order by t DESC LIMIT 10 OFFSET "+offset, [],(tx,results)=>{
-      var len = results.rows.length;
-
-      var data = [];
-      for(let i=0; i<len; i++){
-        var u = results.rows.item(i);
-        //一般在数据查出来之后，  可能要 setState操作，重新渲染页面
-        data.push(u);
-      }
-      console.log(data);
-      this.setState({data});
-    });
-    },(error)=>{//打印异常信息
-      console.log(error);
-
-    })
-
-  }
-
-
-  //WebSocket
-  CreateWs = (wsUri) => {
-    console.log(wsUri);
-    clearInterval(disConnect);
-    ws = new WebSocket(wsUri);
-
-
-    console.log(ws);
-
-    ws.onopen = () => {
-      console.log('open');
-
-      heartbeat = setInterval(
-       () => {
-
-        if(ws){
-           try {
-             console.log('发送心跳');
-             ws.send(JSON.stringify( {"o":1,"d":""}));
-           }
-           catch (ex) {
-             console.log(ex);
-           }
-         }
-       },
-       10000);
-
-    };
-
-    ws.onmessage = (e) => {
-      //解析数据
-      try{
-        let d = JSON.parse(unescape(ab2str(e.data)));
-
-        console.log(d);
-        if(d.O==5&&d.D!=undefined){
-          //在线数据
-          let data = JSON.parse(unescape(d.D));
-          console.log(data);
-          //存入数据库
-          this.Record_online(data);
-        }
-        else if(d.O==6&&d.D!=undefined){
-          //离线数据
-          let messages = JSON.parse(d.D);
-          this.Record_offline(messages);
-        }
-        else{
-          //未知数据
-        }
-      }catch(e){
-        console.log(e);
-      }
-
-
-
-
-      this.getChatList();
-    };
-
-    ws.onerror = (e) => {
-      console.log(e);
-      //this.reconnect();
-    };
-
-
-    ws.onclose = (e) => {
-      //console.log(e);
-      /*try{
-        if(this.subscription2){
-          this.subscription2.remove();
-        }
-      }catch(e){
-        console.log(e);
-      }*/
-      console.log('连接关闭');
-      clearInterval(heartbeat);
-      disConnect = setInterval(
-       () => {
-
-         this.reconnect();
-       },
-       10000);
-    };
-
-    this.subscription2 = DeviceEventEmitter.addListener('send_message',
-    (e) => {
-      //发送消息
-      var da = e.da;
-      var data = e.data;
-      console.log(data);
-      if(ws){
-
-        try {
-
-          ws.send(JSON.stringify(da));
-          this.Record_send(data);
-        }
-        catch (ex) {
-          console.log("send error: " + ex);
-        }
-      }
-
-    }
-  );
-
-  };
-
-  reconnect = () => {
-    const { token,uid,ws } = this.state;
-    const wsUri = ws+`uid=${uid}&token=${token}`;
-    if(token){
-      console.log('重连');
-      this.CreateWs(wsUri);
-    }
-
-  }
-
-  Record_online = (data) => {
-    console.log(data);
-    let MsgData = [];
-    if(data.Uid!=this.state.uid){
-      console.log('执行存储');
-      let msg = {
-        uid: parseInt(this.state.uid),
-        uuid: parseInt(data.Uid),
-        uuface: data.Uface,
-        uuname: data.Uname==''?I18n.t('common.no_name'):unescape(data.Uname),
-        t: data.T,
-        tp: data.Uid==this.state.uid? 0:1, //0为发送出去的，1为接受到的
-        flag: (data.Uid==this.state.chatID||data.Uid==this.state.uid)? 1:0 , //0为未读,1为已读
-        msg: unescape(data.Msg),
-      };
-
-      console.log(msg);
-      MsgData.push(msg);
-
-      sqLite.insertUserData(MsgData);
-
-      if(data.Uid==this.state.chatID){
-
-        //向聊天室发送数据
-        DeviceEventEmitter.emit('NewMessage', MsgData);
-      }
-
-    }
-
-
-  };
-
-  Record_offline = (messages) => {
-
-    let MsgData = [];
-    let MsgData1 = [];//发送给聊天室的
-    for(var i=0;i<messages.length;i++){
-      let d = JSON.parse(messages[i]);
-      if(d.O==5){
-        let data = JSON.parse(d.D);
-
-        let msg = {
-          uid: parseInt(this.state.uid),
-          uuid: parseInt(data.Uid),
-          uuface: data.Uface,
-          uuname: data.Uname==''?I18n.t('common.no_name'):unescape(data.Uname),
-          t: data.T,
-          tp: data.Uid==this.state.uid? 0:1, //0为发送出去的，1为接受到的
-          flag: (data.Uid==this.state.chatID||data.Uid==this.state.uid)? 1:0 , //0为未读,1为已读
-          msg: unescape(data.Msg),
-        };
-
-        if(data.Uid==this.state.chatID||data.Uid==this.state.uid){
-          //存入向聊天室发送的数据
-          MsgData1.unshift(msg);
-        }
-
-        MsgData.unshift(msg);
-      }
-      else{
-        //不作处理
-      }
-    }
-
-    sqLite.insertUserData(MsgData);
-
-    //DeviceEventEmitter.emit('NewMessage', MsgData1);
-  };
-
-  Record_send = (data) => {
-    console.log(data);
-    sqLite.insertUserData([data]);
-  };
-
 
 
   makeRemoteRequest = () => {
     const { page, seed } = this.state;
-    const url = `https://randomuser.me/api/?seed=${seed}&page=${page}&results=20`;
+    const url = `https://randomuser.me/api/?seed=${seed}&page=${1}&results=20`;
     this.setState({ loading: true });
 
     fetch(url)
@@ -455,20 +246,23 @@ class comment extends Component {
   };
 
   handleRefresh = () => {
-    this.getChatList();
+    //this.getChatList();
   };
 
   handleLoadMore = () => {
 
   };
-  renderSeparator = () => {
+  renderSeparator = (state) => {
+
+    if(state == false){
+      return ;
+    }
     return (
       <View
         style={{
           height: 1,
-          width: "95%",
-          backgroundColor: "#CED0CE",
-          marginLeft: "5%"
+          width: "100%",
+          backgroundColor: "#f3f3f3",
         }}
       />
     );
@@ -516,138 +310,132 @@ class comment extends Component {
             </View>
             <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
               <View style={{marginRight: 10}} >
+
                 <Icon
+                  style={{}}
                   name='refresh'
-                  color='#f1a073'
+                  color='#fd586d'
                   size={28}
-                  onPress={() => this.getChatList()}
+                  onPress={() => this.makeRemoteRequest()}
                 />
+
               </View>
             </View>
           </View>
           <ScrollView>
-           <List containerStyle={{ borderTopWidth: 0,backgroundColor: '#f2f2f2' ,marginTop: 0,height: '100%'}}>
+            <List containerStyle={{ backgroundColor: '#f2f2f2',borderTopWidth: 1,flex:1 ,marginTop: 15,borderColor: '#e5e5e5',marginLeft: 0,marginRight: 0,}}>
+
               <ListItem
-                roundAvatar
                 component={TouchableOpacity}
-                key={1}
-                title={'官方助手'}
-                subtitle={'新的消息'}
-                avatar={require('../icon/person/default_avatar.png')}
-                containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF' }}
+                roundAvatar
+                title={'聊天'}
+                titleNumberOfLines={3}
+                //rightTitle={formatDate(Number(item.t))}
+                //rightIcon={<View></View>}
+                subtitleNumberOfLines={3}
+                subtitle={'Welcome Helpe!'}
+                leftIcon={
+                  <Icon
+                    name='comment'
+                    type='font-awesome'
+                    size={20}
+                    color='#fd586d'
+                    reverse
+                  />
+                }
+                //avatar={require('../icon/person/default_avatar.png')}
+                //avatarContainerStyle={{height:40,width:40}}
+                //avatarStyle={{height:40,width:40,tintColor: '#FFFFFF',backgroundColor: '#fd586d'}}
+                containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF',borderRadius: 0,marginBottom: 10,}}
                 onPress={() => {
-                  if(this.state.islogin){
-                    navigate('log',{
-                      uid: this.state.uid,
-                      token: this.state.token,
-                      islogin: this.state.islogin,
-                    })
+
+                  console.log(global.client);
+                  if(!global.client){
+                    return false;
                   }
-                  else{
-                    alert(I18n.t('comment.not_login'))
-                  }
-                }}
+
+                  this.props.navigation.navigate('chatList',{
+                    token: this.state.token,
+                    uid: this.state.uid,
+                    islogin: this.state.islogin,
+                  })}
+                }
               />
-              {this.renderSeparator()}
               <ListItem
-                roundAvatar
                 component={TouchableOpacity}
-                key={2}
-                title={'全部聊天'}
-                subtitle={'点击查看全部会话'}
-                avatar={require('../icon/person/default_avatar.png')}
-                containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF' }}
-                onPress={() => {
-                  if(this.state.islogin){
-                    navigate('log',{
-                      uid: this.state.uid,
-                      token: this.state.token,
-                      islogin: this.state.islogin,
-                    })
-                  }
-                  else{
-                    alert(I18n.t('comment.not_login'))
-                  }
-                }}
+                roundAvatar
+                title={'通知'}
+                titleNumberOfLines={5}
+                //rightTitle={formatDate(Number(item.t))}
+                //rightIcon={<View></View>}
+                subtitleNumberOfLines={3}
+                //subtitle={'Welcome Helpe!'}
+
+                //avatar={require('../icon/person/default_avatar.png')}
+                //avatarContainerStyle={{height:40,width:40}}
+                //avatarStyle={{height:40,width:40,tintColor: '#FFFFFF',backgroundColor: '#fd586d'}}
+                containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF',borderRadius: 0,marginBottom: 10,}}
+                onPress={() => this.props.navigation.navigate('log',{
+                  token: this.state.token,
+                  uid: this.state.uid,
+                  islogin: this.state.islogin,
+                })}
               />
-              {this.renderSeparator()}
-              {/*<FlatList
-                style={{marginTop: 0,borderWidth: 0,flex: 1,}}
-                data={this.state.data}
-                renderItem={({ item }) => (
-                  <ListItem
-                    roundAvatar
-                    component={TouchableOpacity}
-                    key={item.i}
-                    title={item.uuname==''?I18n.t('common.no_name'):item.uuname}
-                    subtitle={item.msg}
-                    avatar={{ uri: Service.BaseUri+item.uuface  }}
-                    containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF' }}
-                    onPress={
-                      () => navigate('chatroom',
-                      {
-                        item:item,
-                        token: this.state.token,
-                        uid: this.state.uid,
-                        user: this.state.user,
-                        uuid: item.uuid,
-                        islogin: this.state.islogin,
-                        uuface: item.uuface,
-                        uuname: item.uuname,
-                        //ws: this.state.ws,
-                      })
-                    }
-                  />
-                )}
-                keyExtractor={item => item.id}
-                ItemSeparatorComponent={this.renderSeparator}
-                //ListHeaderComponent={this.renderHeader}
-                ListFooterComponent={this.renderFooter}
-                onRefresh={this.handleRefresh}
-                refreshing={this.state.refreshing}
-                //onEndReached={this.handleLoadMore}
-                onEndReachedThreshold={50}
-              />*/}
+              <Text style={{marginTop: 5,marginBottom: 15,alignSelf: 'center',color: '#999999',fontSize: 14}}>
+                最近
+              </Text>
 
-              {this.state.data.map((item,i) => (
-                <View key={i}>
-                  <ListItem
-                    roundAvatar
-                    component={TouchableOpacity}
-                    key={item.i}
-                    title={item.uuname==''?I18n.t('common.no_name'):item.uuname}
-                    subtitle={item.msg}
-                    avatar={{ uri: Service.BaseUri+item.uuface  }}
-                    containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF' }}
-                    onPress={
-                      () => navigate('chatroom',
-                      {
-                        item:item,
-                        token: this.state.token,
-                        uid: this.state.uid,
-                        user: this.state.user,
-                        uuid: item.uuid,
-                        islogin: this.state.islogin,
-                        uuface: item.uuface,
-                        uuname: item.uuname,
-                        //ws: this.state.ws,
-                      })
-                    }
-                  />
-                  {this.state.data.length-1!=i?this.renderSeparator():undefined}
-                </View>
+              {
+                this.state.data.map((item,index,arr) => {
+                  return (
+                    <View>
+                      <ListItem
+                        component={TouchableOpacity}
+                        roundAvatar
+                        key={item.id}
+                        title={this.returnLogElement(item).sub}
+                        subtitle={formatDate(Number(item.ct))}
+                        titleNumberOfLines={3}
+                        //rightTitle={formatDate(Number(item.t))}
+                        rightIcon={<View></View>}
+                        subtitleNumberOfLines={3}
+                        titleStyle={{fontSize: 14}}
+                        subtitleStyle={{marginTop: 15}}
+                        //subtitle={this.returnLogElement(item).sub+'\n('+formatDate(Number(item.ct))+')'}
+                        //avatar={require('../icon/person/default_avatar.png')}
+                        leftIcon={
+                          <Icon
+                            name={this.returnLogElement(item).icon}
+                            size={20}
+                            color='#fd586d'
+                            reverse
+                          />
+                        }
+                        avatarContainerStyle={{height:40,width:40}}
+                        avatarStyle={{height:40,width:40,tintColor: '#FFFFFF',backgroundColor: '#fd586d'}}
+                        containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF',borderRadius: 0,marginBottom: 0}}
+                        onPress={() => navigate(this.returnLogElement(item).next,{
+                          uid: this.state.uid,
+                          token: this.state.token,
+                          islogin: this.state.islogin,
+                          status: '&status=0,10,20,30,40,50,60',
+                          title: I18n.t('myOrder.o4'),
+                        })}
+                      />
+                      {this.renderSeparator(true)}
 
+                    </View>
 
-              ))}
-
+                  );
+                })
+              }
             </List>
-
           </ScrollView>
-        </View>
 
-    );
-  }
-}
+        </View>
+    );}
+  };
+
 
 const styles = StyleSheet.create({
   container: {

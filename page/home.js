@@ -18,6 +18,7 @@ import {
   ScrollView,
   TouchableHighlight,
   TouchableWithoutFeedback,
+  Platform,
 } from 'react-native';
 import {
   StackNavigator,
@@ -34,8 +35,11 @@ import Service from '../common/service';
 
 
 //获取屏幕尺寸
+
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
+
+
 
 //计算距离常量
 var EARTH_RADIUS = 6378137.0;    //单位M
@@ -222,7 +226,7 @@ class home1 extends Component {
          },
          error => {
 
-           alert(I18n.t('err.getLocation_failed'));
+           alert(I18n.t('error.getLocation_failed'));
          },
      );
 
@@ -246,8 +250,8 @@ class home1 extends Component {
     const maxlng = region.longitude+0.5*d2;
 
 
-    const url = Service.BaseUrl+`?a=item&v=${Service.version}&token=${token}&uid=${uid}&searchtp=${searchtp}&minlat=${minlat}&maxlat=${maxlat}&minlng=${minlng}&maxlng=${maxlng}&ps=10&tp=${tp}`;
-
+    const url = Service.BaseUrl+Service.v+`/item?searchtp=${searchtp}&minlat=${minlat}&maxlat=${maxlat}&minlng=${minlng}&maxlng=${maxlng}&type=${tp}`;
+    //console.log(url);
 
     this.setState({ loading: true, });
     fetch(url)
@@ -348,10 +352,10 @@ class home1 extends Component {
                 islogin: this.state.islogin,
                 itemId: item.id,
               };
-              if(item.tp==0){
+              if(item.type==0){
                 navigate('itemDetail_Service',params);
               }
-              else if(item.tp==1){
+              else if(item.type==1){
                 navigate('itemDetail_Ask',params);
               }
             }}
@@ -400,7 +404,7 @@ class home1 extends Component {
               />
             </View>
             <View style={{flex:1,alignItems: 'center'}}>
-              <View style={{width: 160,height: 30,borderWidth: 2, borderColor: '#fd586d',flexDirection: 'row'}}>
+              <View style={{width: 170,height: 30,borderWidth: 2, borderColor: '#fd586d',flexDirection: 'row'}}>
                 <TouchableOpacity style={[styles.choosebar,this.controlChooseBarStyle(0)]} onPress={() => this.reget(0)}>
                   <Text style={[this.controlFontStyle(0)]}>
                     {I18n.t('home.Service')}
@@ -518,8 +522,8 @@ class itemList extends Component {
       },
       //列表控制
       tp: -1,
-      cid: 0,
-      searchtp: 1,
+      cid: -1,
+      searchtp: 0,
       loading: false,
       page: 1,
       seed: 1,
@@ -531,10 +535,11 @@ class itemList extends Component {
       //
       category: [],
       DropTp: [I18n.t('home.all'),I18n.t('home.Service'),I18n.t('home.Ask')],
-      stp: [I18n.t('home.near'),I18n.t('home.more_far'),I18n.t('home.all')],
+      //stp: [I18n.t('home.near'),I18n.t('home.more_far'),I18n.t('home.all')],
+      stp: ['<5km','<10km','<20km',I18n.t('home.all')],
       type: [],
       data: [],
-      sorttp: [I18n.t('home.sortByT'),I18n.t('home.sortByD'),I18n.t('home.sortByS')],
+      sorttp: [I18n.t('home.sortByD'),I18n.t('home.sortByT'),I18n.t('home.sortByS')],
       s: 0,
       //模糊匹配
       modalVisible: false,
@@ -637,19 +642,19 @@ class itemList extends Component {
 
   //获取商品类型
   getItemCategory = () => {
-    const url = Service.BaseUrl+`?a=category&v=${Service.version}`;
+    const url = Service.BaseUrl+Service.v+`/category`;
 
     fetch(url)
     .then(response => response.json())
     .then(responseJson => {
       console.log(responseJson);
-      if(!responseJson.status){
+      if(!parseInt(responseJson.status)){
         console.log(responseJson.data.data);
         var category = responseJson.data.data;
-        var type = [{name: I18n.t('home.all'),id: 0}];
+        var type = [{jp_name: I18n.t('home.all'),id: -1}];
         type = type.concat(category);
-        this.state.category = category;
-        this.state.type = type;
+        this.setState({type: type,category:category});
+
       }
       else {
         alert(I18n.t('err.fetch_failed')+'\n'+responseJson.err);
@@ -658,44 +663,34 @@ class itemList extends Component {
     .catch(err => console.log(error))
   };
 
+
+
   makeRemoteRequest = () => {
-    const { token,uid,page,searchtp,region,tp,cid,s } = this.state;
+    const { token,uid,page,searchtp,region,tp,cid,s, } = this.state;
     //
 
     const lat = region.latitude;
     const lng = region.longitude;
+    var url1 = ``;
 
-    var d1 = 0.05;
-    var d2 = 0.05;
-    if(s==0){
-      d1 = 0.05;
-      d2 = 0.05;
+    if(this.state.s==0){
+      url1 = `&distance=5`;
     }
-    else if (s==1){
-      d1 = 0.4;
-      d2 = 0.4;
+    else if(this.state.s==1){
+      url1 = `&distance=10`;
     }
-
-    const minlat = region.latitude-d1;
-    const maxlat = region.latitude+d1;
-    const minlng = region.longitude-d2;
-    const maxlng = region.longitude+d2;
-    var url1 = '';
-    if(s!=2){
-      url1 = `&minlat=${minlat}&maxlat=${maxlat}&minlng=${minlng}`;
+    else if(this.state.s==2){
+      url1 = `&distance=20`;
     }
 
 
 
-    var url;
-    if(searchtp==1){
-      url = Service.BaseUrl+`?a=item&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&searchtp=${searchtp}&lat=${lat}&lng=${lng}&tp=${tp}&cid=${cid==0?null: cid}`;
-    }
-    else{
-      url = Service.BaseUrl+`?a=item&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&searchtp=${searchtp}&tp=${tp}&cid=${cid==0?null:cid}`;
-    }
-    url = url+url1;
 
+
+    const url = Service.BaseUrl+Service.v+`/item?searchtp=${searchtp}&lat=${lat}&lng=${lng}&type=${tp}&cid=${cid>0?cid:null}&page=${page}&per-page=20`+url1;
+    console.log(url);
+
+    //console.log(url);
     this.setState({ loading: true, });
     fetch(url)
       .then(res => res.json())
@@ -761,7 +756,7 @@ class itemList extends Component {
       const { token,uid,txt,region } = this.state;
       const lat = region.latitude;
       const lng = region.longitude;
-      const url = Service.BaseUrl+`?a=item&v=${Service.version}&name=${txt}`;
+      const url = Service.BaseUrl+Service.v+`/item?t=${token}&name=${txt}&lat=${lat}&lng=${lng}&page=1&per-page=${50}`;
 
       this.setState({loading: true});
       fetch(url)
@@ -877,25 +872,17 @@ renderModal = () => {
               </View>
             </View>
           </View>
-          <List containerStyle={{ borderTopWidth: 0,flex:1,backgroundColor: '#f3f3f3' ,marginTop: 0}}>
+          <List containerStyle={{ borderTopWidth: 0,flex:1,backgroundColor: '#f3f3f3' ,marginTop: 0,alignSelf: 'center',}}>
             <FlatList
-              style={{marginTop: 0,borderWidth: 0}}
+              style={{marginTop: 0,borderWidth: 0,alignSelf: 'center',flex: 1,width: width,}}
+
+
+              numColumns={2}
               data={this.state.fuzzyData}
               renderItem={({ item }) => (
-                <View>
-                <ListItem
-                  component={TouchableOpacity}
-                  roundAvatar
+                <TouchableOpacity
                   key={item.id}
-                  title={item.name}
-                  subtitle={I18n.t('home.salenum')+': '+item.salenum+I18n.t('home.e')+'\n'+I18n.t('home.far')+': '+getDisance(this.state.region.latitude,this.state.region.longitude,item.lat,item.lng)}
-                  subtitleNumberOfLines={2}
-                  rightTitle={item.u=='""'||item.u==null? '￥'+item.price:'￥'+item.price+'/'+item.u}
-                  avatar={{ uri:Service.BaseUri+item.img  }}
-                  avatarContainerStyle={{height:50,width:50}}
-                  avatarStyle={{height:50,width:50}}
-                  rightTitleStyle={{color: '#f1a073'}}
-                  containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF'}}
+                  style={{backgroundColor: '#ffffff',height: 200,width: 0.5*(width-4*8),marginLeft: 8,marginRight: 8,marginBottom: 5,marginTop: 5,borderRadius: 10,overflow:'hidden'}}
                   onPress={() => {
                     const params = {
                       token: this.state.token,
@@ -903,15 +890,60 @@ renderModal = () => {
                       islogin: this.state.islogin,
                       itemId: item.id,
                     };
-                    if(item.tp==0){
+
+                    if(item.type==0){
                       navigate('itemDetail_Service',params);
                     }
-                    else if(item.tp==1){
+                    else if(item.type==1){
                       navigate('itemDetail_Ask',params);
                     }
                   }}
-                />
-                </View>
+                  >
+                      <Image
+                        style={{width:0.5*(width-4*6),alignSelf: 'center',height: 100,overflow:'hidden'}}
+                        source={{ uri:Service.BaseUri+item.img }}
+                        resizeMode="cover"
+
+                      />
+                      <View style={{height: 100,width:0.5*(width-4*8)}}>
+                        <View style={{}}>
+                          <Text
+                            style={{marginLeft: 8,marginRight: 8,marginTop: 4,color: '#333333',fontSize: 14}}
+                            numberOfLines={2}
+                            >
+                              {item.name}
+                          </Text>
+                         <Text
+                            style={{height: 20,marginLeft: 8,marginRight: 8,marginTop: 4,color: '#fd586d',fontSize: 18,fontWeight: '600'}}
+                            numberOfLines={1}
+                            >
+                              {'￥'+ parseInt(item.price).toString().replace(/(\d)(?=(?:\d{3})+$)/g, '$1,')}
+                          </Text>
+                        </View>
+                        <View style={{flex: 1,width: 0.5*(width-4*8),flexDirection: 'row',justifyContent: 'flex-start',}}>
+                          <View style={{marginLeft: 10,marginBottom: 5,flex: 4,flexDirection: 'column',justifyContent: 'flex-end' }}>
+                           <Text
+                              style={{fontSize: 12,color: '#999999',}}
+                              numberOfLines={1}
+                            >
+                              {item.type==0?I18n.t('home.Service'):I18n.t('home.Ask')}{' · '}{this.state.type[Number(item.cid)]?this.state.type[Number(item.cid)].jp_name : '?'}
+                            </Text>
+                          </View>
+                          <View style={{marginRight: 10,marginBottom: 5,flex: 2,flexDirection: 'column',justifyContent: 'flex-end'}}>
+                            <Text
+                               style={{fontSize: 12,color: '#999999',textAlign: 'right'}}
+                               numberOfLines={1}
+                             >
+                               {getDisance(this.state.region.latitude,this.state.region.longitude,item.lat,item.lng)}
+                             </Text>
+                          </View>
+                        </View>
+                      </View>
+
+
+
+
+                </TouchableOpacity>
               )}
               keyExtractor={item => item.id}
               ItemSeparatorComponent={this.renderSeparator}
@@ -954,14 +986,14 @@ renderModal = () => {
   }
 
   renderRow(rowData, rowID, highlighted) {
-  let icon = highlighted ? <Image style={{height: 30,width: 30}} source={require('../icon/home/ischoosed.png')}/> : <View style={{height: 32,width: 30}}/>;
+  let icon = highlighted ? <Image style={{height: 30,width: 30}} resizeMode='contain' source={require('../icon/home/ischoosed.png')}/> : <View style={{height: 30,width: 30}}/>;
 
   return (
     <TouchableOpacity style={{height: 32,flexDirection: 'row',alignItems: 'center'}}>
         <View style={{height: 32,alignItems: 'center',justifyContent: 'center'}}>
-          {
-            icon
-          }
+          <Image style={{height: 30,width: 30,tintColor: highlighted ?'#fd586d':'#FFFFFF'}}
+            resizeMode='contain'
+            source={require('../icon/home/ischoosed.png')}/>
         </View>
         <Text style={highlighted? styles.highlight:styles.DropText}>
           {rowData}
@@ -977,18 +1009,30 @@ renderModal = () => {
     const { navigate } = this.props.navigation;
     const { params } = this.props.navigation.state;
     return (
+
+
       <View style={styles.container}>
         <View style={[styles.StatusBar,{}]}>
         </View>
         <View style={[styles.header,{height: 34,borderWidth: 0,borderBottomWidth: 0}]}>
-          <View style={{height: 34,width: 40,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start'}}>
+          <View style={{height: 34,width: 40,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start',marginLeft: 10}}>
+
+            <Icon
+              name='map'
+              color='#fd586d'
+              size={30}
+              onPress={() => this.props.navigation.goBack()}
+            />
+
+            {/*
 
             <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
               <Image
                 source={require('../icon/home/map.png')}
-                style={{height: 24,width: 24,marginLeft: 10}}
+                style={{height: 28,width: 28,marginLeft: 10,tintColor: '#fd586d'}}
+                resizeMode="cover"
               />
-            </TouchableOpacity>
+            </TouchableOpacity>*/}
           </View>
           <View style={{height: 34,width:width-2*40,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
             <TouchableWithoutFeedback onPress={() => this.setState({modalVisible: true})}>
@@ -1025,7 +1069,7 @@ renderModal = () => {
 
                   >
                   <Text style={[this.CateStyle(item.id==this.state.cid),{fontSize: 14}]} >
-                    {item.name}
+                    {item.jp_name}
                   </Text>
                 </TouchableOpacity>
               ))
@@ -1037,7 +1081,7 @@ renderModal = () => {
           <View style={{flex: 1,height: 40,flexDirection: 'row',justifyContent: 'flex-start',alignItems: 'center',marginLeft: 10}}>
             <TouchableOpacity style={{flexDirection: 'row',alignItems: 'center'}} onPress={() => {this.refs.a.show();this.setState({a: true})}}>
               <Text style={[this.CateStyle(this.state.a),{fontSize: 14}]} >
-                分类
+                {this.state.DropTp[this.state.tp<0?0:this.state.tp+1]}
               </Text>
               <Image
                 source={this.state.a?require('../icon/home/drop2.png'):require('../icon/home/drop1.png')}
@@ -1048,7 +1092,7 @@ renderModal = () => {
           <View style={{flex: 1,height: 40,flexDirection: 'row',justifyContent: 'center',alignItems: 'center'}}>
             <TouchableOpacity style={{flexDirection: 'row',alignItems: 'center'}} onPress={() => {this.refs.b.show();this.setState({b: true})}}>
               <Text style={[this.CateStyle(this.state.b),{fontSize: 14}]} >
-                距离
+                {this.state.stp[this.state.s]}
               </Text>
               <Image
                 source={this.state.b?require('../icon/home/drop2.png'):require('../icon/home/drop1.png')}
@@ -1059,7 +1103,7 @@ renderModal = () => {
           <View style={{flex: 1,height: 40,flexDirection: 'row',justifyContent: 'flex-end',alignItems: 'center',marginRight: 10}}>
             <TouchableOpacity style={{flexDirection: 'row',alignItems: 'center'}} onPress={() => {this.refs.c.show();this.setState({c: true})}}>
               <Text style={[this.CateStyle(this.state.c),{fontSize: 14}]} >
-                排序
+                {this.state.sorttp[this.state.searchtp]}
               </Text>
               <Image
                 source={this.state.c?require('../icon/home/drop2.png'):require('../icon/home/drop1.png')}
@@ -1081,8 +1125,11 @@ renderModal = () => {
             renderRow={this.renderRow.bind(this)}
             onSelect={(DropTp) => {
               if(DropTp==0){ this.state.tp = -1; }
-              else if(DropTp==1){ this.state.tp = 0 ;}
-              else if(DropTp==2){ this.state.tp = 1; }
+              else{
+                this.state.tp = DropTp-1;
+              }
+              //else if(DropTp==1){ this.state.tp = 0 ;}
+              //else if(DropTp==2){ this.state.tp = 1; }
               this.state.page = 1;
               this.makeRemoteRequest();
             }}
@@ -1095,7 +1142,7 @@ renderModal = () => {
             ref='b'
             style={styles.Dropdown}
             dropdownTextStyle={styles.DropText}
-            dropdownStyle={[styles.Dropdown2,{height: 106}]}
+            dropdownStyle={[styles.Dropdown2,{height:106+32}]}
             dropdownTextHighlightStyle={styles.highlight}
             options={this.state.stp}
             defaultValue={this.state.stp[0]}
@@ -1118,8 +1165,8 @@ renderModal = () => {
             dropdownStyle={[styles.Dropdown2,{height: 106}]}
             dropdownTextHighlightStyle={styles.highlight}
             options={this.state.sorttp}
-            defaultValue={this.state.sorttp[1]}
-            defaultIndex={1}
+            defaultValue={this.state.sorttp[0]}
+            defaultIndex={0}
             renderRow={this.renderRow.bind(this)}
             onSelect={(sorttp) => {
 
@@ -1145,7 +1192,8 @@ renderModal = () => {
             numColumns={2}
             renderItem={({item}) => (
               <TouchableOpacity
-                style={{backgroundColor: '#ffffff',height: 200,width: 0.5*(width-4*8),marginLeft: 8,marginRight: 8,marginBottom: 5,marginTop: 5,borderRadius: 10,overflow:'hidden'}}
+                key={item.id}
+                style={{backgroundColor: '#ffffff',height: 220,width: 0.5*(width-4*8),marginLeft: 8,marginRight: 8,marginBottom: 5,marginTop: 5,borderRadius: 10,overflow:'hidden'}}
                 onPress={() => {
                   const params = {
                     token: this.state.token,
@@ -1153,22 +1201,39 @@ renderModal = () => {
                     islogin: this.state.islogin,
                     itemId: item.id,
                   };
-                  if(item.tp==0){
+
+                  if(item.type==0){
                     navigate('itemDetail_Service',params);
                   }
-                  else if(item.tp==1){
+                  else if(item.type==1){
                     navigate('itemDetail_Ask',params);
                   }
                 }}
                 >
+                    <View style={{width:0.5*(width-4*6),alignSelf: 'center',height: 40,overflow: 'hidden',flexDirection: 'row',alignItems: 'center'}}>
+                      <Image
+                        style={[{width:0.5*(width-4*6),alignSelf: 'center',height: 28,width: 28,overflow:'hidden',marginLeft: 10,borderRadius: 14},item.userInfo.face?{}:{backgroundColor: '#fd586d',tintColor: '#FFFFFF'}]}
+                        source={item.userInfo.face?{ uri:Service.BaseUri+item.userInfo.face }:require('../icon/person/default_avatar.png')}
+                        resizeMode="cover"
 
+                      />
+                      <View style={{marginLeft: 5,width: 0.5*(width-4*6)-28-5-10-10}}>
+                        <Text
+                          numberOfLines={1}
+                          style={{color: '#333333',fontSize: 12,fontWeight: '500'}}
+                          >
+                          {item.userInfo?item.userInfo.username : '?'}
+                        </Text>
+                      </View>
+
+                    </View>
                     <Image
-                      style={{width:0.5*(width-4*6),alignSelf: 'center',height: 100,overflow:'hidden'}}
+                      style={{width:0.5*(width-4*6),alignSelf: 'center',height: 90,overflow:'hidden'}}
                       source={{ uri:Service.BaseUri+item.img }}
                       resizeMode="cover"
 
                     />
-                    <View style={{height: 100,width:0.5*(width-4*8)}}>
+                    <View style={{height: 90,width:0.5*(width-4*8)}}>
                       <View style={{}}>
                         <Text
                           style={{marginLeft: 8,marginRight: 8,marginTop: 4,color: '#333333',fontSize: 14}}
@@ -1177,11 +1242,10 @@ renderModal = () => {
                             {item.name}
                         </Text>
                        <Text
-                          style={{height: 20,marginLeft: 8,marginRight: 8,marginTop: 4,color: '#fd586d',fontSize: 18,}}
+                          style={{height: 20,marginLeft: 8,marginRight: 8,marginTop: 4,color: '#fd586d',fontSize: 18,fontWeight: '600'}}
                           numberOfLines={1}
                           >
-                            {'￥'+item.price}
-                        </Text>
+                          {'￥'+ parseInt(item.price).toString().replace(/(\d)(?=(?:\d{3})+$)/g, '$1,')}                        </Text>
                       </View>
                       <View style={{flex: 1,width: 0.5*(width-4*8),flexDirection: 'row',justifyContent: 'flex-start',}}>
                         <View style={{marginLeft: 10,marginBottom: 5,flex: 4,flexDirection: 'column',justifyContent: 'flex-end' }}>
@@ -1189,7 +1253,7 @@ renderModal = () => {
                             style={{fontSize: 12,color: '#999999',}}
                             numberOfLines={1}
                           >
-                            {item.tp==0?I18n.t('home.Service'):I18n.t('home.Ask')}{' · '}{this.state.category[Number(item.cid)]?this.state.category[Number(item.cid)].name : '?'}
+                            {item.type==0?I18n.t('home.Service'):I18n.t('home.Ask')}{' · '}{this.state.type[Number(item.cid)]?this.state.type[Number(item.cid)].jp_name : '?'}
                           </Text>
                         </View>
                         <View style={{marginRight: 10,marginBottom: 5,flex: 2,flexDirection: 'column',justifyContent: 'flex-end'}}>
@@ -1220,6 +1284,7 @@ renderModal = () => {
         </List>
         {this.renderModal()}
       </View>
+
     );
   }
 }
@@ -1249,7 +1314,8 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         //justifyContent: 'center',
         alignItems: 'stretch',
-        backgroundColor: '#f3f3f3'
+        backgroundColor: '#f3f3f3',
+
   },
   map: {
     ...StyleSheet.absoluteFillObject,
@@ -1272,7 +1338,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     //backgroundColor: '#fbe994',
-    width: 120,
+    width: 65,
   },
   choosebar2: {
     height: 26,

@@ -25,16 +25,18 @@
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>fb1719950051350479</string>
+				<string>fb212122489339371</string>
 			</array>
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>14</string>
 	<key>FacebookAppID</key>
-	<string>1719950051350479</string>
+	<string>212122489339371</string>
 	<key>FacebookDisplayName</key>
 	<string>easygo</string>
+	<key>LSApplicationCategoryType</key>
+	<string></string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>fbapi</string>
@@ -50,13 +52,17 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>请允许使用相机</string>
+	<string>“Helpe”がカメラへのアクセスを求めています</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Helpe想要访问您的通讯录</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>请允许获取您的位置</string>
+	<string>“Helpe”が位置情報の取得を求めています。近隣と助け合いましょう</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>“Helpe”がマイクの使用を求めています</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>请允许使用相机</string>
+	<string>“Helpe”がアルバムへのアクセスを求めています</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>请允许打开相册</string>
+	<string>“Helpe”がアルバムへのアクセスを求めています</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Entypo.ttf</string>
@@ -71,17 +77,15 @@
 		<string>Zocial.ttf</string>
 		<string>Feather.ttf</string>
 	</array>
-	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
 	</array>
+	<key>UIRequiresFullScreen</key>
+	<true/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>

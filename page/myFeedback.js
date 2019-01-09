@@ -88,7 +88,7 @@ class myFeedback extends Component {
 
   getMyFeedback = () => {
     const { token, uid } = this.state;
-    const url = Service.BaseUrl+`?a=feedback&m=my&v=${Service.version}&token=${token}&uid=${uid}`;
+    const url = Service.BaseUrl+Service.v+`/feedback/aboutme?t=${token}&page=1&per-page=${50}`;
     console.log(url);
 
     this.setState({loading: true})
@@ -96,8 +96,8 @@ class myFeedback extends Component {
     .then(response => response.json())
     .then(responseJson => {
       console.log(responseJson);
-      if(!responseJson.status){
-        this.setState({data: responseJson.data});
+      if(!parseInt(responseJson.status)){
+        this.setState({data: responseJson.data.data});
       }
       else{
         alert(I18n.t('error.fetch_failed')+'\n'+responseJson.err);
@@ -166,7 +166,7 @@ class myFeedback extends Component {
 
   returnAvatarSource = (face) => {
     var source;
-    if(face==''){
+    if(!face){
       source = require('../icon/person/default_avatar.png');
     }
     else{
@@ -197,24 +197,24 @@ class myFeedback extends Component {
       <View style={styles.container}>
         <View style={styles.StatusBar}>
         </View>
-        <View style={styles.header}>
+        <Image style={styles.header} source={require('../icon/account/bg.png')}>
           <View style={{flex: 1,flexDirection: 'row',alignSelf: 'stretch',alignItems: 'center',}}>
             <Icon
               style={{marginLeft: 5}}
               name='chevron-left'
-              color='#f1a073'
-              size={32}
+              color='#FFFFFF'
+              size={36}
               onPress={() => this.props.navigation.goBack()}
             />
           </View>
           <View style={{flex: 1,flexDirection: 'column',justifyContent: 'center'}}>
-            <Text style={{alignSelf: 'center',fontSize: 18,color: '#333333'}}>
+            <Text style={{alignSelf: 'center',fontSize: 18,color: '#FFFFFF'}}>
               {I18n.t('myFeedback.myFeedback')}
             </Text>
           </View>
           <View style={{flex: 1,flexDirection: 'column',justifyContent: 'center'}}>
           </View>
-        </View>
+        </Image>
         <List containerStyle={{ borderTopWidth: 0,flex:1,backgroundColor: '#FFFFFF' ,marginTop: 0}}>
           <FlatList
             style={{marginTop: 0,borderWidth: 0}}
@@ -225,25 +225,40 @@ class myFeedback extends Component {
                   component={TouchableOpacity}
                   roundAvatar
                   key={item.id}
-                  title={item.iname=''?I18n.t('common.no_name'):item.iname}
-                  rightTitle={formatDate(item.t)}
-                  avatar={this.returnAvatarSource(item.iimg)}
-                  onPress={() => {console.log(typeof item.name);console.log(typeof item.content);}}
+                  title={item.username?item.username:I18n.t('common.no_name')}
+                  rightTitle={formatDate(item.ct)}
+                  avatar={this.returnAvatarSource(item.face)}
+                  onPress={() => {
+                    const params = {
+                      token: this.state.token,
+                      uid: this.state.uid,
+                      islogin: this.state.islogin,
+                      order: {
+                          id: item.orderid,
+                      },
+                    };
+                    if(item.itemtype==0){
+                      navigate('myOrderDetail_Service',params);
+                    }
+                    else if(item.itemtype==1){
+                      navigate('myOrderDetail_Ask',params);
+                    }
+                  }}
                   avatarContainerStyle={{height:32,width:32}}
                   avatarStyle={{height:32,width:32}}
                   containerStyle={styles.listContainerStyle}
                 />
                 <View style={{marginLeft: 15,flexDirection: 'row',alignItems: 'center'}}>
                   <Rating
-                    type="bell"
+                    type="heart"
                     readonly
                     ratingCount={5}
                     fractions={1}
-                    startingValue={(item.score/20)}
+                    startingValue={(item.score/20).toFixed(1)}
                     imageSize={20}
                   />
-                  <Text style={{marginLeft: 5,color: '#f1a073',fontSize: 14}}>
-                    ({item.score/20})
+                  <Text style={{marginLeft: 5,color: '#fd586d',fontSize: 14}}>
+                    ({(item.score/20).toFixed(1)})
                   </Text>
                 </View>
                 <Text style={{color: '#333333',fontSize: 14,marginLeft: 15,marginRight: 15,marginBottom: 10,marginTop: 5}}>
@@ -255,7 +270,7 @@ class myFeedback extends Component {
             ItemSeparatorComponent={this.renderSeparator}
             //ListHeaderComponent={this.renderHeader}
             ListFooterComponent={this.renderFooter}
-            onRefresh={this.handleRefresh}
+            //onRefresh={this.handleRefresh}
             refreshing={this.state.refreshing}
             //onEndReached={this.handleLoadMore}
             onEndReachedThreshold={50}
@@ -281,14 +296,15 @@ const styles = StyleSheet.create({
   },
   StatusBar:  {
     height:22,
-    backgroundColor:'#FFFFFF',
+    backgroundColor:'#fd586d',
   },
   header: {
     height: 44,
+    width: width,
     alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#fd586d',
     borderColor: '#e5e5e5',
     borderBottomWidth: 1,
   },

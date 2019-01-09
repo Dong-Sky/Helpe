@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@3.7.3/dist/av-min.js"></script>
+  <!-- 实时消息服务 -->
+  <script src="https://cdn.jsdelivr.net/npm/leancloud-realtime@4.0.1/dist/realtime.browser.min.js"></script>
+  <script type="text/javascript">
+
+  var { Realtime, TextMessage } = AV;
+  console.log(AV);
+
+
+
+  var realtime = new Realtime({
+    appId: 'YUk7QH8aEBusDod00FYqVxeI-MdYXbMMI',
+    appKey: 'hdlK9CmROwVFEgDqjmYHOqjn',
+    region: 'us', // 美国节点为 "us"
+  });
+
+  var client = null;
+
+
+
+
+window.onload = function(){
+
+
+
+  // Tom 用自己的名字作为 clientId，获取 IMClient 对象实例
+  realtime.createIMClient('8').then(function(client) {
+    // 创建与Jerry之间的对话
+    window.client = client;
+    console.log(window.client);
+
+    client.getQuery().containsMembers(['9']).find().then(function(conversations) {
+
+
+    console.log(conversations);
+    console.log(conversations[0].get('lastMessage'));
+    client.on('message', function(message, conversation) {
+
+    console.log('received a message from [' + message.from + ']: ' + message.text);
+    // 收到消息之后一般的做法是做 UI 展现，示例代码在此处做消息回复，仅为了演示收到消息之后的操作，仅供参考。
+  }).catch(err => console.log(err))
+})
+})}
+
+
+function send(){
+
+
+
+  client.createConversation({
+    members: ['1'],
+    unique: true,
+    name: 'user1&user2',
+
+  }).then(function(conversation) {
+
+    var newMessage = new TextMessage('收到消息！')
+
+    conversation.send(newMessage).then((message) => {
+      conversation.set('last',message);
+      conversation.save()
+
+
+    }).catch(err => console.log(err))
+
+    return conversation;
+  }).then(function(obj) {
+
+
+    console.log('发送成功！');
+  }).catch(err => console.log(err))
+}
+
+  </script>
+</head>
+<body>
+  <button type="button" name="button" onclick="send()">发送消息</button>
+
+</body>
+</html>

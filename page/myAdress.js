@@ -52,6 +52,7 @@ class myAdress extends Component {
          mapModalVisible: false,
          isDisabled: false,
          isDisabled1: false,
+         page: 1,
          //用户地址列表
          data: [],
          //地图信息
@@ -116,26 +117,22 @@ class myAdress extends Component {
   //获取用户地址
   getAddress = () => {
     const {token,uid} = this.state;
-    fetch(Service.BaseUrl, {
-     method: 'POST',
-     headers: {
-       'Content-Type': 'application/x-www-form-urlencoded',
-     },
-     body: 'a=addr&token='+token+'&uid='+uid+'&v='+Service.version,
-   })
+    const url = Service.BaseUrl+Service.v+`/address?t=${token}&page=0&per-page=50`;
+    fetch(url)
    .then(response => response.json())
    .then(responseJson => {
      console.log(responseJson);
-     this.setState({ data: responseJson.data})
+     this.setState({ data: responseJson.data.data})
    })
    .catch(error => console.log(error))
   };
 
   //添加地址方法
   addAddress = () => {
-    const { token,uid,region,aid,info } = this.state;
-    const body = 'a=addr&m=add&v='+Service.version+'&token='+token+'&uid='+uid+'&aid='+aid+'&lat='+region.latitude+'&lng='+region.longitude+'&info='+info;
-    fetch(Service.BaseUrl, {
+    const { token,uid,region,aid,info,page } = this.state;
+    const url = Service.BaseUrl+Service.v+`/address/add?t=${token}`
+    const body = 'lat='+region.latitude+'&lng='+region.longitude+'&info='+info;
+    fetch(url, {
      method: 'POST',
      headers: {
        'Content-Type': 'application/x-www-form-urlencoded',
@@ -147,9 +144,10 @@ class myAdress extends Component {
 
      if(!responseJson.status){
        alert(I18n.t('success.add'));
+
      }
      else {
-       alert(I18n.t('success.add_failed'));
+       alert(I18n.t('error.add_failed'));
      }
    })
    .then(() => this.getAddress())
@@ -158,9 +156,11 @@ class myAdress extends Component {
 
   //删除地址方法
   deleteAddress(id){
-    const body = 'a=addr&m=del&v='+Service.version+'&token='+this.state.token+'&uid='+this.state.uid+'&id='+id;
+    const { token } = this.state;
+    const url = Service.BaseUrl+Service.v+`/address/del?t=${token}`
+    const body = 't='+token+'&id='+id;
     this.setState({loading: true})
-    fetch(Service.BaseUrl,{
+    fetch(url,{
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -187,24 +187,24 @@ class myAdress extends Component {
        <View style={styles.container}>
          <View style={styles.StatusBar}>
          </View>
-         <View style={styles.header}>
+         <Image style={styles.header} source={require('../icon/account/bg.png')}>
            <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start'}}>
              <Icon
                style={{marginLeft: 5}}
                name='keyboard-arrow-left'
-               color='#f1a073'
+               color='#ffffff'
                size={32}
                onPress={() => this.setState({modalVisible: false,info: null,})}
              />
            </View>
            <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
-             <Text style={{alignSelf: 'center',fontSize: 18,color: '#333333'}}>
+             <Text style={{alignSelf: 'center',fontSize: 18,color: '#ffffff'}}>
                {I18n.t('myAddress.new')}
              </Text>
            </View>
            <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
            </View>
-         </View>
+         </Image>
          <View style={{flex:1,}}>
            <MapView
                style={styles.map}
@@ -242,10 +242,10 @@ class myAdress extends Component {
             />
           </View>
           <Button
-            style={styles.button}
+            style={[styles.button1,{width: 240,backgroundColor: '#ffffff'},]}
             buttonStyle={{marginTop:5,marginBottom:5,}}
             borderRadius={5}
-            backgroundColor='#f1a073'
+            backgroundColor='#fd586d'
             onPress={() => {
               if(this.state.info==null||this.state.info==''){
                 alert(I18n.t('myAddress.no_info'));
@@ -254,7 +254,7 @@ class myAdress extends Component {
                 this.addAddress();
               }
             }}
-            title={I18n.t('myAddress.no_info')} />
+            title={I18n.t('common.submit')} />
             {this.renderInfoModal()}
          </View>
       </Modal>
@@ -265,7 +265,7 @@ class myAdress extends Component {
   renderInfoModal = () => {
     return(
       <Modalbox
-        style={{height: 220,width: 300,alignItems: 'center',}}
+        style={{height: 220,width: 300,alignItems: 'center',borderRadius: 20}}
         isOpen={this.state.isInfoModalVisible}
         isDisabled={this.state.isDisabled}
         position='center'
@@ -291,7 +291,7 @@ class myAdress extends Component {
           </View>
           <Button
             style={styles.button1}
-            backgroundColor='#f1a073'
+            backgroundColor='#fd586d'
             borderRadius={5}
             title={I18n.t('common.submit')}
             onPress={() => this.setState({isInfoModalVisible: false,})}
@@ -355,18 +355,18 @@ class myAdress extends Component {
       <View style={styles.container}>
         <View style={styles.StatusBar}>
         </View>
-        <View style={styles.header}>
+        <Image style={styles.header} source={require('../icon/account/bg.png')}>
           <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start'}}>
             <Icon
               style={{marginLeft: 5}}
               name='keyboard-arrow-left'
-              color='#f1a073'
-              size={32}
+              color='#FFFFFF'
+              size={36}
               onPress={() => this.props.navigation.goBack()}
             />
           </View>
           <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
-            <Text style={{alignSelf: 'center',color: '#333333',fontSize: 18}}>
+            <Text style={{alignSelf: 'center',color: '#FFFFFF',fontSize: 18}}>
               {I18n.t('myAddress.myAddress')}
             </Text>
           </View>
@@ -374,20 +374,20 @@ class myAdress extends Component {
             <View style={{marginRight: 10}}>
               <Icon
                 name='add'
-                color='#f1a073'
+                color='#FFFFFF'
                 size={28}
                 onPress={() => this.setState({modalVisible: true},this.getLocation)}
               />
             </View>
           </View>
-        </View>
-        <List containerStyle={{borderWidth: 1,borderColor: '#e5e5e5',marginTop: 0,flex: 1}}>
+        </Image>
+        <List containerStyle={{backgroundColor: '#f3f3f3',borderWidth: 0,borderColor: '#e5e5e5',marginTop: 0,flex: 1,width: '100%'}}>
           <FlatList
-            style={{flex: 1}}
+            style={{flex: 1,width: '100%'}}
             data={this.state.data}
             renderItem={({item}) => (
               <Interactable.View
-                style={{height: 40,width: width+50,flexDirection: 'row',alignItems: 'center',backgroundColor: '#FFFFFF'}}
+                style={[{height: 40,width: width-40,marginTop: 20,flexDirection: 'row',alignSelf: 'center',backgroundColor: '#FFFFFF',borderRadius: 15,overflow: 'hidden'},styles.shadow]}
                 horizontalOnly={true}
                 key={item.id}
                 snapPoints={[{x: 0}, {x: -50}]}
@@ -396,9 +396,17 @@ class myAdress extends Component {
                   component={TouchableOpacity}
                   title={item.info}
                   titleStyle={styles.title}
-                  containerStyle={[styles.listContainerStyle,{height: 40,width: width,alignSelf: 'center'}]}
+                  containerStyle={[styles.listContainerStyle,{height: 40,width: width-40,alignSelf: 'center',borderRadius: 15,}]}
                   titleNumberOfLines={2}
-                  rightIcon={<View></View>}
+                  rightIcon={
+                    <Icon
+                      style={{alignSelf: 'center'}}
+                      name='delete'
+                      color='#fd586d'
+                      size={30}
+                      onPress={() => this.deleteAddress(item.id)}
+                    />
+                  }
                   onPress = {() => {
                     var addr = {
                       latitude: item.lat/1,
@@ -423,10 +431,10 @@ class myAdress extends Component {
               </Interactable.View>
             )}
             keyExtractor={item => item.id}
-            ItemSeparatorComponent={this.renderSeparator}
+            //ItemSeparatorComponent={this.renderSeparator}
             ListFooterComponent={() => {
               return (
-                <View style={{height: 1,backgroundColor: '#e5e5e5',width: width}}></View>
+                <View style={{marginTop: 20,height: 1,backgroundColor: '#f2f2f2',width: width}}></View>
               )
             }}
           />
@@ -445,20 +453,22 @@ const styles = StyleSheet.create({
       flexDirection: 'column',
       //justifyContent: 'center',
       alignItems: 'stretch',
+      backgroundColor: '#f3f3f3'
   },
   map: {
     ...StyleSheet.absoluteFillObject,
   },
   StatusBar:  {
     height:22,
-    backgroundColor:'#FFFFFF',
+    backgroundColor:'#fd586d',
   },
   header: {
     height: 44,
+    width: width,
     alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#fd586d',
     borderBottomWidth: 1,
     borderColor: '#e5e5e5'
   },
@@ -473,7 +483,7 @@ const styles = StyleSheet.create({
   },
   modal_body: {
     flex: 1,
-    backgroundColor: '#f2f2f2'
+    backgroundColor: '#f3f3f3'
     //flexDirection: 'column',
     //alignItems: 'center',
   },
@@ -506,7 +516,7 @@ const styles = StyleSheet.create({
     height: 140,
     textAlignVertical: 'top',
     borderWidth: 1,
-    borderColor: '#f1a073',
+    borderColor: '#fd586d',
     alignSelf: 'center',
     color: '#666666',
     fontSize: 14,
@@ -517,11 +527,17 @@ const styles = StyleSheet.create({
     height: 120,
     textAlignVertical: 'top',
     borderWidth: 1,
-    borderColor: '#f1a073',
+    borderColor: '#fd586d',
     alignSelf: 'center',
     color: '#666666',
     fontSize: 14,
     padding: 5,
   },
+  shadow: {
+    shadowColor:'black',
+    shadowOffset:{height:0,width:0},
+    shadowRadius: 1,
+    shadowOpacity: 0.4,
+  }
 });
 export default myAdress;

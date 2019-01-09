@@ -102,7 +102,7 @@ function isRealNum(val){
          //发布信息
          name: null,
          tp: 1,
-         cid: 0,
+         cid: -1,
          aid : null,
          price: null,
          u: null,
@@ -286,20 +286,30 @@ function isRealNum(val){
 
 
 
+  //获取商品类型
+  getItemCategory = () => {
+    const url = Service.BaseUrl+Service.v+`/category`;
+    console.log(url);
+    fetch(url)
+    .then(response => response.json())
+    .then(responseJson => {
+      console.log(responseJson);
+        this.setState({category: responseJson.data.data});
+    })
+    .catch(err => console.log(error))
+  };
+
+
   //获取地址列表方法
   getAddress = () => {
       const {token,uid} = this.state;
-      fetch(Service.BaseUrl, {
-       method: 'POST',
-       headers: {
-         'Content-Type': 'application/x-www-form-urlencoded',
-       },
-       body: 'a=addr&token='+token+'&uid='+uid+'&v='+Service.version,
-     })
+      const url = Service.BaseUrl+Service.v+`/address?t=${token}`;
+      console.log(url);
+      fetch(url)
      .then(response => response.json())
      .then(responseJson => {
-
-       this.setState({ data: responseJson.data });
+       console.log(responseJson);
+       this.setState({ data: responseJson.data.data });
      })
      .catch(error => console.log(error))
   };
@@ -307,8 +317,10 @@ function isRealNum(val){
   //添加地址方法
   addAddress = () => {
     const { token,uid,region,aid,info } = this.state;
-    const body = 'a=addr&m=add&v='+Service.version+'&token='+token+'&uid='+uid+'&aid='+aid+'&lat='+region.latitude+'&lng='+region.longitude+'&info='+info;
-    fetch(Service.BaseUrl, {
+
+    const url = Service.BaseUrl+Service.v+`/address/add?t=${token}`
+    const body = 'lat='+region.latitude+'&lng='+region.longitude+'&info='+info;
+    fetch(url, {
      method: 'POST',
      headers: {
        'Content-Type': 'application/x-www-form-urlencoded',
@@ -319,12 +331,10 @@ function isRealNum(val){
    .then(responseJson => {
      console.log(responseJson);
      if(!responseJson.status){
-
        alert(I18n.t('success.add'));
      }
      else {
        alert(I18n.t('error.add_failed'));
-
      }
    })
    .then(() => this.getAddress())
@@ -333,6 +343,9 @@ function isRealNum(val){
 
   //发布方法
   publish = () => {
+
+    AnalyticsUtil.onEvent('publish_Service');
+
       this.setState({ loading: true });
       const { name,token,aid,uid,tp,cid,price,mark,defaultImgSouce,img,underline,online,u,contact,deadline } = this.state;
 
@@ -351,34 +364,33 @@ function isRealNum(val){
       }
 
       let formData = new FormData();
+      let itemfile = [];
+
       for(i=0;i<6;i++){
-        if(img[i]!=null){
+        if(!!img[i]){
           let file = {uri: img[i], type: 'multipart/form-data', name: 'img0'};
-          formData.append('itemfile'+i,file);
+          itemfile.push('itemfile'+i,file);
         }
       }
-      console.log(formData);
       //const body = `a=itempub&v=${Service.version}&token=${token}&uid=${uid}&aid=${aid}&name=${name}&tp=${tp}&cid=${cid}&price=${price}&mark=${mark}`;
-      const url = Service.BaseUrl;
-
+      const url = Service.BaseUrl+Service.v+`/item/pub?t=${token}`;
+      console.log(itemfile);
       //添加参数
       formData.append('a','itempub');
-      formData.append('v',Service.version);
+      formData.append('itemfile[]',itemfile);
       formData.append('token',token);
       formData.append('uid',uid);
       formData.append('aid',aid);
       formData.append('name',name);
-      formData.append('tp',tp);
+      formData.append('type',tp);
       formData.append('cid',cid);
       formData.append('price',price);
-      formData.append('u',u);
+      formData.append('unit',u);
       formData.append('contact',contact);
-      formData.append('mark',mark);
+      formData.append('remark',mark);
       formData.append('paytp',paytp);
       formData.append('deadline',deadline);
-
-
-
+      console.log(formData);
       fetch(url,{
           method:'POST',
           headers:{
@@ -393,7 +405,7 @@ function isRealNum(val){
           if(!responseJson.status){
 
             alert(I18n.t('success.publish'));
-            console.log(this.state);
+
             this.props.navigation.dispatch(
               NavigationActions.reset({
                index: 0,
@@ -412,12 +424,10 @@ function isRealNum(val){
            );
           }
           else {
-
             alert(I18n.t('error.add_failed'));
           }
         })
-        .catch(error => {console.log(error);this.setDate({loading: false})})
-
+        .catch(error => {console.log(error);this.setState({loading: false})})
   };
 
 
@@ -477,8 +487,8 @@ function isRealNum(val){
                <Icon
                  style={{marginLeft: 5}}
                  name='keyboard-arrow-left'
-                 color='#f1a073'
-                 size={32}
+                 color='#fd586d'
+                 size={36}
                  onPress={() => {
                    this.setAddressModalVisible(!this.state.addressModalVisible);
                  }}
@@ -493,9 +503,9 @@ function isRealNum(val){
                <View style={{marginRight: 10}}>
                  <Icon
                    name='add'
-                   color='#f1a073'
+                   color='#fd586d'
                    size={28}
-                   onPress={() => setState({newAddressModalVisible: true},this.getLocation)}
+                   onPress={() => this.setState({newAddressModalVisible: true},this.getLocation)}
                  />
                </View>
              </View>
@@ -552,8 +562,8 @@ function isRealNum(val){
              <Icon
                style={{marginLeft: 5}}
                name='keyboard-arrow-left'
-               color='#f1a073'
-               size={32}
+               color='#fd586d'
+               size={36}
                onPress={() => {
                  this.setNewAddressModalVisible(!this.state.newAddressModalVisible);
                }}
@@ -608,7 +618,7 @@ function isRealNum(val){
             style={styles.button}
             buttonStyle={{marginTop:5,marginBottom:5,}}
             borderRadius={5}
-            backgroundColor='#f1a073'
+            backgroundColor='#fd586d'
             onPress={() => {
               if(this.state.info==null){
                 alert(I18n.t('publish.no_info'));
@@ -654,7 +664,7 @@ function isRealNum(val){
           </View>
           <Button
             style={styles.button1}
-            backgroundColor='#f1a073'
+            backgroundColor='#fd586d'
             borderRadius={5}
             title={I18n.t('common.submit')}
             onPress={() => this.setState({isInfoModalVisible: false,})}
@@ -681,8 +691,8 @@ function isRealNum(val){
                <Icon
                  style={{marginLeft: 5}}
                  name='keyboard-arrow-left'
-                 color='#f1a073'
-                 size={32}
+                 color='#fd586d'
+                 size={36}
                  onPress={() => {
                    this.setCategoryModalVisible(!this.state.categoryMoalVisible);
                  }}
@@ -698,11 +708,11 @@ function isRealNum(val){
            </View>
            <View style={{flex: 1,marginTop: 0}}>
              <FlatList
-               data={this.state.category.slice(1)}
+               data={this.state.category.slice(0)}
                renderItem={({ item }) => (
                  <CheckBox
                    containerStyle={{backgroundColor: '#FFFFFF'}}
-                   title={item.name}
+                   title={item.jp_name}
                    iconRight={true}
                    right={false}
                    textStyle={styles.title}
@@ -739,8 +749,8 @@ function isRealNum(val){
                <Icon
                  style={{marginLeft: 5}}
                  name='chevron-left'
-                 color='#f1a073'
-                 size={32}
+                 color='#fd586d'
+                 size={36}
                  onPress={() => this.setMarkModalVisible(!this.state.markModalVisible)}
                />
              </View>
@@ -806,7 +816,7 @@ function isRealNum(val){
           </View>
           <Button
             style={styles.button1}
-            backgroundColor='#f1a073'
+            backgroundColor='#fd586d'
             borderRadius={5}
             title={I18n.t('common.finish')}
             onPress={() => this.setState({contactModalVisible: false,})}
@@ -833,8 +843,8 @@ function isRealNum(val){
              <Icon
                style={{marginLeft: 5}}
                name='keyboard-arrow-left'
-               color='#f1a073'
-               size={32}
+               color='#fd586d'
+               size={36}
                onPress={() => {
                  this.setAddPhotoModalVisible(!this.state.addPhotoModalVisible);
                }}
@@ -995,7 +1005,7 @@ function isRealNum(val){
   };
 
   render() {
-    
+
     return (
         <View style={styles.container}>
           <View style={styles.StatusBar}>
@@ -1005,8 +1015,8 @@ function isRealNum(val){
               <Icon
                 style={{marginLeft: 5}}
                 name='keyboard-arrow-left'
-                color='#f1a073'
-                size={32}
+                color='#fd586d'
+                size={36}
                 onPress={() => this.props.navigation.goBack()}
               />
             </View>
@@ -1077,20 +1087,20 @@ function isRealNum(val){
                   <Switch
                     value={this.state.underline}
                     onValueChange={(underline) => this.setState({underline})}
-                    onTintColor='#f1a073'
+                    onTintColor='#fd586d'
                   />
                 }
               />
               {this.renderSeparator()}
               <ListItem
-                titleStyle={styles.title}
+                titleStyle={[styles.title,{ color: '#999999'}]}
                 containerStyle={styles.listContainerStyle}
                 title={I18n.t('publish.online')}
                 rightIcon={
                   <Switch
                     value={this.state.online}
-                    onValueChange={(online) => this.setState({online})}
-                    onTintColor='#f1a073'
+                    onValueChange={(online) => {}}
+                    onTintColor='#fd586d'
                   />
                 }
               />
@@ -1101,7 +1111,7 @@ function isRealNum(val){
                 containerStyle={styles.listContainerStyle}
                 title={I18n.t('publish.A_cate')}
                 rightTitle={I18n.t('publish.choose')}
-                rightTitle={this.state.category[this.state.cid].name}
+                rightTitle={this.state.cid>0?this.state.category[this.state.cid-1].jp_name:'?'}
                 onPress={() => this.setCategoryModalVisible(true)}
               />
               {this.renderSeparator()}
@@ -1144,6 +1154,8 @@ function isRealNum(val){
                 rightTitle={I18n.t('publish.t30')}
                 containerStyle={styles.listContainerStyle}
                 title={I18n.t('publish.deadline')}
+                rightIcon={<View></View>}
+
               />
             </List>
             <View style={styles.footer}>
@@ -1160,7 +1172,7 @@ function isRealNum(val){
         </ScrollView>
         <Button
         style={styles.button}
-        backgroundColor='#f1a073'
+        backgroundColor='#fd586d'
         borderRadius={5}
         title={I18n.t('common.submit')}
         onPress={() => {
@@ -1177,7 +1189,7 @@ function isRealNum(val){
           else if(!(this.state.online||this.state.underline)){
             alert(I18n.t('publish.no_paytp'));
           }
-          else if (!this.state.cid) {
+          else if (this.state.cid<0) {
             alert(I18n.t('publish.no_cate'));
           }
           else if(this.state.aid==null||this.state.aid==''){
@@ -1312,7 +1324,7 @@ const styles = StyleSheet.create({
     height: 140,
     textAlignVertical: 'top',
     borderWidth: 1,
-    borderColor: '#f1a073',
+    borderColor: '#fd586d',
     alignSelf: 'center',
     color: '#666666',
     fontSize: 14,
@@ -1320,7 +1332,7 @@ const styles = StyleSheet.create({
   },
   modal_body: {
     flex: 1,
-    backgroundColor: '#f2f2f2'
+    backgroundColor: '#f3f3f3'
     //flexDirection: 'column',
     //alignItems: 'center',
   },
@@ -1329,7 +1341,7 @@ const styles = StyleSheet.create({
     height: 120,
     textAlignVertical: 'top',
     borderWidth: 1,
-    borderColor: '#f1a073',
+    borderColor: '#fd586d',
     alignSelf: 'center',
     color: '#666666',
     fontSize: 14,

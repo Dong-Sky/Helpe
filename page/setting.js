@@ -48,6 +48,7 @@ export default class setting extends Component{
       modalVisible: false,
       isDisabled: false,
       //
+      old_pass: null,
       new_pass: null,
       new_pass1: null,
       //
@@ -88,7 +89,7 @@ export default class setting extends Component{
   }
 
   getPub = () => {
-    const url = Service.BaseUrl+`?a=pub&v=${Service.version}`;
+    const url = Service.BaseUrl+Service.v+`/server/info`;
 
 
     fetch(url)
@@ -98,17 +99,17 @@ export default class setting extends Component{
         v: 0
       };
       if(!responseJson.status){
-        pub.v = responseJson.data.v;
+        pub.v = responseJson.data.version;
       }
       else if(responseJson.status==5){
         alert(I18n.t('error.v_err'));
-        pub.v = responseJson.data.v;
+        pub.v = responseJson.data.version;
       }
       else{
         alert(I18n.t('error.fetch_failed')+'\n'+responseJson.errr);
       }
       this.setState({
-        v: Service.version,
+        v: Service.v,
         pub: pub,
       })
     })
@@ -143,25 +144,20 @@ export default class setting extends Component{
   out = () => {
     const {params} = this.props.navigation.state;
     const { uid,token } = this.state;
-    const url = Service.BaseUrl;
-    fetch(url, {
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body:'a=user&m=out&v='+Service.version+'&token='+token+'&uid='+uid,
-    })
+    const url = Service.BaseUrl+Service.v+`/passport/logout?t=${token}`;
+    /*
+    fetch(url)
     .then((response) => response.json())
     .then((responseJson) => {
-      if(!responseJson.status){
+      if(true){
         storage.remove({
           key:'loginState',
         })
         .then(() => {
 
           console.log(uid);
-
-          Util.deleteAlias(uid);
+          let user = uid.toString()
+          Util.deleteAlias(user,'Helpe');
 
           alert(I18n.t('success.out'));
           DeviceEventEmitter.emit('login',false);
@@ -173,16 +169,43 @@ export default class setting extends Component{
         alert(I18n.t('error.out_failed'));
       }
     })
-    .catch((error) => console.log(error))
+    .catch((error) => console.log(error))*/
+
+    if(true){
+      storage.remove({
+        key:'loginState',
+      })
+      .then(() => {
+
+        console.log(uid);
+        let user = uid.toString()
+        Util.deleteAlias(user,'Helpe');
+
+        alert(I18n.t('success.out'));
+        DeviceEventEmitter.emit('login',false);
+
+      })
+      .then(() => this.props.navigation.goBack())
+    }
+    else{
+      alert(I18n.t('error.out_failed'));
+    }
 
   };
 
   update_pass = () => {
-    const { token,uid,new_pass,new_pass1 } = this.state;
-    const url = Service.BaseUrl+`?a=user&m=pass&token=${token}&uid=${uid}&v=${Service.version}&password=${new_pass}` ;
+    const { token,uid,new_pass,new_pass1,old_pass } = this.state;
+    const url = Service.BaseUrl+Service.v+`/reset-password?t=${token}`;
+    const body = `old_password=${ord_pass}&new_password=${new_pass}`;
     console.log(url);
     this.setState({loading: true})
-    fetch(url)
+    fetch(url,{
+      method: 'POST',
+      headers: {
+        'Content-Type':'application/x-www-form-urlencoded',
+      },
+      body: body,
+    })
     .then(response => response.json())
     .then(responseJson => {
       if(!responseJson.status){
@@ -276,11 +299,11 @@ export default class setting extends Component{
         onClosed={() => this.setState({modalVisible: false,new_pass: null,new_pass1: null})}
         >
           <View>
-            <FormLabel>{I18n.t('setting.new_pass')}</FormLabel>
+            <FormLabel>{I18n.t('setting.old_pass')}</FormLabel>
             <FormInput
 
-              value={this.state.new_pass}
-              onChangeText={(new_pass) => this.setState({new_pass})}
+              value={this.state.old_pass}
+              onChangeText={(old_pass) => this.setState({old_pass})}
               //placeholder = {I18n.t('setting.txt1')}
               clearButtonMode='always'
               autoCapitalize='none'
@@ -288,10 +311,10 @@ export default class setting extends Component{
               returnKeyTyp='done'
               secureTextEntry={true}
             />
-            <FormLabel>{I18n.t('setting.new_pass1')}</FormLabel>
+            <FormLabel>{I18n.t('setting.new_pass')}</FormLabel>
             <FormInput
               value={this.state.new_pass1}
-              onChangeText={(new_pass1) => this.setState({new_pass1})}
+              onChangeText={(new_pass) => this.setState({new_pass})}
               //placeholder = {I18n.t('setting.txt2')}
               clearButtonMode='always'
               autoCapitalize='none'
@@ -341,8 +364,8 @@ export default class setting extends Component{
           <Icon
             style={{marginLeft: 5}}
             name='chevron-left'
-            color='#f1a073'
-            size={32}
+            color='#fd586d'
+            size={36}
             onPress={() => this.props.navigation.goBack()}
           />
         </View>
@@ -403,29 +426,32 @@ export default class setting extends Component{
           />
           {this.showLoading()}
         </List>
-        <View style={{height: 40,width: '100%',marginTop: 10,flexDirection: 'column',justifyContent: 'center',backgroundColor: '#FFFFFF',borderWidth: 1,borderColor: '#e5e5e5'}}>
+        <TouchableOpacity
+          style={{height: 40,width: '100%',marginTop: 10,flexDirection: 'column',justifyContent: 'center',backgroundColor: '#FFFFFF',borderWidth: 1,borderColor: '#e5e5e5'}}
+          onPress={() => {
+            if(this.state.islogin){
+              Alert.alert(
+                I18n.t('setting.out'),
+                I18n.t('setting.txt4'),
+                [
+                  {text: I18n.t('common.no'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                  {text: I18n.t('common.yes'), onPress: () => this.out()},
+                ],
+                { cancelable: false }
+              );
+            }
+            else{
+              alert(I18n.t('setting.not_login'));
+            }
+          }}
+          >
           <Text
-            style={{alignSelf: 'center',fontSize: 16,color: '#da695c'}}
-            onPress={() => {
-              if(this.state.islogin){
-                Alert.alert(
-                  I18n.t('setting.out'),
-                  I18n.t('setting.txt4'),
-                  [
-                    {text: I18n.t('common.no'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                    {text: I18n.t('common.yes'), onPress: () => this.out()},
-                  ],
-                  { cancelable: false }
-                );
-              }
-              else{
-                alert(I18n.t('setting.not_login'));
-              }
-            }}
+            style={{alignSelf: 'center',fontSize: 16,color: '#fd586d'}}
+
             >
             {I18n.t('setting.out')}
           </Text>
-        </View>
+        </TouchableOpacity>
       </View>
       {this.returnModal()}
       </View>

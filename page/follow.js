@@ -57,59 +57,6 @@ function getDisance(lat1, lng1, lat2, lng2) {
     return parseInt(dis * 6378137);
 }
 
-/*
-class myItem extends Component {
-  constructor(props) {
-      super(props);
-      this.state = {
-
-      }
-  };
-
-
- render() {
-   return (
-     <View style={styles.container}>
-       <View style={styles.StatusBar}>
-       </View>
-       <View style={styles.header}>
-         <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start'}}>
-           <Icon
-             style={{marginLeft: 5}}
-             name='keyboard-arrow-left'
-             color='#f1a073'
-             size={32}
-             onPress={() => this.props.navigation.goBack()}
-           />
-         </View>
-         <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
-           <Text style={{alignSelf: 'center',color: '#333333',fontSize: 18}}>
-             {I18n.t('follow.follow')}
-           </Text>
-         </View>
-         <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
-         </View>
-       </View>
-       <ScrollableTabView
-         tabBarUnderlineStyle={{backgroundColor:'#f1a073'}}
-         tabBarActiveTextColor='#f1a073'
-         style={{backgroundColor: '#FFFFFF'}}
-         >
-        <Follow1
-          tabLabel={I18n.t('myItem.Service')}
-          state={this.props.navigation.state.params}
-          navigation={this.props.navigation}
-        />
-        <Follow2
-          tabLabel={I18n.t('myItem.Ask')}
-          state={this.props.navigation.state.params}
-          navigation={this.props.navigation}
-        />
-      </ScrollableTabView>
-     </View>
-   );
- }
-}*/
 
 
 class follow extends Component {
@@ -163,20 +110,24 @@ class follow extends Component {
   };
 
   makeRemoteRequest = () => {
-    const { token, uid } = this.state;
-    const url = Service.BaseUrl+`?a=follow&v=${Service.version}&token=${token}&uid=${uid}`;
+    const { token, uid ,page} = this.state;
+    const url = Service.BaseUrl+Service.v+`/follow?t=${token}&page=${page}&per-page=20`;
 
-
+    console.log(url);
     this.setState({loading: true})
     fetch(url)
     .then(response => response.json())
-    .then(responseJson => {
+    .then(res => {
 
-      if(!responseJson.status){
-        this.setState({data: responseJson.data});
+      if(!parseInt(res.status)){
+        this.setState({
+          data: page === 1 ? res.data.data : [...this.state.data, ...res.data.data],
+          loading: false,
+          refreshing: false,
+        });
       }
       else{
-        alert(I18n.t('error.fetch_failed')+'\n'+responseJson.err);
+        alert(I18n.t('error.fetch_failed')+'\n'+res.err);
       }
     })
     .then(() => this.setState({loading: false,refreshing: false,}))
@@ -188,10 +139,17 @@ class follow extends Component {
   //收藏
   delfollow = (id) =>{
     const { token,uid, } = this.state;
-    const url = Service.BaseUrl+`?a=follow&m=del&token=${token}&uid=${uid}&id=${id}&v=${Service.version}`;
+    const url = Service.BaseUrl+Service.v+`/follow/del?t=${token}`;
     console.log(url);
+    const body = `id=${id}`;
     this.setState({loading: true})
-    fetch(url)
+    fetch(url,{
+      method: 'POST',
+      headers: {
+        'Content-Type':'application/x-www-form-urlencoded',
+      },
+      body: body,
+    })
     .then(response => response.json())
     .then(responseJson => {
 
@@ -274,8 +232,8 @@ class follow extends Component {
             <Icon
               style={{marginLeft: 5}}
               name='keyboard-arrow-left'
-              color='#f1a073'
-              size={32}
+              color='#fd586d'
+              size={36}
               onPress={() => this.props.navigation.goBack()}
             />
           </View>
@@ -352,25 +310,34 @@ class follow extends Component {
             //onEndReachedThreshold={50}
           />
         </List>*/}
-        <List containerStyle={{borderWidth: 1,borderColor: '#e5e5e5',marginTop: 0,flex: 1}}>
+        <List containerStyle={{borderWidth: 0,borderColor: '#e5e5e5',marginTop: 0,flex: 1,backgroundColor: '#f3f3f3',marginLeft: 20,marginRight: 20}}>
           <FlatList
             style={{flex: 1}}
             data={this.state.data}
             renderItem={({item}) => (
               <Interactable.View
                 component={TouchableOpacity}
-                style={{height: 50,width: width+50,flexDirection: 'row',alignItems: 'center',backgroundColor: '#FFFFFF'}}
+                style={{height: 50,width: width-40,marginTop: 20,flexDirection: 'row',alignItems: 'center',backgroundColor: '#FFFFFF',overflow: 'hidden',borderRadius: 15}}
                 horizontalOnly={true}
                 key={item.id}
                 snapPoints={[{x: 0}, {x: -50}]}
                 >
                 <ListItem
                   roundAvatar
-                  avatar={{ uri:Service.BaseUri+item.face }}
-                  title={item.name}
+                  avatar={item.face?{ uri:Service.BaseUri+item.face }:require('../icon/person/default_avatar.png')}
+                  avatarStyle={{backgroundColor: '#fd586d',tintColor: '#FFFFFF'}}
+                  title={item.fuserinfo.username}
                   titleStyle={styles.title}
-                  containerStyle={[styles.listContainerStyle,{height: 50,width: width,alignSelf: 'center'}]}
-                  rightIcon={<View></View>}
+                  containerStyle={[styles.listContainerStyle,{height: 50,width: width-40,alignSelf: 'center'}]}
+                  rightIcon={
+                    <Icon
+                      style={{alignSelf: 'center'}}
+                      name='delete'
+                      color='#fd586d'
+                      size={30}
+                      onPress={() => this.delfollow(item.id)}
+                    />
+                  }
                   onPress={() => {
                               const params = {
                               token: this.state.token,
@@ -395,6 +362,10 @@ class follow extends Component {
             keyExtractor={item => item.id}
             ItemSeparatorComponent={this.renderSeparator}
             ListFooterComponent={this.renderFooter}
+            onRefresh={this.handleRefresh}
+            refreshing={this.state.refreshing}
+            onEndReached={this.handleLoadMore}
+            onEndReachedThreshold={50}
           />
         </List>
       </View>
@@ -409,7 +380,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         //justifyContent: 'center',
         alignItems: 'stretch',
-        backgroundColor: '#f2f2f2'
+        backgroundColor: '#f3f3f3'
   },
   map: {
     ...StyleSheet.absoluteFillObject,

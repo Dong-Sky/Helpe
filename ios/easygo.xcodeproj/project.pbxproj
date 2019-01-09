@@ -5,6 +5,7 @@
 	};
 	objectVersion = 46;
 	objects = {
+
 /* Begin PBXBuildFile section */
 		00C302E51ABCBA2D00DB3ED1 /* libRCTActionSheet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302AC1ABCB8CE00DB3ED1 /* libRCTActionSheet.a */; settings = {ATTRIBUTES = (Required, ); }; };
 		00C302E71ABCBA2D00DB3ED1 /* libRCTGeolocation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302BA1ABCB90400DB3ED1 /* libRCTGeolocation.a */; settings = {ATTRIBUTES = (Required, ); }; };
@@ -47,6 +48,7 @@
 		5C800B8FE55045E48E6527E3 /* Feather.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C4D02A783FD84B249E3AE983 /* Feather.ttf */; };
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; settings = {ATTRIBUTES = (Required, ); }; };
 		61359714A2A54A5482614E25 /* libInteractable.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 92AF97AAA4CB43B48129A481 /* libInteractable.a */; };
+		7FF507887C1D494DA0006AC9 /* libSplashScreen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 46204120C4EC46CDAC667728 /* libSplashScreen.a */; };
 		8001D2761FB447CF009DC377 /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8001D26A1FB4476A009DC377 /* FBSDKCoreKit.framework */; };
 		8001D2771FB447D0009DC377 /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8001D26E1FB4479A009DC377 /* FBSDKLoginKit.framework */; };
 		8001D2781FB447D0009DC377 /* FBSDKShareKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8001D2721FB447CF009DC377 /* FBSDKShareKit.framework */; };
@@ -276,13 +278,6 @@
 			remoteGlobalIDString = 6476C4051EEAA69700B10F51;
 			remoteInfo = "RNI18n-tvOS";
 		};
-		8001D2BA1FB45E4B009DC377 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 23E039680D5642F688512333 /* RCTFBSDK.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 9350E0F11CE3B0920041D815;
-			remoteInfo = RCTFBSDK;
-		};
 		800E49541FBB206C00695887 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 800E494A1FBB206B00695887 /* RCTCameraRoll.xcodeproj */;
@@ -317,6 +312,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = 11FA5C511C4A1296003AC2EE;
 			remoteInfo = AirMaps;
+		};
+		80B303A920331ACA00EF74D4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C6F79446E5FC4016A3CE1076 /* SplashScreen.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3D7682761D8E76B80014119E;
+			remoteInfo = SplashScreen;
 		};
 		80D7AB1D1EE2C74000F1FFFD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -372,10 +374,10 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = easygo/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = easygo/main.m; sourceTree = "<group>"; };
 		146833FF1AC3E56700842450 /* React.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = React.xcodeproj; path = "../node_modules/react-native/React/React.xcodeproj"; sourceTree = "<group>"; };
-		23E039680D5642F688512333 /* RCTFBSDK.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RCTFBSDK.xcodeproj; path = "../node_modules/react-native-fbsdk/ios/RCTFBSDK.xcodeproj"; sourceTree = "<group>"; };
 		2D02E47B1E0B4A5D006451C7 /* easygo-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "easygo-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D02E4901E0B4A5D006451C7 /* easygo-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "easygo-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		40DBE72EC15F4AE9A87C6330 /* MaterialCommunityIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialCommunityIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"; sourceTree = "<group>"; };
+		46204120C4EC46CDAC667728 /* libSplashScreen.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libSplashScreen.a; sourceTree = "<group>"; };
 		4B26A6310D624EC1AABE3EB4 /* RNI18n.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNI18n.xcodeproj; path = "../node_modules/react-native-i18n/ios/RNI18n.xcodeproj"; sourceTree = "<group>"; };
 		4B6D7CD9F9DD4890960611CC /* libRNVectorIcons.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNVectorIcons.a; sourceTree = "<group>"; };
 		57A5D11394574A8A888740D9 /* libRCTCamera.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTCamera.a; sourceTree = "<group>"; };
@@ -430,6 +432,7 @@
 		BB9C93311A184AE78FD44D01 /* Ionicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Ionicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Ionicons.ttf"; sourceTree = "<group>"; };
 		C21EE320C19943ADA969CF58 /* Entypo.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Entypo.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Entypo.ttf"; sourceTree = "<group>"; };
 		C4D02A783FD84B249E3AE983 /* Feather.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Feather.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Feather.ttf"; sourceTree = "<group>"; };
+		C6F79446E5FC4016A3CE1076 /* SplashScreen.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = SplashScreen.xcodeproj; path = "../node_modules/react-native-splash-screen/ios/SplashScreen.xcodeproj"; sourceTree = "<group>"; };
 		CD2D03C2BCDF4E43B4CF8B63 /* SQLite.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = SQLite.xcodeproj; path = "../node_modules/react-native-sqlite-storage/src/ios/SQLite.xcodeproj"; sourceTree = "<group>"; };
 		DFE63598D407404D896ABF56 /* libAirMaps.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libAirMaps.a; sourceTree = "<group>"; };
 		F068AE1F497A43F786115DB2 /* libsqlite3.0.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.0.tbd; path = usr/lib/libsqlite3.0.tbd; sourceTree = SDKROOT; };
@@ -488,6 +491,7 @@
 				4E0238A24D534307B779E731 /* libSQLite.a in Frameworks */,
 				A548CB8505DD40A79DD4494E /* libsqlite3.0.tbd in Frameworks */,
 				61359714A2A54A5482614E25 /* libInteractable.a in Frameworks */,
+				7FF507887C1D494DA0006AC9 /* libSplashScreen.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -671,14 +675,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		8001D2B71FB45E4B009DC377 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				8001D2BB1FB45E4B009DC377 /* libRCTFBSDK.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		800E494B1FBB206B00695887 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -759,6 +755,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		80B303A620331ACA00EF74D4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				80B303AA20331ACA00EF74D4 /* libSplashScreen.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		80D7AB171EE2C74000F1FFFD /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -795,6 +799,7 @@
 				A62FC280AB9641EF99291E9D /* libRCTFBSDK.a */,
 				0D0CA13D4D5248A887513E5A /* libSQLite.a */,
 				92AF97AAA4CB43B48129A481 /* libInteractable.a */,
+				46204120C4EC46CDAC667728 /* libSplashScreen.a */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -820,9 +825,9 @@
 				899236EFF629486392C462B4 /* imageCropPicker.xcodeproj */,
 				62B1C57F26DD46319EDCFC5D /* RNImagePicker.xcodeproj */,
 				4B26A6310D624EC1AABE3EB4 /* RNI18n.xcodeproj */,
-				23E039680D5642F688512333 /* RCTFBSDK.xcodeproj */,
 				CD2D03C2BCDF4E43B4CF8B63 /* SQLite.xcodeproj */,
 				6F2455439D66404296C6A336 /* Interactable.xcodeproj */,
+				C6F79446E5FC4016A3CE1076 /* SplashScreen.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -946,7 +951,7 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 900;
+				LastUpgradeCheck = 1010;
 				ORGANIZATIONNAME = Facebook;
 				TargetAttributes = {
 					00E356ED1AD99517003FC87E = {
@@ -1013,10 +1018,6 @@
 					ProjectRef = 800E494A1FBB206B00695887 /* RCTCameraRoll.xcodeproj */;
 				},
 				{
-					ProductGroup = 8001D2B71FB45E4B009DC377 /* Products */;
-					ProjectRef = 23E039680D5642F688512333 /* RCTFBSDK.xcodeproj */;
-				},
-				{
 					ProductGroup = 00C302B61ABCB90400DB3ED1 /* Products */;
 					ProjectRef = 00C302B51ABCB90400DB3ED1 /* RCTGeolocation.xcodeproj */;
 				},
@@ -1063,6 +1064,10 @@
 				{
 					ProductGroup = 80660F801EC943CE004B8CF3 /* Products */;
 					ProjectRef = 77C9AF59339E4BB69477AFA8 /* RNVectorIcons.xcodeproj */;
+				},
+				{
+					ProductGroup = 80B303A620331ACA00EF74D4 /* Products */;
+					ProjectRef = C6F79446E5FC4016A3CE1076 /* SplashScreen.xcodeproj */;
 				},
 				{
 					ProductGroup = 80E383EB1FCB055F0081A0EA /* Products */;
@@ -1262,13 +1267,6 @@
 			remoteRef = 8001D1E11FB199E4009DC377 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		8001D2BB1FB45E4B009DC377 /* libRCTFBSDK.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libRCTFBSDK.a;
-			remoteRef = 8001D2BA1FB45E4B009DC377 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		800E49551FBB206C00695887 /* libRCTCameraRoll.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -1302,6 +1300,13 @@
 			fileType = archive.ar;
 			path = libAirMaps.a;
 			remoteRef = 807ABD0C1EE66FD60089FB63 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		80B303AA20331ACA00EF74D4 /* libSplashScreen.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSplashScreen.a;
+			remoteRef = 80B303A920331ACA00EF74D4 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		80D7AB1E1EE2C74000F1FFFD /* libRCTCamera.a */ = {
@@ -1496,12 +1501,14 @@
 					"$(SRCROOT)/../node_modules/react-native-fbsdk/ios/RCTFBSDK/**",
 					"$(SRCROOT)/../node_modules/react-native-sqlite-storage/src/ios",
 					"$(SRCROOT)/../node_modules/react-native-interactable/lib/ios/Interactable",
+					"$(SRCROOT)/../node_modules/react-native-splash-screen/ios",
 				);
 				INFOPLIST_FILE = easygoTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -1538,12 +1545,14 @@
 					"$(SRCROOT)/../node_modules/react-native-fbsdk/ios/RCTFBSDK/**",
 					"$(SRCROOT)/../node_modules/react-native-sqlite-storage/src/ios",
 					"$(SRCROOT)/../node_modules/react-native-interactable/lib/ios/Interactable",
+					"$(SRCROOT)/../node_modules/react-native-splash-screen/ios",
 				);
 				INFOPLIST_FILE = easygoTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -1568,6 +1577,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = easygo/easygo.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = NO;
@@ -1589,6 +1599,7 @@
 					"$(SRCROOT)/../node_modules/react-native-fbsdk/ios/RCTFBSDK/**",
 					"$(SRCROOT)/../node_modules/react-native-sqlite-storage/src/ios",
 					"$(SRCROOT)/../node_modules/react-native-interactable/lib/ios/Interactable",
+					"$(SRCROOT)/../node_modules/react-native-splash-screen/ios",
 				);
 				INFOPLIST_FILE = easygo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -1600,6 +1611,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactjs.native.example.helpe;
 				PRODUCT_NAME = easygo;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -1608,6 +1620,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = easygo/easygo.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 33279NQCXQ;
@@ -1627,6 +1640,7 @@
 					"$(SRCROOT)/../node_modules/react-native-fbsdk/ios/RCTFBSDK/**",
 					"$(SRCROOT)/../node_modules/react-native-sqlite-storage/src/ios",
 					"$(SRCROOT)/../node_modules/react-native-interactable/lib/ios/Interactable",
+					"$(SRCROOT)/../node_modules/react-native-splash-screen/ios",
 				);
 				INFOPLIST_FILE = easygo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -1638,6 +1652,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.reactjs.native.example.helpe;
 				PRODUCT_NAME = easygo;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
@@ -1665,11 +1680,13 @@
 					"$(SRCROOT)/../node_modules/react-native-fbsdk/ios/RCTFBSDK/**",
 					"$(SRCROOT)/../node_modules/react-native-sqlite-storage/src/ios",
 					"$(SRCROOT)/../node_modules/react-native-interactable/lib/ios/Interactable",
+					"$(SRCROOT)/../node_modules/react-native-splash-screen/ios",
 				);
 				INFOPLIST_FILE = "easygo-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -1715,11 +1732,13 @@
 					"$(SRCROOT)/../node_modules/react-native-fbsdk/ios/RCTFBSDK/**",
 					"$(SRCROOT)/../node_modules/react-native-sqlite-storage/src/ios",
 					"$(SRCROOT)/../node_modules/react-native-interactable/lib/ios/Interactable",
+					"$(SRCROOT)/../node_modules/react-native-splash-screen/ios",
 				);
 				INFOPLIST_FILE = "easygo-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -1766,6 +1785,7 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.facebook.REACT.easygo-tvOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1799,6 +1819,7 @@
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.facebook.REACT.easygo-tvOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1820,12 +1841,14 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
@@ -1872,12 +1895,14 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;

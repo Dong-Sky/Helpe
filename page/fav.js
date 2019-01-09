@@ -98,20 +98,25 @@ class fav extends Component {
   };
 
   makeRemoteRequest = () => {
-    const { token, uid } = this.state;
-    const url = Service.BaseUrl+`?a=fav&v=${Service.version}&token=${token}&uid=${uid}`;
+    const { token, uid, page } = this.state;
+    const url = Service.BaseUrl+Service.v+`/fav?t=${token}&page=${page}&per-page=20`;
+    console.log(url);
 
 
     this.setState({loading: true})
     fetch(url)
     .then(response => response.json())
-    .then(responseJson => {
-      console.log(responseJson);
-      if(!responseJson.status){
-        this.setState({data: responseJson.data});
+    .then(res => {
+      console.log(res);
+      if(!parseInt(res.status)){
+        this.setState({
+          data: page === 1 ? res.data.data : [...this.state.data, ...res.data.data],
+          loading: false,
+          refreshing: false
+        });
       }
       else{
-        alert(I18n.t('error.fetch_failed')+'\n'+responseJson.err);
+        alert(I18n.t('error.fetch_failed')+'\n'+res.err);
       }
     })
     .then(() => this.setState({loading: false,refreshing: false}))
@@ -147,10 +152,17 @@ class fav extends Component {
   //收藏
   delfav = (id) =>{
     const { token,uid, } = this.state;
-    const url = Service.BaseUrl+`?a=fav&m=del&token=${token}&uid=${uid}&id=${id}&v=${Service.version}`;
+    const url = Service.BaseUrl+Service.v+`/fav/del?t=${token}`;
+    const body = `id=${id}`;
     console.log(url);
     this.setState({loading: true})
-    fetch(url)
+    fetch(url,{
+      method: 'POST',
+      headers: {
+        'Content-Type':'application/x-www-form-urlencoded',
+      },
+      body: body,
+    })
     .then(response => response.json())
     .then(responseJson => {
       console.log(responseJson);
@@ -210,8 +222,8 @@ class fav extends Component {
             <Icon
               style={{marginLeft: 5}}
               name='keyboard-arrow-left'
-              color='#f1a073'
-              size={32}
+              color='#fd586d'
+              size={36}
               onPress={() => this.props.navigation.goBack()}
             />
           </View>
@@ -223,7 +235,7 @@ class fav extends Component {
           <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
           </View>
         </View>
-        <List containerStyle={{ borderTopWidth: 1,flex:1,backgroundColor: '#FFFFFF' ,marginTop: 0,borderColor: '#e5e5e5'}}>
+        <List containerStyle={{ borderTopWidth: 0,flex:1,backgroundColor: '#f2f2f2' ,marginTop: 0,borderColor: '#e5e5e5'}}>
           <FlatList
             style={{marginTop: 0,borderWidth: 0}}
             data={this.state.data}
@@ -232,13 +244,13 @@ class fav extends Component {
                 component={TouchableOpacity}
                 roundAvatar
                 key={item.id}
-                title={item.name}
-                subtitle={formatDate(item.t)}
+                title={item.iteminfo.name}
+                subtitle={formatDate(item.ct)}
                 rightTitle={item.flag==0?I18n.t('fav.underline'):I18n.t('fav.online')}
-                avatar={{ uri:Service.BaseUri+item.img  }}
+                avatar={{ uri:Service.BaseUri+item.iteminfo.img  }}
                 avatarContainerStyle={{height:60,width:60}}
                 avatarStyle={{height:60,width:60}}
-                containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF'}}
+                containerStyle={[{ borderBottomWidth: 0,backgroundColor: '#FFFFFF',marginTop: 20,borderRadius: 15,width: width-20,marginLeft: 10,marginRight: 10},styles.shadow]}
                 onPress={() => {
                   Alert.alert(
                     I18n.t('fav.choose'),
@@ -270,12 +282,12 @@ class fav extends Component {
               />
             )}
             keyExtractor={item => item.id}
-            ItemSeparatorComponent={this.renderSeparator}
+            //ItemSeparatorComponent={this.renderSeparator}
             //ListHeaderComponent={this.renderHeader}
-            //ListFooterComponent={this.renderFooter}
+            ListFooterComponent={this.renderFooter}
             onRefresh={this.handleRefresh}
             refreshing={this.state.refreshing}
-            //onEndReached={this.handleLoadMore}
+            onEndReached={this.handleLoadMore}
             onEndReachedThreshold={50}
           />
         </List>
@@ -291,7 +303,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         //justifyContent: 'center',
         alignItems: 'stretch',
-        backgroundColor: '#FFFFFF'
+        backgroundColor: '#f2f2f2'
   },
   map: {
     ...StyleSheet.absoluteFillObject,
@@ -306,6 +318,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderColor: '#e5e5e5',
   },
   choosebar: {
     flex:1,
@@ -336,5 +350,11 @@ const styles = StyleSheet.create({
     marginRight:30,
     backgroundColor: 'red'
   },
+  shadow: {
+    shadowColor:'black',
+    shadowOffset:{height:0,width:0},
+    shadowRadius: 1,
+    shadowOpacity: 0.4,
+  }
 });
 export default fav;

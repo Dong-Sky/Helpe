@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   Alert,
   DeviceEventEmitter,
+  Dimensions
 } from 'react-native';
 import {
   StackNavigator,
@@ -22,37 +23,11 @@ import Modalbox from 'react-native-modalbox';
 import Service from '../common/service';
 import DropdownAlert from 'react-native-dropdownalert';
 
-returnState = (status,fd) => {
-  var title = '?';
-  switch(Number(status)){
-    //0: 待接受,10: 已接受,20: 已收货/求助完成,30: 已付款,40: 确认付款,50: '已拒绝',60: '已取消'
-    case 0:
-      title = I18n.t('myOrder.s0');
-      break;
-    case 10:
-      title = I18n.t('myOrder.s10');
-      break;
-    case 20:
-      title = I18n.t('myOrder.s20');
-      break;
-    case 30:
-      title = I18n.t('myOrder.s30');
-      break;
-    case 40:
-      title = Number(fd)>0?I18n.t('myOrder.s401'):I18n.t('myOrder.s40');
-      break;
-    case 50:
-      title = I18n.t('myOrder.s50');
-      break;
-    case 60:
-      title = I18n.t('myOrder.s60');
-      break;
-    default:
-      title = '?';
-  }
+const width = Dimensions.get('window').width;
+const height = Dimensions.get('window').height;
 
-  return title;
-};
+
+
 
 //时间戳转换字符
 function formatDate(t){
@@ -72,6 +47,7 @@ class mySaleDetail extends Component{
       item: {},
       orderaddr: {},
       user: {},
+      owner: {},
       uuser: {},
       feedback: {},
       //窗口
@@ -130,20 +106,21 @@ class mySaleDetail extends Component{
   //获取订单
   getOrderInfo = () => {
     const { token,uid,porder } = this.state;
-    const url = Service.BaseUrl+`?a=order&m=info&token=${token}&uid=${uid}&id=${porder.oid}&v=${Service.version}`;
+    const url = Service.BaseUrl+Service.v+`/order/info?t=${token}&id=${porder.id}`;
+    console.log(url);
 
     fetch(url)
     .then(response => response.json())
     .then(responseJson => {
       console.log(responseJson);
-      if(!responseJson.status){
+      if(!parseInt(responseJson.status)){
         this.setState({
-          item: responseJson.data.item,
-          user: responseJson.data.user,
-          uuser: responseJson.data.uuser,
-          order: responseJson.data.order,
+          item: responseJson.data.iteminfo,
+          user: responseJson.data.userinfo,
+          owner: responseJson.data.ownerinfo,
+          order: responseJson.data,
           orderaddr: responseJson.data.orderaddr,
-          fd: Number(responseJson.data.order.fd),
+          fd: Number(responseJson.data.fd),
         })
       }
       else{
@@ -218,14 +195,47 @@ class mySaleDetail extends Component{
   };
 
 
+  returnState = (status) => {
+    var title = '?';
+    switch(Number(status)){
+      //0: 待接受,10: 已接受,20: 已收货/求助完成,30: 已付款,40: 确认付款,50: '已拒绝',60: '已取消'
+      case 0:
+        title = I18n.t('myOrder.ask_status0');
+        break;
+      case 10:
+        title = I18n.t('myOrder.ask_status10');
+        break;
+      case 20:
+        title = I18n.t('myOrder.s20');
+        break;
+      case 30:
+        title = I18n.t('myOrder.s30');
+        break;
+      case 40:
+        title = I18n.t('myOrder.ask_status40');
+        break;
+      case 50:
+        title = I18n.t('myOrder.ask_status50');
+        break;
+      case 60:
+        title = I18n.t('myOrder.ask_status60');
+        break;
+      default:
+        title = '?';
+    }
+
+    return title;
+  };
+
+
   //操作订单
   operate_order = (m) => {
+
     const { token,uid,order } = this.state;
-    const url = Service.BaseUrl;
-    const body = 'a=order&m='+m+'&token='+token+'&uid='+uid+'&v='+Service.version+'&id='+order.id;
+    const url = Service.BaseUrl+Service.v+`/order/${m}?t=${token}`;
+    const body = 'id='+order.id;
+    console.log(url);
 
-
-    console.log(url+'?'+body);
     this.setState({loading: true})
     fetch(url,{
       method: 'POST',
@@ -244,21 +254,19 @@ class mySaleDetail extends Component{
         var txt = I18n.t('success.fetch');
         switch (m){
           case 'accept':
+            AnalyticsUtil.onEvent('order_Accept');
             txt = I18n.t('myOrder.sdtxt7');
             break;
           case 'refuse':
+            AnalyticsUtil.onEvent('order_Refuse');
             txt = I18n.t('myOrder.sdtxt8');
             break;
-          case 'money':
-            txt = I18n.t('myOrder.sdtxt9');
-            break;
-          case 'getmoney':
-            txt = I18n.t('myOrder.sdtxt10');
-            break;
           case 'finish':
+            AnalyticsUtil.onEvent('order_Finish');
             txt = I18n.t('common.ask_ok');
             break;
           case 'cancel':
+            AnalyticsUtil.onEvent('order_Cancel');
             txt = I18n.t('myOrder.sdtxt11');
             break;
           default:
@@ -275,14 +283,44 @@ class mySaleDetail extends Component{
     .catch(err => {this.setState({loading: false});console.log(err);})
   };
 
-  //评价
+  getFeedback = () => {
+    const { token, uid ,porder } = this.state;
+    const url = Service.BaseUrl+Service.v+`/feedback?orderid=${porder.id}`;
+    console.log(url);
+
+    //this.setState({loading: true})
+    fetch(url)
+    .then(response => response.json())
+    .then(responseJson => {
+      console.log(responseJson);
+      if(!responseJson.status){
+        this.setState({feedback: responseJson.data.data[0]?responseJson.data.data[0]:{}});
+      }
+      else{
+        console.log(I18n.t('error.fetch_failed')+'\n'+responseJson.err);
+      }
+    })
+    .then(() => this.setState({loading: false,refreshing: false}))
+    .catch(err => {console.log(err) ; this.setState({loading: false,refreshing: false,})})
+  };
+
+
   feedback = () => {
+
+    AnalyticsUtil.onEvent('feedback');
     const { token,uid,score,content,item,order } = this.state;
-    const url = Service.BaseUrl+`?a=feedback&m=save&v=${Service.version}&token=${token}&uid=${uid}&id=${order.id}&score=${20*score}&content=${content}`;
+    const url = Service.BaseUrl+Service.v+`/feedback/save?t=${token}`;
+    const body = `orderid=${order.id}&content=${content}&score=${score*20}`;
     console.log(url);
 
     this.setState({loading: true,feedbackModalVisible: false,content: null,})
-    fetch(url)
+    fetch(url,{
+      method: 'POST',
+      headers: {
+        'Content-Type':'application/x-www-form-urlencoded',
+      },
+      body: body,
+    })
     .then(response => response.json())
     .then(responseJson => {
       if(!responseJson.status){
@@ -297,32 +335,13 @@ class mySaleDetail extends Component{
     .catch(err => {console.log(err);this.setState({loading: false,content: null})})
   };
 
-  getFeedback = () => {
-    const { token, uid ,porder } = this.state;
-    const url = Service.BaseUrl+`?a=feedback&v=${Service.version}&token=${token}&uid=${uid}&id=${porder.oid}`;
-    console.log(url);
 
-    //this.setState({loading: true})
-    fetch(url)
-    .then(response => response.json())
-    .then(responseJson => {
-      console.log(responseJson);
-      if(!responseJson.status){
-        this.setState({feedback: responseJson.data[0]?responseJson.data[0]:{}});
-      }
-      else{
-        console.log(I18n.t('error.fetch_failed')+'\n'+responseJson.err);
-      }
-    })
-    .then(() => this.setState({loading: false,refreshing: false}))
-    .catch(err => {console.log(err) ; this.setState({loading: false,refreshing: false,})})
-  };
 
   //评论页面
   renderFeedbackModal = () => {
     return(
       <Modalbox
-        style={{height: 330,width: 300,alignItems: 'center',borderRadius: 10}}
+        style={{height: 330,width: 300,alignItems: 'center',borderRadius: 20,overflow: 'hidden'}}
         isOpen={this.state.feedbackModalVisible}
         isDisabled={this.state.isDisabled2}
         position='center'
@@ -333,7 +352,7 @@ class mySaleDetail extends Component{
           <View style={{flex: 1,marginTop: 0, alignSelf: 'stretch'}}>
             <Rating
               showRating
-              type="bell"
+              type="heart"
               ratingCount={5}
               imageSize={35}
 
@@ -368,7 +387,7 @@ class mySaleDetail extends Component{
     const content = this.state.feedback.content?this.state.feedback.content: '';
     return(
       <Modalbox
-        style={{height: 330,width: 300,alignItems: 'center',borderRadius: 10}}
+        style={{height: 330,width: 300,alignItems: 'center',borderRadius: 20,overflow: 'hidden'}}
         isOpen={this.state.feedbackModalVisible1}
         isDisabled={this.state.isDisabled4}
         position='center'
@@ -402,7 +421,7 @@ class mySaleDetail extends Component{
           </View>
           <Button
             style={styles.button1}
-            backgroundColor='#f1a073'
+            backgroundColor='#fd586d'
             borderRadius={5}
             title={I18n.t('common.back')}
             onPress={() => this.setState({feedbackModalVisible1: false})}
@@ -415,7 +434,7 @@ class mySaleDetail extends Component{
   renderPayModal = () => {
     return(
       <Modalbox
-        style={{height: 280,width: 300,alignItems: 'center',}}
+        style={{height: 280,width: 300,alignItems: 'center',borderRadius: 20,overflow: 'hidden'}}
         isOpen={this.state.payModalVisible}
         isDisabled={this.state.isDisabled1}
         position='center'
@@ -450,7 +469,7 @@ class mySaleDetail extends Component{
           </View>
           <Button
             style={styles.button1}
-            backgroundColor='#f1a073'
+            backgroundColor='#fd586d'
             borderRadius={5}
             title={I18n.t('myOrder.pay')}
             onPress={() => {
@@ -475,7 +494,7 @@ class mySaleDetail extends Component{
   renderMarkModal = () => {
     return(
       <Modalbox
-        style={{height: 240,width: 300,alignItems: 'center',}}
+        style={{height: 240,width: 300,alignItems: 'center',borderRadius: 20,overflow: 'hidden'}}
         isOpen={this.state.isMarkModalVisible}
         isDisabled={this.state.isDisabled3}
         position='center'
@@ -498,7 +517,7 @@ class mySaleDetail extends Component{
           </View>
           <Button
             style={styles.button1}
-            backgroundColor='#f1a073'
+            backgroundColor='#fd586d'
             borderRadius={5}
             title={I18n.t('common.confirm')}
             onPress={() => this.setState({isMarkModalVisible: false,})}
@@ -632,191 +651,204 @@ class mySaleDetail extends Component{
 
 
   render(){
-
     const { navigate } = this.props.navigation;
+
     return(
       <View style={styles.container}>
         <View style={styles.StatusBar}>
         </View>
-        <View style={styles.header}>
+        <Image style={styles.header} source={require('../icon/account/bg.png')}>
           <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-start'}}>
             <Icon
               style={{marginLeft: 5}}
               name='keyboard-arrow-left'
-              color='#f1a073'
-              size={32}
+              color='#FFFFFF'
+              size={36}
               onPress={() => this.props.navigation.goBack()}
             />
           </View>
           <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
-            <Text style={{alignSelf: 'center',color: '#333333',fontSize: 18}}>
+            <Text style={{alignSelf: 'center',color: '#FFFFFF',fontSize: 18}}>
               {I18n.t('myOrder.order_info')}
             </Text>
           </View>
           <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
           </View>
-        </View>
-        <ScrollView>
+        </Image>
+
+
+        <ScrollView style={{backgroundColor: '#f3f3f3'}} scrollEnabled={height<650}>
+
+          <Image style={styles.banner} source={require('../icon/order/banner.png')} resizeMode='cover'>
+            <Text style={{color: '#FFFFFF',fontSize: 16,marginLeft: 30,backgroundColor: 'rgba(255,255,255,0)'}}>
+              {returnState(this.state.order.status)}
+            </Text>
+          </Image>
+
           <ListItem
-            roundAvatar
-            component={TouchableOpacity}
-            title={this.state.item.name}
             titleStyle={styles.title1}
+            subtitleStyle={styles.subtitle}
+            leftIcon={{name: 'location-pin',color: '#fd586d',type: 'simple-line-icon'}}
+            rightIcon={<View></View>}
 
-            rightIcon={
-              <View style={{alignSelf: 'center'}}>
-                <Text style={{color: '#333333',alignSelf: 'flex-end'}}>
-                  {'￥'+this.state.item.price}
-                </Text>
-                <Text style={{color: '#999999',alignSelf: 'flex-end'}}>
-                  {'X'+this.state.order.num}
-                </Text>
-                <Text style={{color: '#da695c',alignSelf: 'flex-end'}}>
-                  {this.state.order.changeprice>=0?'+￥'+this.state.order.changeprice:'-￥'+(-this.state.order.changeprice)}
-                </Text>
-              </View>
-            }
-            avatar={this.returnItemAvatarSource()}
-            avatarContainerStyle={{height: 80,width: 80}}
-            avatarStyle={{height: 80,width: 80}}
-            containerStyle={[styles.listContainerStyle,{borderWidth: 1,borderColor: '#e5e5e5'}]}
+            title={I18n.t('myOrder.addr')}
+            subtitle={this.state.orderaddr.info==''?I18n.t('myOrder.none'):this.state.orderaddr.info}
+            //rightTitle={this.state.orderaddr.info==''?I18n.t('myOrder.none'):this.state.orderaddr.info}
+            containerStyle={styles.listContainerStyle}
+            onPress={() => alert(this.state.orderaddr.info==''?I18n.t('myOrder.none'):this.state.orderaddr.info)}
           />
-          <List containerStyle={styles.list}>
-            <ListItem
-              titleStyle={styles.title1}
-              title={I18n.t('myOrder.order_status')}
-              rightTitle={returnState(this.state.order.status,this.state.fd)}
-              containerStyle={styles.listContainerStyle}
-            />
-            {this.renderSeparator()}
-            <ListItem
-              titleStyle={styles.title1}
-              title={Number(this.state.order.status)?I18n.t('myOrder.cancel_order'):I18n.t('myOrder.refuse_order')}
-              rightTitle={Number(this.state.order.status)?I18n.t('common.cancel'):I18n.t('common.refuse')}
-              containerStyle={styles.listContainerStyle}
-              onPress={() => {
-                const s = Number(this.state.order.status);
-                if(s>=40){
-                  alert(I18n.t('myOrder.sdtxt11'));
-                }
-                else{
-                  Alert.alert(
-                    I18n.t('myOrder.waiver'),
-                    I18n.t('myOrder.dtxt17'),
-                    [
-                      {text: I18n.t('common.no'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                      {text: I18n.t('common.yes'), onPress: () => {
+          {this.renderSeparator()}
+          <ListItem
+            titleStyle={styles.title1}
+            title={I18n.t('myOrder.mark')}
+            leftIcon={{name: 'bubble',color: '#fd586d',type: 'simple-line-icon'}}
+            rightTitle={this.state.porder.mark==''?I18n.t('myOrder.none'):I18n.t('myOrder.go_mark')}
+            containerStyle={styles.listContainerStyle}
+            onPress={() => this.setState({isMarkModalVisible: true})}
+          />
 
-                        if(!s){
-                          this.operate_order('refuse');
-                        }
-                        else{
-                          this.operate_order('cancel');
-                        }
-                      }},
-                    ],
-                    { cancelable: false }
-                  )
-                }
-              }}
-            />
-          </List>
-          <List containerStyle={styles.list}>
-            <ListItem
-              titleStyle={styles.title1}
-              title={this.state.item.tp==0?I18n.t('myOrder.S_name'):I18n.t('myOrder.A_name')}
-              rightTitle={this.state.item.name}
-              containerStyle={styles.listContainerStyle}
-            />
-            {this.renderSeparator()}
-            <ListItem
-              titleStyle={styles.title1}
-              title={I18n.t('myOrder.e')}
-              rightTitle={this.state.order.num}
-              containerStyle={styles.listContainerStyle}
-            />
-            {this.renderSeparator()}
-            <ListItem
-              titleStyle={styles.title1}
-              title={I18n.t('myOrder.changeprice')}
-              rightTitle={this.state.order.changeprice}
-              containerStyle={styles.listContainerStyle}
-            />
-            {this.renderSeparator()}
-            <ListItem
-              titleStyle={styles.title1}
-              title={I18n.t('myOrder.total')}
-              rightTitle={'￥'+(this.total()<0?I18n.t('myOrder.money_err'):this.total().toString())}
-              containerStyle={styles.listContainerStyle}
-            />
-          </List>
-          <List containerStyle={styles.list}>
-            <ListItem
-              titleStyle={styles.title1}
-              title={I18n.t('myOrder.code')}
-              rightTitle={this.state.order.id}
-              containerStyle={styles.listContainerStyle}
-            />
-            {this.renderSeparator()}
-            <ListItem
-              titleStyle={styles.title1}
-              title={I18n.t('myOrder.t')}
-              rightTitle={formatDate(this.state.order.t)}
-              containerStyle={styles.listContainerStyle}
-            />
-            {this.renderSeparator()}
-            <ListItem
-              titleStyle={styles.title1}
-              title={I18n.t('myOrder.mark')}
-              rightTitle={this.state.porder.mark==''?I18n.t('myOrder.none'):I18n.t('myOrder.go')}
-              containerStyle={styles.listContainerStyle}
-              onPress={() => this.setState({isMarkModalVisible: true})}
-            />
-          </List>
-          <List containerStyle={styles.list}>
-            <ListItem
-              titleStyle={styles.title1}
-              title={I18n.t('myOrder.client1')}
-              rightTitle={this.state.uuser.name}
-              rightIcon={<View></View>}
-              containerStyle={styles.listContainerStyle}
-            />
-            {this.renderSeparator()}
+
+          <ListItem
+            titleStyle={[styles.title1]}
+            subtitleStyle={styles.subtitle}
+            leftIcon={{name:'payment',color: '#fd586d',themes: 'outlined'}}
+            title={I18n.t('myOrder.paytp')}
+            rightIcon={<View></View>}
+            rightTitle={this.state.order.paytp==0?I18n.t('myOrder.online'):I18n.t('myOrder.underline')}
+            rightTitleStyle={{color: '#fd586d'}}
+            containerStyle={[styles.listContainerStyle,{marginTop: 10}]}
+          />
+          <View
+            style={{borderWidth: 1,borderColor: '#e5e5e5',backgroundColor: '#FFFFFF', marginTop: 15,borderRadius: 0,marginLeft: 0,marginRight: 0,}}
+            >
             <ListItem
               roundAvatar
-              component={TouchableOpacity}
-              title={this.state.uuser.name}
-              titleStyle={styles.title1}
-              rightTitle={'查看'}
-              subtitle={this.returnWork()}
-              avatar={this.returnUserAvatarSource()}
-              avatarContainerStyle={{height: 40,width: 40}}
-              avatarStyle={{height: 40,width: 40}}
-              containerStyle={[styles.listContainerStyle]}
+              avatar={this.state.user.face?{uri: Service.BaseUri+this.state.user.face}:require('../icon/person/default_avatar.png')}
+              title={this.state.user.username}
+              avatarStyle={{backgroundColor: '#FFFFFF'}}
+              //rightTitle={returnState(this.state.order.status)}
+              containerStyle={{ borderBottomWidth: 0,borderTopWidth: 0}}
+
+
               onPress={() => {
                 const params = {
                   token: this.state.token,
                   uid: this.state.uid,
                   islogin: this.state.islogin,
-                  uuid: this.state.uuser.id?this.state.uuser.id:this.state.uid,
+                  uuid: this.state.owner.id?this.state.owner.id:this.state.uid,
                 };
                 navigate('user',params);
               }}
+
             />
-          </List>
+
+            <ListItem
+              component={TouchableOpacity}
+              roundAvatar
+              key={1}
+              title={this.state.item.name}
+              subtitle={I18n.t('myOrder.tp')+': '+(this.state.item.type==0?I18n.t('myOrder.tp0'):I18n.t('myOrder.tp1'))}
+              avatarContainerStyle={{height:80,width:80}}
+              avatarStyle={{height:80,width:80}}
+              containerStyle={{ borderBottomWidth: 0,borderTopWidth: 0,borderColor: '#e5e5e5',backgroundColor: '#f3f3f3' }}
+              avatar={{uri: Service.BaseUri+this.state.item.img}}
+              subtitleNumberOfLines={2}
+              rightIcon={
+                <View style={{alignSelf: 'center',marginRight: 5}}>
+                  <Text style={{color: '#333333',alignSelf: 'flex-end'}}>
+                    {'￥'+this.state.item.price}
+                  </Text>
+                  <Text style={{color: '#999999',alignSelf: 'flex-end'}}>
+                    {'X'+this.state.order.num}
+                  </Text>
+                  <Text style={{color: '#da695c',alignSelf: 'flex-end'}}>
+                    {this.state.order.changeprice>=0?'+￥'+this.state.order.changeprice:'-￥'+(this.state.order.changeprice)}
+                  </Text>
+                </View>
+              }
+            />
+            <ListItem
+              containerStyle={{ borderBottomWidth: 0,borderTopWidth: 0 }}
+              rightIcon={
+                <View style={{alignSelf: 'center',marginRight: 5}}>
+                  <Text style={{color: '#333333',alignSelf: 'flex-end',fontSize: 14}}>
+                    {I18n.t('myOrder.total')+': '}
+                    <Text style={{color: '#fd586d',fontSize: 18,fontWeight: '500'}}>
+                      {'￥'+ parseInt(this.state.order.cash).toString().replace(/(\d)(?=(?:\d{3})+$)/g, '$1,')}
+                    </Text>
+                  </Text>
+                </View>
+              }
+            />
+            <View style={{backgroundColor: '#FFFFFF',height: 40,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
+              <Button
+                containerViewStyle={{marginLeft: 0,marginRight: 10}}
+                borderRadius={15}
+                buttonStyle={{borderWidth: 1,borderColor: '#fd586d',height: 30,}}
+                backgroundColor='#FFFFFF'
+                textStyle={{fontSize: 12,color: '#fd586d'}}
+                title={this.returnButtonState().title}
+                onPress={this.returnButtonState().press}
+              />
+              {
+                (() => {
+                  if(this.state.order.status<40){
+                    return (
+                      <Button
+                        title={I18n.t('myOrder.cancel_order')}
+                        containerViewStyle={{marginLeft: 0,marginRight: 10}}
+                        borderRadius={15}
+                        buttonStyle={{borderWidth: 1,borderColor: '#999999',height: 30,}}
+                        backgroundColor='#FFFFFF'
+                        textStyle={{fontSize: 12,color: '#999999'}}
+                        onPress={() => {
+                          const s = Number(this.state.order.status);
+                          if(s>=40){
+                            alert(I18n.t('myOrder.order_end'));
+
+                          }
+                          else{
+                            Alert.alert(
+                              I18n.t('myOrder.waiver'),
+                              I18n.t('myOrder.dtxt17'),
+                              [
+                                {text: I18n.t('common.no'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                                {
+                                  text: I18n.t('common.yes'), onPress: () => {
+                                    this.operate_order('cancel');
+                                  }
+                                },
+                              ],
+                              { cancelable: false }
+                            )
+                          }
+                        }}
+                      />
+                    );
+                  }
+                  return null;
+                })()
+
+
+              }
+
+            </View>
+          </View>
+          <View style={styles.footer}>
+            <Text style={{fontSize: 14,color: '#333333',width: '100%',marginLeft: 10,marginTop: 10}}>
+              {I18n.t('myOrder.code')}{' : '}<Text style={{color: '#999999',fontWeight: '500'}}>{this.state.order.id+''}</Text>
+            </Text>
+            <Text style={{fontSize: 14,color: '#333333',width: '100%',marginLeft: 10,marginTop: 5,marginBottom: 10}}>
+              {I18n.t('myOrder.t')}{' : '}<Text style={{color: '#999999',fontWeight: '500'}}>{formatDate(this.state.order.ct)}</Text>
+            </Text>
+          </View>
 
         </ScrollView>
-        <Button
-          style={styles.button}
-          backgroundColor='#f1a073'
-          borderRadius={5}
-          title={this.returnButtonState().title}
-          onPress={this.returnButtonState().press}
-        />
+
         {this.renderPayModal()}
+        {this.renderFeedbackModal()}
         {this.renderMarkModal()}
         {this.showLoading()}
-        {this.renderFeedbackModal()}
         {this.renderFeedbackModal1()}
         <DropdownAlert
           ref={ref => this.dropdown = ref} onClose={data => this.onClose(data)}
@@ -831,27 +863,33 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         alignItems: 'stretch',
-        backgroundColor: '#f2f2f2',
+        backgroundColor: '#fd586d',
   },
   StatusBar:  {
       height:22,
-      backgroundColor:'#FFFFFF',
+      backgroundColor:'#fd586d',
   },
   banner: {
-    height: 150,
+    height: 100,
+    width: width,
     alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f4eede',
+    //justifyContent: 'center',
+    marginTop: 0,
+    //backgroundColor: 'blue'
+    //backgroundColor: '#f4eede',
   },
   header: {
     height: 44,
+    width: width,
     alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderColor: '#e5e5e5'
+    //backgroundColor: '#FFFFFF',
+    //opacity: 0.9,
+    //borderBottomWidth: 1,
+    //borderColor: '#e5e5e5',
   },
   user: {
     height: 80,
@@ -860,20 +898,54 @@ const styles = StyleSheet.create({
     borderColor: '#e5e5e5'
   },
   button: {
-    alignSelf:'center',
-    marginTop: 5,
-    width:280,
-    height:50,
+    alignSelf: 'center',
+    marginTop :5,
+    width: 280,
+    height: 50,
+  },
+  button1: {
+    alignSelf: 'center',
+    marginTop : 5,
+    width: 240,
+    height: 50,
+  },
+  buttonContainer: {
+    borderRadius: 30,
   },
   text: {
     color: '#fff',
     fontSize: 30,
     fontWeight: 'bold',
   },
+  sub: {
+    fontSize: 14,
+    color: '#666666',
+  },
+  feedbackInput:{
+    width: 260,
+    height: 160,
+    textAlignVertical: 'top',
+    padding: 0,
+    borderWidth: 1,
+    borderColor: '#fd586d',
+    alignSelf: 'center',
+    padding: 5,
+    fontSize: 16,
+  },
   title: {
     fontWeight: '500',
-    marginLeft: 10,
+    marginLeft: 14,
     marginTop: 5,
+  },
+  title1: {
+    fontSize: 16,
+    color: '#333333'
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#999999',
+    marginTop: 2,
+    marginLeft: 2,
   },
   sub: {
     fontSize: 14,
@@ -888,38 +960,23 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
     backgroundColor: '#FFFFFF',
   },
-  title1: {
-    fontSize: 16,
-    color: '#333333'
-  },
-  button1: {
-    alignSelf: 'center',
-    marginTop : 5,
-    width: 240,
-    height: 50,
-  },
   markInput:{
     width: 260,
     height: 140,
     textAlignVertical: 'top',
     borderWidth: 1,
-    borderColor: '#f1a073',
+    borderColor: '#fd586d',
     alignSelf: 'center',
     color: '#666666',
     fontSize: 14,
     padding: 5,
   },
-  feedbackInput:{
-    width: 260,
-    height: 160,
-    textAlignVertical: 'top',
-    padding: 0,
-    borderWidth: 1,
-    borderColor: '#f1a073',
-    alignSelf: 'center',
-    padding: 5,
-    fontSize: 16,
-  },
+  footer: {
+    marginTop: 10,
+    width: width,
+    backgroundColor: '#FFFFFF'
+
+  }
 });
 
 export default mySaleDetail;

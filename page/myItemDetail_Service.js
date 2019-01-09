@@ -15,6 +15,7 @@ import {
   DeviceEventEmitter,
   Modal,
   Switch,
+  Dimensions,
 } from 'react-native';
 import {
   StackNavigator,
@@ -29,6 +30,9 @@ import DateTimePicker from 'react-native-modal-datetime-picker';
 import MapView from 'react-native-maps';
 import Service from '../common/service';
 
+
+const width = Dimensions.get('window').width;
+const height = Dimensions.get('window').height;
 
 //时间转化成字符
 function formatDate(t){
@@ -107,25 +111,21 @@ function isRealNum(val){
   };
 
   componentDidMount() {
-    console.log(this.state);
+
     this.getItemInfo();
-    this.getContent();
+      //this.getContent();
     this.getAddress();
   };
 
   getAddress = () => {
       const {token,uid} = this.state;
-      fetch(Service.BaseUrl, {
-       method: 'POST',
-       headers: {
-         'Content-Type': 'application/x-www-form-urlencoded',
-       },
-       body: 'a=addr&token='+token+'&uid='+uid+'&v='+Service.version,
-     })
+      const url = Service.BaseUrl+Service.v+`/address?t=${token}&per-page=50&page=0`;
+      console.log(url);
+      fetch(url)
      .then(response => response.json())
      .then(responseJson => {
 
-       this.setState({ data: responseJson.data });
+       this.setState({ data: responseJson.data.data });
      })
      .catch(error => console.log(error))
   };
@@ -134,30 +134,30 @@ function isRealNum(val){
   //获取商品详细数据
   getItemInfo = () => {
     const { token,uid,itemId } = this.state;
-    const url = Service.BaseUrl+`?a=item&m=info&v=${Service.version}&token=${token}&uid=${uid}&id=${itemId}`;
+    const url = Service.BaseUrl+Service.v+`/item/info?t=${token}&uid=${uid}&id=${itemId}`;
     this.setState({loading: true})
+    console.log(url);
     fetch(url)
     .then(response => response.json())
     .then(responseJson => {
-
-      if(!responseJson.status){
+      if(!parseInt(responseJson.status)){
         this.setState({
           addr: responseJson.data.addr,
           category: responseJson.data.category,
-          detail: responseJson.data.detail,
-          img: responseJson.data.img,
-          item: responseJson.data.item,
-          user: responseJson.data.user,
+          detail: responseJson.data.itemdetail,
+          img: responseJson.data.itemimg,
+          item: responseJson.data,
+          user: responseJson.data.userInfo,
         });
       }
       else{
         alert(responseJson.err);
       }
-      return responseJson.data.img;
+      return responseJson.data.itemimg;
     })
     .then(img => {this.setState({loading: false});return img;})
     .then(img => {
-      for(i=0;i<=img.length;i++){
+      for(i=0;i<img.length;i++){
         var slide1 = this.state.slide;
         var album1 = this.state.album;
         var ImgUrl = Service.BaseUri+img[i].url;
@@ -522,9 +522,17 @@ function isRealNum(val){
   //定义上架方法
   online = () => {
     const { token,uid,itemId } = this.state;
-    const url = Service.BaseUrl+`?a=itempub&m=online&v=${Service.version}&token=${token}&uid=${uid}&id=${itemId}`;
+    const url = Service.BaseUrl+Service.v+`/item/online?t=${token}`;
+    const body = `id=${itemId}&token=${token}&uid=${uid}`;
+
     this.setState({loading: true});
-    fetch(url)
+    fetch(url,{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: body,
+    })
     .then(response => response.json())
     .then(responseJson => {
 
@@ -543,9 +551,17 @@ function isRealNum(val){
   //定义下架方法
   unline = () => {
     const { token,uid,itemId } = this.state;
-    const url = Service.BaseUrl+`?a=itempub&m=unline&v=${Service.version}&token=${token}&uid=${uid}&id=${itemId}`;
+    const url = Service.BaseUrl+Service.v+`/item/unline?t=${token}`;
+    const body = `id=${itemId}&token=${token}&uid=${uid}`;
+
     this.setState({loading: true});
-    fetch(url)
+    fetch(url,{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: body,
+    })
     .then(response => response.json())
     .then(responseJson => {
 
@@ -577,14 +593,21 @@ function isRealNum(val){
     }
     else{
       paytp = null;
+
     }
 
-    const url = Service.BaseUrl+`?a=itempub&m=update&v=${Service.version}&name=${new_name}&price=${new_price}&u=${new_u}&aid=${new_aid}&paytp=${paytp}&token=${token}&uid=${uid}&id=${itemId}`;
-
+    const url = Service.BaseUrl+Service.v+`/item/update?t=${token}`;
+    const body = `id=${itemId}&name=${new_name}&price=${new_price}&u=${new_u}&aid=${new_aid}`;
 
 
     this.setState({loading: true});
-    fetch(url)
+    fetch(url,{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: body,
+    })
     .then(response => response.json())
     .then(responseJson => {
 
@@ -627,8 +650,8 @@ function isRealNum(val){
                 <Icon
                   style={{marginLeft: 5}}
                   name='keyboard-arrow-left'
-                  color='#f1a073'
-                  size={32}
+                  color='#fd586d'
+                  size={36}
                   onPress={() => {
                     this.setState({addressModalVisible: false,})
                   }}
@@ -678,7 +701,7 @@ function isRealNum(val){
   renderContactModal = () => {
     return(
       <Modalbox
-        style={{height: 240,width: 300,alignItems: 'center',}}
+        style={{height: 240,width: 300,alignItems: 'center',borderRadius: 20}}
         isOpen={this.state.contactModalVisible}
         isDisabled={this.state.isDisabled1}
         position='center'
@@ -702,7 +725,7 @@ function isRealNum(val){
           </View>
           <Button
             style={styles.button1}
-            backgroundColor='#f1a073'
+            backgroundColor='#fd586d'
             borderRadius={5}
             title='完成'
             onPress={() => {
@@ -719,7 +742,7 @@ function isRealNum(val){
   renderMarkModal = () => {
     return(
       <Modalbox
-        style={{height: '80%',width: '90%',alignItems: 'center',}}
+        style={{height: '80%',width: '90%',alignItems: 'center',borderRadius: 20}}
         isOpen={this.state.markModalVisible}
         isDisabled={this.state.isDisabled2}
         position='center'
@@ -742,7 +765,7 @@ function isRealNum(val){
           </View>
           <Button
             style={styles.button1}
-            backgroundColor='#f1a073'
+            backgroundColor='#fd586d'
             borderRadius={5}
             title={I18n.t('common.finish')}
             onPress={() => {
@@ -759,7 +782,7 @@ function isRealNum(val){
   renderMapModal = () => {
     return(
       <Modalbox
-        style={{height: 300,width: 300,alignItems: 'center',}}
+        style={{height: 300,width: width-40,alignItems: 'center',}}
         isOpen={this.state.mapModalVisible}
         isDisabled={this.state.isDisabled4}
         position='center'
@@ -796,7 +819,7 @@ function isRealNum(val){
   renderAlbumModal = () => {
     return(
       <Modalbox
-        style={{height: 260,width: '100%',alignItems: 'center',}}
+        style={{height: 260,width: width-20,alignItems: 'center',}}
         isOpen={this.state.albumModalVisible}
         isDisabled={this.state.isDisabled3}
         position='center'
@@ -830,7 +853,7 @@ function isRealNum(val){
                   style={{marginLeft: 5}}
                   name='chevron-left'
                   color='#f1a073'
-                  size={32}
+                  size={36}
                   onPress={() => this.setState({contentModalVisible: false})}
                 />
               </View>
@@ -862,7 +885,7 @@ function isRealNum(val){
                     />
                     <View style={{marginLeft: 15,flexDirection: 'row',alignItems: 'center'}}>
                       <Rating
-                        type="bell"
+                        type="heart"
                         readonly
                         ratingCount={5}
                         fractions={1}
@@ -908,8 +931,8 @@ function isRealNum(val){
              <Icon
                style={{marginLeft: 5}}
                name='chevron-left'
-               color='#f1a073'
-               size={32}
+               color='#fd586d'
+               size={36}
                onPress={() => {
                  this.setState({
                    UpdateInfoModalVisible: false,
@@ -926,21 +949,14 @@ function isRealNum(val){
              <Icon
                style={{alignSelf: 'center'}}
                name='check'
-               color='#f1a073'
+               color='#fd586d'
                size={28}
                onPress={() => {
-                 console.log((this.state.online1||this.state.underline1));
-                 if(this.state.img[0]==null||this.state.img[0]==''){
-                   alert(I18n.t('itemDetail.no_img'));
-                 }
-                 else if(this.state.new_name==null||this.state.new_name==''){
+                 if(this.state.new_name==null||this.state.new_name==''){
                    alert(I18n.t('itemDetail.no_name'));
                  }
                  else if(!isRealNum(this.state.new_price)){
                    alert(I18n.t('itemDetail.no_price'));
-                 }
-                 else if(!(this.state.online1||this.state.underline1)){
-                   alert(I18n.t('itemDetail.no_paytp'));
                  }
                  else if(this.state.new_aid==null||this.state.new_aid==''){
                    alert(I18n.t('itemDetail.no_addr'));
@@ -957,7 +973,7 @@ function isRealNum(val){
              <ListItem
                component={TouchableOpacity}
                titleStyle={styles.title}
-               title={I18n.t('S_name')}
+               title={I18n.t('itemDetail.S_name')}
                containerStyle={styles.listContainerStyle}
                rightIcon={
                  <TextInput
@@ -998,33 +1014,6 @@ function isRealNum(val){
            <List containerStyle={styles.list}>
              <ListItem
                titleStyle={styles.title}
-               title={I18n.t('itemDetail.underline1')}
-               rightIcon={
-                 <Switch
-                   value={this.state.underline1}
-                   onValueChange={(underline1) => this.setState({underline1})}
-                   onTintColor='#f1a073'
-                 />
-               }
-               containerStyle={styles.listContainerStyle}
-             />
-             {this.renderSeparator()}
-             <ListItem
-               titleStyle={styles.title}
-               title={I18n.t('itemDetail.online1')}
-               rightIcon={
-                 <Switch
-                   value={this.state.online1}
-                   onValueChange={(online1) => this.setState({online1})}
-                   onTintColor='#f1a073'
-                 />
-               }
-               containerStyle={styles.listContainerStyle}
-             />
-           </List>
-           <List containerStyle={styles.list}>
-             <ListItem
-               titleStyle={styles.title}
                title={I18n.t('itemDetail.myAddress')}
                rightTitle={this.state.new_address? this.state.new_address:'请选择'}
                onPress={() => this.setState({addressModalVisible: true})}
@@ -1051,7 +1040,7 @@ function isRealNum(val){
       return(
         <Button
           style={styles.button}
-          backgroundColor='#f1a073'
+          backgroundColor='#fd586d'
           borderRadius={5}
           onPress={() => this.online()}
           title={I18n.t('itemDetail.go_online')} />
@@ -1061,7 +1050,7 @@ function isRealNum(val){
       return(
         <Button
           style={styles.button}
-          backgroundColor='#f1a073'
+          backgroundColor='#fd586d'
           borderRadius={5}
           onPress={() => this.unline()}
           title={I18n.t('itemDetail.go_underline')} />
@@ -1093,7 +1082,7 @@ function isRealNum(val){
     );
   };
 
-  
+
   render(){
     const { navigate } = this.props.navigation;
     const { params } = this.props.navigation.state;
@@ -1106,8 +1095,8 @@ function isRealNum(val){
             <Icon
               style={{marginLeft: 5}}
               name='keyboard-arrow-left'
-              color='#f1a073'
-              size={32}
+              color='#fd586d'
+              size={36}
               onPress={() => this.props.navigation.goBack()}
             />
           </View>
@@ -1120,7 +1109,7 @@ function isRealNum(val){
             <Icon
               style={{alignSelf: 'center'}}
               name='mode-edit'
-              color='#f1a073'
+              color='#fd586d'
               size={28}
               onPress={() => {
                 if(this.state.item.flag==0){
@@ -1140,7 +1129,7 @@ function isRealNum(val){
           <ListItem
             roundAvatar
             component={TouchableOpacity}
-            title={this.state.user.name}
+            title={this.state.user.username}
             titleStyle={styles.title1}
             subtitle={this.returnWork()}
             avatar={this.returnUserAvatarSource()}
@@ -1161,7 +1150,7 @@ function isRealNum(val){
             <Text style={[styles.title,{fontSize: 16,marginTop: 10,color: '#333333'}]}>
               {this.state.item.name}
             </Text>
-            <Text style={[styles.title,{fontSize: 14,color: '#da695c'}]}>
+            <Text style={[styles.title,{fontSize: 14,color: '#fd586d'}]}>
               {this.state.item.u? '￥'+this.state.item.price+'/'+this.state.item.u:'￥'+this.state.item.price+'圆'}
             </Text>
             <Text style={[styles.title,{fontSize: 14,color: '#333333',marginBottom: 5}]}>
@@ -1169,7 +1158,7 @@ function isRealNum(val){
             </Text>
             {this.renderSeparator()}
             <Text style={[styles.title,styles.sub]}>
-              {I18n.t('itemDetail.S_cate')+': '+this.state.category.name}
+              {I18n.t('itemDetail.S_cate')+': '+this.state.category.jp_name}
             </Text>
             <Text style={[styles.title,styles.sub]}>
               {I18n.t('itemDetail.paytp')+': '+this.returnPayTp()}
@@ -1267,7 +1256,7 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         alignItems: 'stretch',
-        backgroundColor: '#f2f2f2',
+        backgroundColor: '#f3f3f3',
   },
   StatusBar:  {
       height:22,
@@ -1405,7 +1394,7 @@ const styles = StyleSheet.create({
     height: 140,
     textAlignVertical: 'top',
     borderWidth: 1,
-    borderColor: '#f1a073',
+    borderColor: '#fd586d',
     alignSelf: 'center',
     color: '#666666',
     fontSize: 14,
@@ -1417,7 +1406,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
     padding: 0,
     borderWidth: 2,
-    borderColor: '#f1a073',
+    borderColor: '#fd586d',
     alignSelf: 'center',
     color: '#666666',
     fontSize: 14,

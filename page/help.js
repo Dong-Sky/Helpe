@@ -79,7 +79,7 @@ function isRealNum(val){
       aid: null,
       mark: null,
       changeprice: '0',
-      paytp: 1,
+      paytp: -1,
       //
       loading: false
     };
@@ -193,7 +193,7 @@ function isRealNum(val){
           </View>
           <Button
             style={styles.button1}
-            backgroundColor='#f1a073'
+            backgroundColor='#fd586d'
             borderRadius={5}
             title={I18n.t('common.finish')}
             onPress={() => this.setState({markModalVisible: false,})}
@@ -206,7 +206,7 @@ function isRealNum(val){
   renderBackModal = () => {
     return(
       <Modalbox
-        style={{height: 180,width: 300,alignItems: 'center',}}
+        style={{height: 180,width: 300,alignItems: 'center',borderRadius: 20}}
         isOpen={this.state.backModalVisible}
         isDisabled={this.state.isDisabled1}
         position='center'
@@ -216,7 +216,7 @@ function isRealNum(val){
         swipeToClose={false}
         onClosed={() => this.setState({backModalVisible: false})}
         >
-          <Text style={{marginTop: 10,fontSize: 18,color: '#f1a073'}}>
+          <Text style={{marginTop: 10,fontSize: 18,color: '#fd586d'}}>
             {I18n.t('success.submit')}
           </Text>
           <View style={{flex: 1,marginTop: 10, alignSelf: 'stretch',marginLeft: 10,marginRight: 10}}>
@@ -226,7 +226,7 @@ function isRealNum(val){
           </View>
           <Button
             style={styles.button1}
-            backgroundColor='#f1a073'
+            backgroundColor='#fd586d'
             borderRadius={5}
             title={I18n.t('common.finish')}
             onPress={() => {this.setState({backModalVisible: false,});this.props.navigation.goBack()}}
@@ -237,6 +237,10 @@ function isRealNum(val){
 
   //定义下单方法
   buy = () => {
+
+    AnalyticsUtil.onEvent('help');
+
+
     const { token,uid,itemId,changeprice,num,mark,paytp } = this.state;
     const url = Service.BaseUrl;
     const url1 = Service.BaseUrl+`?a=buy&v=${Service.version}&token=${token}&uid=${uid}&id=${itemId}`;
@@ -255,6 +259,7 @@ function isRealNum(val){
         console.log(responseJson);
         if(!responseJson.status){
           this.setState({backModalVisible: true});
+          alert('success!');
         }
         else {
           alert(responseJson.err);
@@ -366,8 +371,8 @@ function isRealNum(val){
             <Icon
               style={{marginLeft: 5}}
               name='keyboard-arrow-left'
-              color='#f1a073'
-              size={32}
+              color='#fd586d'
+              size={36}
               onPress={() => this.props.navigation.goBack()}
             />
           </View>
@@ -433,7 +438,7 @@ function isRealNum(val){
                     }
 
                   }}
-                  onTintColor='#f1a073'
+                  onTintColor='#fd586d'
                 />
               }
             />
@@ -482,6 +487,9 @@ function isRealNum(val){
             if(this.total()<0){
               alert(I18n.t('buy.price_err'));
             }
+            else if(this.state.paytp<0){
+              alert(I18n.t('publish.no_paytp'));
+            }
             else {
               Alert.alert(
                 I18n.t('buy.txt3'),
@@ -494,7 +502,7 @@ function isRealNum(val){
               )
             }
           }}
-          backgroundColor='#f1a073'
+          backgroundColor='#fd586d'
           title={I18n.t('common.submit')} />
         {this.renderMarkModal()}
         {this.showLoading()}
@@ -510,7 +518,7 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         alignItems: 'stretch',
-        backgroundColor: '#f2f2f2',
+        backgroundColor: '#f3f3f3',
   },
   StatusBar:  {
       height:22,
@@ -575,7 +583,7 @@ const styles = StyleSheet.create({
     height: 140,
     textAlignVertical: 'top',
     borderWidth: 1,
-    borderColor: '#f1a073',
+    borderColor: '#fd586d',
     alignSelf: 'center',
     color: '#666666',
     fontSize: 14,

@@ -19,13 +19,15 @@ import {
 import MaterialsIcon from 'react-native-vector-icons/MaterialIcons';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import { Kohana } from 'react-native-textinput-effects';
-import { Button,Icon } from 'react-native-elements';
+import { Button,Icon,FormInput } from 'react-native-elements';
 import { Platform } from 'react-native';
 import FBSDK from 'react-native-fbsdk';
 import {
   LoginButton,
   AccessToken,
   LoginManager,
+  GraphRequest,
+  GraphRequestManager,
 } from 'react-native-fbsdk';
 import Service from '../common/service';
 import Util from '../common/util';
@@ -36,32 +38,46 @@ class login extends Component{
       this.state = {
             username: null,
             password: null,
+            email: null,
             loading: false,
       }
-    };
+  };
+
+  componentDidMount(){
+    this.subscription = DeviceEventEmitter.addListener('register',(data) => {
+      this.setState({ username: data.username,password: data.password,email: data.email },this.login)
+    });
+
+  }
+
+  componentWillUnmount(){
+    this.subscription.remove()
+  }
+
 
 
 
   //定义登录跳转方法
   login = () => {
-    const { username, password } = this.state;
+    const { username, password, email} = this.state;
     const os = Platform.OS==='ios'?0 : 1;
-    const url = Service.BaseUrl+`?a=oauth&v=${Service.version}&username=${username}&password=${password}&os=${os}`;
-
+    const url = Service.BaseUrl+Service.v+`/passport/login?type=1&email=${email}&password=${password}&os=${os}`;
+    console.log(url);
     this.setState({ loading: true });
+
     fetch(url)
     .then((response) => response.json())
     .then((responseJson) => {
       this.setState({ loading: false });
 
       if(!responseJson.status){
-
+        console.log(responseJson);
         storage.save({
       	key: 'loginState',   // Note: Do not use underscore("_") in key!
       	data: {
-      		token:responseJson.data.token,
-          uid:responseJson.data.uid,
-          ws: responseJson.data.ws,
+      		token:responseJson.data.access_token,
+          uid:responseJson.data.id,
+          //ws: responseJson.data.ws,
       	},
 
       	// if not specified, the defaultExpires will be applied instead.
@@ -70,7 +86,13 @@ class login extends Component{
       })
       .then(() => {
 
-        Util.addAlias(responseJson.data.uid);
+       let user = String(responseJson.data.id);
+
+       console.log(user);
+
+
+
+        Util.addAlias(user,'Helpe');
 
         alert(I18n.t('success.login'));
         DeviceEventEmitter.emit('login',true);
@@ -79,14 +101,6 @@ class login extends Component{
       .then(() => this.props.navigation.goBack())
       ;
 
-       /*this.props.navigation.dispatch(
-         NavigationActions.reset({
-          index: 0,
-          actions: [
-            NavigationActions.navigate({ routeName: 'main'})
-          ]
-        })
-      );*/
       }
       else{
         alert(I18n.t('error.login_failed')+'\n'+responseJson.err);
@@ -99,7 +113,7 @@ class login extends Component{
   };
 
   fbLogin = () => {
-    LoginManager.logInWithReadPermissions(['public_profile']).then(
+    LoginManager.logInWithReadPermissions(['public_profile','user_birthday','user_about_me']).then(
       function(result) {
         if (result.isCancelled) {
           alert('Login cancelled');
@@ -108,7 +122,7 @@ class login extends Component{
             +result.grantedPermissions.toString());
             AccessToken.getCurrentAccessToken().then(
                   (data) => {
-                    console.log(data.accessToken.toString())
+                    console.log(data);
                   })
         }
       },
@@ -118,20 +132,34 @@ class login extends Component{
     );
   };
 
+  _responseInfoCallback(error: ?Object, result: ?Object) {
+  if (error) {
+    alert('Error fetching data: ' + error.toString());
+    } else {
+    alert('Success fetching data: ' + result.toString());
+    }
+  };
+
   showLoading = () => {
     if(!this.state.loading){
-      return null;
+      return (
+        <Image
+          style={{height: 72 ,width: 94,marginTop: 30}}
+          resizeMode="contain"
+          source={require('../icon/login/logo.png')}
+        />
+      );
     }
     else{
       return(
         <View
           style={{
-            paddingVertical: 20,
-            borderTopWidth: 1,
-            borderColor: "#CED0CE"
+            marginTop: 30,
+            height: 72 ,
+            width: 94,
           }}
         >
-          <ActivityIndicator animating size="large" />
+          <ActivityIndicator animating size="large" color='#fd586d' />
         </View>
       );
     }
@@ -140,6 +168,7 @@ class login extends Component{
   render(){
     const { navigate } = this.props.navigation;
     const { params } = this.props.navigation.state;
+
     return(
       <View style={styles.container}>
         <View style={styles.StatusBar}>
@@ -149,8 +178,8 @@ class login extends Component{
             <Icon
               style={{marginLeft: 5}}
               name='keyboard-arrow-left'
-              color='#f1a073'
-              size={32}
+              color='#fd586d'
+              size={36}
               onPress={() => this.props.navigation.goBack()}
             />
           </View>
@@ -160,7 +189,7 @@ class login extends Component{
           <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
             <View style={{marginRight: 10}}>
               <Text
-                style={{marginRight: 10,color:'#f1a073',fontSize: 16}}
+                style={{marginRight: 10,color:'#fd586d',fontSize: 16}}
                 onPress={() => this.props.navigation.navigate('register')}>
                 {I18n.t('login.register')}
               </Text>
@@ -168,66 +197,69 @@ class login extends Component{
           </View>
 
         </View>
-        <View style={styles.body}>
-          <Kohana
-            style={{ backgroundColor: '#f1a073',borderBottomWidth:1,borderColor:'#e5e5e5' }}
-            label={I18n.t('login.username')}
-            iconClass={FontAwesomeIcon}
-            iconName={'user-o'}
-            iconColor={'#FFFFFF'}
-            iconSize={40}
-            labelStyle={{ marginTop: 8, color: '#e5e5e5' }}
-            inputStyle={{ color: '#FFFFFF' }}
-            autoCapitalize='none'
-            clearButtonMode='always'
-            onChangeText={(username) => this.setState({username})}
-            value={this.state.username}
 
+        {this.showLoading()}
+        <View style={{width: 280,height: 40,marginTop: 30,flexDirection: 'row',alignItems: 'center',}}>
+          <Image
+            style={{width: 36,height: 36,marginLeft: 0,marginRight: 0,}}
+            source={require('../icon/login/user.png')}
+            resizeMode="contain"
           />
-          <Kohana
-            style={{ marginTop:4,backgroundColor: '#f1a073' }}
-            label={I18n.t('login.password')}
-            iconClass={FontAwesomeIcon}
-            iconName={'lock'}
-            iconColor={'#FFFFFF'}
-            labelStyle={{ color: '#e5e5e5' }}
-            inputStyle={{ color: '#FFFFFF' }}
-            autoCapitalize='none'
-            clearButtonMode='always'
-            onChangeText={(password) => this.setState({password})}
-            value={this.state.password}
-            secureTextEntry={true}
-
-         />
+          <View style={{height: 40,width: 280-36-15-10,marginLeft: 15,borderBottomWidth: 2,borderColor: '#fd586d',}}>
+            <TextInput
+              placeholder={I18n.t('register.username')}
+              placeholderTextColor ='#999999'
+              clearButtonMode='always'
+              autoCapitalize='none'
+              autoCorrect={false}
+              value={this.state.email}
+              onChangeText={(email) => this.setState({email})}
+              style={{height: 40,width: 280-36-15-10,fontSize: 16,color: '#333333',alignSelf: 'center',padding: 5}}
+            />
           </View>
+
+        </View>
+        <View style={{width: 280,height: 40,marginTop: 10,flexDirection: 'row',alignItems: 'center'}}>
+          <Image
+            style={{width: 36,height: 36,marginLeft: 0,marginRight: 0,}}
+            source={require('../icon/login/password.png')}
+            resizeMode="contain"
+          />
+          <View style={{height: 40,width: 280-36-15-10,marginLeft: 15,borderBottomWidth: 2,borderColor: '#fd586d',}}>
+            <TextInput
+              placeholder={I18n.t('register.password')}
+              placeholderTextColor ='#999999'
+              clearButtonMode='always'
+              autoCapitalize='none'
+              autoCorrect={false}
+              value={this.state.password}
+              secureTextEntry={true}
+              onChangeText={(password) => this.setState({password})}
+              style={{height: 40,width: 280-36-15-10,fontSize: 16,color: '#333333',alignSelf: 'center',padding: 5}}
+            />
+          </View>
+        </View>
           <Button
             style={styles.button}
             onPress={() => {
-              if(this.state.username==null||this.state.username==''){
-                alert('请填写用户名');
+              if(this.state.email==null||this.state.email==''){
+                alert('no username');
               }
               else if(this.state.password==null||this.state.password==''){
-                alert('请填写密码');
+                alert('no password');
+              }
+              else if(this.state.password.length<6){
+                alert('length of password is too short');
               }
               else{
                 this.login();
               }
             }}
-            backgroundColor='#f1a073'
-            borderRadius={10}
+            backgroundColor='#fd586d'
+            borderRadius={20}
             //containerStyle={{height: 60,width: 180}}
             titleStyle={{color: 'FFFFFF'}}
             title={I18n.t('login.login')}/>
-          <View style={styles.other}>
-            <TouchableOpacity>
-            </TouchableOpacity>
-          </View>
-          {this.showLoading()}
-          {/*<TouchableOpacity>
-            <Text onPress={() => this.fbLogin()}>
-              fblogin
-            </Text>
-          </TouchableOpacity>*/}
         </View>
     );
   }
@@ -264,8 +296,8 @@ const styles = StyleSheet.create({
   button: {
     alignSelf: 'center',
     marginTop: 20,
-    width: 240,
-    height: 60,
+    width: 280,
+    height: 80,
 
   },
   other:  {

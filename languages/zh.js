@@ -14,6 +14,7 @@ export default {
     update: '修改',
     service_ok: '服务完成',
     ask_ok: '求助完成',
+    report: '举报',
   },
   error: {
     getLocation_failed: '获取位置失败',
@@ -34,6 +35,7 @@ export default {
     underline_failed: '下架失败',
     feedback_failed: '评价失败',
     publish_failed: '发布失败',
+    report_failed: '举报失败',
   },
   success: {
     fetch: '请求成功',
@@ -52,6 +54,8 @@ export default {
     underline: '下架成功',
     feedback: '评价成功',
     publish: '发布成功',
+    send: '验证码已经发送至邮箱',
+    report: '举报成功',
   },
   home: {
       Search: '搜索',
@@ -71,9 +75,11 @@ export default {
       default_txt: '输入您想要搜索的内容',
       salenum: '交易次数',
       e: '次',
+
   },
   comment: {
     list: '消息列表',
+    chat: '私信'
 
   },
   send: {
@@ -139,7 +145,7 @@ export default {
     no_img: '请添加封面图片',
     no_name: '请填写昵称',
     no_pirce: '请填写正确的价格',
-    no_paytp: '请选择至少一种支付方式',
+    no_paytp: '请选择支付方式',
     no_addr: '请选择地址',
     A_name: '求助名称',
     S_name: '服务名称',
@@ -203,8 +209,14 @@ export default {
     pass_null: '密码不能为空',
     user_null: '用户名不能为空',
     pass1_err: '两次输入的密码不一致',
+    email: '邮箱',
+    code: '验证码',
+    pass_short: '密码需要大于等于6位',
+    send: '发送验证码至邮箱',
+    no_code: '请输入6位验证码',
   },
   setting: {
+    old_pass: '密码',
     new_pass: '新的密码',
     new_pass1: '重复密码',
     txt1: '输入新的密码',
@@ -252,6 +264,8 @@ export default {
     update: '修改信息',
     txt1: '不超过280个字符',
     txt2: '修改性别?',
+    info: '资料',
+    pub: '发布',
   },
   fav: {
     del: '删除',
@@ -299,6 +313,7 @@ export default {
   myOrder: {
     myOrder: '我的订单',
     mySale: '我的出售',
+    go: '查看订单',
     s0: '待接受',
     s10: '已接受',
     s20: '待付款',
@@ -311,6 +326,7 @@ export default {
     o1: '待接受',
     o2: '进行中',
     o3: '已结束',
+    o4: '全部',
     tp: '类型',
     tp0: '服务',
     tp1: '求助',
@@ -346,6 +362,7 @@ export default {
     mark: '备注',
     order_info: '订单详情',
     order_status: '订单状态',
+    refuse_order: '拒绝订单',
     cancel_order: '取消订单',
     order_end: '订单已结束',
     waiver: '放弃订单',
@@ -358,8 +375,11 @@ export default {
     addr: '下单地址',
     none: '未填写',
     t: '下单时间',
-    go: '查看',
+    go: '查看订单',
     onwer: '服务发起人',
+    paytp: '支付方式',
+    online: '线上支付',
+    underline: '线下支付',
 
 
     oa0: '等待接受',
@@ -424,6 +444,26 @@ export default {
     sdtxt9: '支付成功',
     sdtxt10: '已确认收款',
     sdtxt11: '已取消订单',
+    title1: '我申请的',
+    title2: '我发布的',
+
+    service_status0: '等待接受中',
+    service_status10: '订单进行中',
+    service_status40: '订单已完成',
+    service_status50: '订单已被拒绝',
+    service_status60: '订单已取消',
+
+    ask_status0: '等待接受中',
+    //ask_status10: '进行中',
+    ask_status50: '订单已被拒绝',
+    ask_status40: '求助已完成',
+    ask_status60: '订单已取消',
+
+    mark_edited: '已填写',
+    mark_notedited: '未填写',
+    do_finish: '确认完成',
+    go_mark: '查看',
+
 
 
   },

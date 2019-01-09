@@ -49,7 +49,7 @@ class online extends Component{
       uid:params.uid,
       islogin:params.islogin,
       res: params.res,
-      id: params.res.data.detail.itemid,
+      id: params.res.data.id,
     });
   };
 
@@ -59,13 +59,20 @@ class online extends Component{
 
   online = () => {
     const { token,uid,id } = this.state;
-    const url = Service.BaseUrl+`?a=itempub&m=online&v=${Service.version}&token=${token}&uid=${uid}&id=${id}`;
-    fetch(url)
+    const url = Service.BaseUrl+Service.v+`/item/online?t=${token}`;
+    const body = `id=${id}&token=${token}&uid=${uid}`;
+    fetch(url,{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: body,
+    })
     .then(response => response.json())
     .then(responseJson => {
       console.log(responseJson);
       if(!responseJson.status){
-        let pet = responseJson.data.item.pet? responseJson.data.item.pet: 0;
+        let pet = responseJson.data.pet? responseJson.data.pet: 0;
         alert(I18n.t('success.online')+'\n'+I18n.t('online.t')+': '+formatDate(pet));
         this.setState({isOnline: true});
       }
@@ -86,7 +93,7 @@ class online extends Component{
             <Icon
               style={{marginLeft: 5}}
               name='keyboard-arrow-left'
-              color='#f1a073'
+              color='#fd586d'
               size={32}
               onPress={() => this.props.navigation.goBack()}
             />
@@ -98,7 +105,7 @@ class online extends Component{
           </View>
           <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end',marginRight: 10,}}>
             <Text
-               style={{fontSize: 16,color: '#f1a073'}}
+               style={{fontSize: 16,color: '#fd586d'}}
                onPress={() =>  this.props.navigation.dispatch(
                                   NavigationActions.reset({
                                    index: 0,
@@ -134,7 +141,7 @@ class online extends Component{
                   this.online();
                 }
               }}
-              backgroundColor='#f1a073'
+              backgroundColor='#fd586d'
               borderRadius={5}
               buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0,}}
               title={this.state.isOnline?I18n.t('online.is_online'):I18n.t('online.go_online')}
@@ -151,7 +158,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     //justifyContent: 'center',
     alignItems: 'stretch',
-    backgroundColor: '#f2f2f2',
+    backgroundColor: '#f3f3f3',
   },
   StatusBar:  {
       height: 22,

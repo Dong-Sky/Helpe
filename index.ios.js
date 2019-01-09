@@ -14,6 +14,7 @@ import {
   TextInput,
   AsyncStorage,
   DeviceEventEmitter,
+  Dimensions
 } from 'react-native';
 import {
   StackNavigator,
@@ -40,7 +41,7 @@ import register from './page/register';
 import setting from './page/setting';
 import scanner from './page/scanner';
 import myItem from './page/myItem';
-import myOrder_Service from './page/myOrder_Service';
+import myOrder from './page/myOrder';
 import myOrder_Ask from './page/myOrder_Ask';
 import mySale_Service from './page/mySale_Service';
 import mySale_Ask from './page/mySale_Ask';
@@ -65,10 +66,14 @@ import follow from './page/follow';
 import user from './page/user';
 import myFeedback from './page/myFeedback';
 import log from './page/log';
+import chatList from './page/chatList';
 
 import AnalyticsUtil from './common/AnalyticsUtil';
 import PushUtil from './common/PushUtil';
 import Util from './common/util';
+
+import SplashScreen from 'react-native-splash-screen'
+
 
 
 
@@ -95,12 +100,42 @@ var storage = new Storage({
   //sync: require('./sync')  // 这个sync文件是要你自己写的
 })
 
+var AV = require('leancloud-storage');
+var { Realtime } = require('leancloud-realtime');
+var realtime = new Realtime({
+  appId: 'YUk7QH8aEBusDod00FYqVxeI-MdYXbMMI',
+  appKey: 'hdlK9CmROwVFEgDqjmYHOqjn',
+  region: 'us', // 美国节点为 "us"
+});
+
+//AV.initialize('YUk7QH8aEBusDod00FYqVxeI-MdYXbMMI', 'hdlK9CmROwVFEgDqjmYHOqjn');
+
+
+
+
 global.AnalyticsUtil = AnalyticsUtil;
 global.PushUtil = PushUtil;
 global.storage = storage;
 global.I18n = I18n;
+global.AV = AV;
+global.realtime = realtime;
+global.client = null;
+//YUk7QH8aEBusDod00FYqVxeI-MdYXbMMI
+//hdlK9CmROwVFEgDqjmYHOqjn
 
 
+
+
+
+
+
+
+
+
+
+//获取屏幕尺寸
+const width = Dimensions.get('window').width;
+const height = Dimensions.get('window').height;
 
 class welcome extends Component {
   render() {
@@ -130,17 +165,45 @@ class easygo extends Component {
 
 
   componentWillMount(){
-    AnalyticsUtil.onEvent('index');
 
-    this.getLoginState();
+
+
+    this.listener = DeviceEventEmitter.addListener('login', (state) => {
+
+    if(state == true){
+      console.log('重新连接');
+      global.client = null;
+      this.getLoginState();
+    }
+    else if(state == false){
+      try{
+        global.client.close().then(() => {
+          {
+            console.log('退出登录');
+            global.client = null;
+          }
+        })
+      }catch(err){
+        console.log(err);
+      }
+    }
+  })
+
+  this.getLoginState()
   };
 
   componentDidMount(){
-
+    SplashScreen.hide();
   };
 
   componentWillUnmount() {
     // 移除
+
+    try{
+      this.listener.remove();
+    }catch(err){
+      console.log(err);
+    }
 
   };
 
@@ -150,30 +213,8 @@ class easygo extends Component {
     })
     .then((ret) => {
       console.log(ret);
-      if(ret.token!=null&ret.uid!=null){
-        const token1 = ret.token;
-        const uid1 = ret.uid;
-        const url = Service.BaseUrl+`?a=oauth&m=check&v=${Service.version}&token=${token1}&uid=${uid1}`;
-        fetch(url)
-        .then(response => response.json())
-        .then(responseJson => {
-          if(!responseJson.data.res){
-            storage.remove({
-              key:'loginState',
-            })
-            .then(() => {
-              Util.deleteAlias(ret.uid);
-
-              DeviceEventEmitter.emit('login',false);
-            })
-            .then(() => alert('登录已失效'));
-
-          }
-          else{
-            this.setState({token: token1,uid: uid1,islogin: true})
-          }
-        })
-        .catch(err => console.log(err))
+      if(ret.token!=null&&ret.uid!=null){
+        this.LinkLeanCloud(ret.uid);
       }
     }
   )
@@ -181,6 +222,26 @@ class easygo extends Component {
       console.log(error);
     })
   };
+
+  LinkLeanCloud = (uid) => {
+    console.log(uid);
+    realtime.createIMClient(String(uid), { tag: 'Web' }).then(function(client) {
+      console.log(123);
+
+      console.log(client);
+      global.client = client;
+
+      client.on('message', function(message, conversation) {
+        console.log(message);
+
+        DeviceEventEmitter.emit('message',message);
+
+      // 收到消息之后一般的做法是做 UI 展现，示例代码在此处做消息回复，仅为了演示收到消息之后的操作，仅供参考。
+      });
+    }).catch(err => console.log(err));
+  };
+
+
 
   render() {
 
@@ -249,7 +310,8 @@ const EasygoPage = StackNavigator({
     myAdress: { screen: myAdress },
     scanner:  { screen: scanner },
     myItem: { screen: myItem },
-    myOrder_Service: { screen: myOrder_Service },
+    myOrder: {  screen: myOrder },
+    //myOrder_Service: { screen: myOrder_Service },
     myOrder_Ask: { screen: myOrder_Ask },
     mySale_Service: { screen: mySale_Service },
     mySale_Ask: { screen: mySale_Ask },
@@ -274,6 +336,7 @@ const EasygoPage = StackNavigator({
     myFeedback: { screen: myFeedback },
     user: { screen: user },
     log: { screen: log },
+    chatList: { screen: chatList },
 }, {
     initialRouteName: 'main', // 默认显示界面
     navigationOptions: {// 屏幕导航的默认选项, 也可以在组件内用 static navigationOptions 设置(会覆盖此处的设置)
@@ -298,6 +361,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'stretch',
     backgroundColor: '#e1e8e2',
+    width: width,
+    height: height,
   },
   backgroundImage:{
     flex:1,

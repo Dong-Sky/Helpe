@@ -100,21 +100,9 @@ import Swiper from 'react-native-swiper';
       <View style={styles.container}>
         <View style={styles.StatusBar}>
         </View>
-        <ScrollView>
-          <Card
-            title={I18n.t('compass.welcome')}
-            image={require('../icon/other/kfc.jpg')}>
-            <Text style={{marginBottom: 10}}>
-              {I18n.t('compass.welcome_txt')}
-            </Text>
-            <Button
-              icon={{name: 'code'}}
-              backgroundColor='#f1a073'
-              buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0}}
-              title={I18n.t('compass.agreement')}
-            />
-          </Card>
-        </ScrollView>
+        <Text style={{fontSize: 16,color: '#999999'}}>
+          welcome!
+        </Text>
 
       </View>
     );
@@ -125,10 +113,11 @@ const styles = StyleSheet.create({
   container: {
         flex: 1,
         flexDirection: 'column',
-        //justifyContent: 'center',
-        alignItems: 'stretch'
+        justifyContent: 'center',
+        alignItems: 'stretch',
   },
   StatusBar: {
+
         height:22,
         backgroundColor:'#FFFFFF',
   },

@@ -11,15 +11,14 @@ import {
   ActivityIndicator,
   DeviceEventEmitter,
 } from 'react-native';
-import { List, ListItem, SearchBar,Icon } from "react-native-elements";
+import { List, ListItem, SearchBar,Icon,Avatar } from "react-native-elements";
 import Service from '../common/service';
-import { GiftedChat, Actions, Bubble, SystemMessage,Send } from 'react-native-gifted-chat';
+import { GiftedChat, Actions, Bubble, SystemMessage,Send ,} from 'react-native-gifted-chat';
 import CustomView from './CustomView';
 
-import SQLite from '../db/SQLite';
-var sqLite = new SQLite();
-var db = sqLite.open();
-const TABLE_MSG = "MSG";
+var { TextMessage } = require('leancloud-realtime');
+// Tom 用自己的名字作为 clientId，获取 IMClient 对象实例
+
 
 class chatroom extends React.Component {
   constructor(props) {
@@ -27,20 +26,22 @@ class chatroom extends React.Component {
     this.state = {
       token: null,
       uid: null,
+      uuid: null,
       islogin: false,
+
+
       //
       user: {},
       uuser: {},
+      conversation: null,
+      messageIterator: null,
 
-      //
-      uuid: null,
-      uuface: '',
-      uuname: '???',
       //
       messages: [],
       isLoadingEarlier: false,
       loadEarlier: true,
       page: 0,
+
     };
 
   }
@@ -48,96 +49,206 @@ class chatroom extends React.Component {
     const { navigate } = this.props.navigation;
     const { params } = this.props.navigation.state;
 
-    this.state.token = params.token;
-    this.state.uid = params.uid;
-    this.state.uuid = params.uuid;
-    this.state.islogin = params.islogin;
-    this.state.uuface = params.uuface;
-    this.state.uuname = params.uuname;
+    this.listener = DeviceEventEmitter.addListener('message', (message) => {
+      if(!message.text){
+        return false;
+      }
+
+      if(this.state.conversation){
+        conversation.read().catch(err => console.log(err))
+      }
+
+      console.log(message.text);
+      this.onReceive(message.text);
+
+      return true;
+    })
 
     this.setState({
       token: params.token,
       uid: params.uid,
       uuid: params.uuid,
       islogin: params.islogin,
-      uuface: params.uuface,
-      uuname: params.uuname,
-      user: params.user,
-    },
-    () => {
-      DeviceEventEmitter.emit('chating', this.state.uuid);
 
-      //取聊天记录
-      this.get_message();
-    })
-
-
-
+    },this.createConversation);
 
   }
 
   componentDidMount() {
-    console.log(this.state);
-    this.createEventEmitter();
+
   };
 
 
   componentWillUnmount() {
 
-      this.subscription.remove();
-      DeviceEventEmitter.emit('chating_end');
+    DeviceEventEmitter.emit('updateChatList');
+
+    try{
+      this.listener.remove();
+    }catch(err){
+      console.log(err);
+    }
+
+
+    this.updateConversation()
+
   };
 
-  //创建监听
-  createEventEmitter = () => {
-    this.subscription = DeviceEventEmitter.addListener('NewMessage',
-    (MsgData) => {
+  createConversation = () => {
 
-      let messages = [];
-      for(var i = 0;i<MsgData.length;i++){
-        //逐条处理
-          let obj = MsgData[i];
+    if(!global.client){
+      return false;
+    }
 
 
-          if(obj.tp==1){
-            let msg = {
-                //_id: this.state.messages.length+i+1,
-                _id: Math.round(Math.random() * 1000000),
-                text: obj.msg,
-                createdAt: new Date(obj.t*1000),
-                user: {
-                  _id: obj.uuid,
-                  name: this.state.uuname==''?'未知用户':unescape(this.state.uuname),
-                  avatar: this.returnAvatarSource(this.state.uuface),
-                },
-              };
 
-              messages.unshift(msg);
+    let user1 = this.state.user.username?this.state.user.username: '?';
+    let user2 = this.state.uuser.username?this.state.uuser.username: '?';
+
+
+
+
+
+    global.client.createConversation({
+      members: [String(this.state.uuid)],
+      unique: true,
+      name: this.props.navigation.state.params.name?this.props.navigation.state.params.name: '?&?'
+    }).then((conversation) => {
+
+      this.getInfo();
+      conversation.read().catch(err => console.log(err))
+      this.setState({conversation: conversation,messageIterator: messageIterator});
+
+      var messageIterator = conversation.createMessagesIterator({ limit: 10 });
+
+      return messageIterator;
+    }).then((messageIterator) => {
+
+      this.getHistory(messageIterator);
+
+
+
+    }).catch(console.error);
+  }
+
+  getHistory = (messageIterator) => {
+    if(!messageIterator){
+      return false;
+    }
+
+    messageIterator.next().then((result) => {
+
+      console.log(this.state);
+
+      let results = result.value;
+
+      let msgs = [];
+      let len = result.value.length;
+      for(var i=len-1;i>=0;i--){
+
+        let msg = {
+          _id: Math.round(Math.random() * 10000000),
+          text: results[i].text,
+          createdAt: results[i].timestamp,
+          user: {
+            _id: Number(results[i].from),
+            name: 'client',
+            avatar: Number(results[i].from)==this.state.uid?this.returnAvatarSource(this.state.user.face):require('../icon/person/default_avatar.png'),
           }
+        };
+
+          msgs.push(msg);
       }
 
+      console.log(msgs);
 
-      this.setState((previousState) => {
-        return {
-          messages: GiftedChat.append(previousState.messages, messages),
-        };
-      });
-
-    });
+      this.setState({
+        messages: this.state.page==0?msgs: [...this.state.messages,...msgs],
+        page: this.state.page+1,
+      })
+    }).catch(err => console.log(err))
   }
+
+
+
+  updateConversation = () => {
+
+    if(!this.state.conversation){
+      return false;
+    }
+
+    const { conversation } = this.state;
+
+    console.log(conversation);
+
+
+
+    let user1 = this.state.user.username?this.state.user.username: '?';
+    let user2 = this.state.uuser.username?this.state.uuser.username: '?';
+
+
+    try{
+      var name = conversation.members[1]==this.state.uid?(user2+'&'+user1):(user1+'&'+user2);
+    }catch(err){
+      console.log(err);
+    }
+
+
+    if(!this.state.conversation){
+      return false;
+    }
+    let conv = this.state.conversation;
+
+
+    conv.name = name;
+    console.log('update');
+    return conv.save();
+
+  }
+
+
+
+
+  getInfo = () => {
+    this.getMyInfo();
+    this.getUserInfo();
+  }
+
+  getMyInfo = () => {
+    const { token,uid } = this.state;
+    if(!token){ return }
+    const url = Service.BaseUrl+Service.v+`/user/info?t=${token}`;
+    console.log(url);
+    fetch(url)
+    .then(response => response.json())
+    .then(responseJson => {
+      if(!responseJson.status){
+        this.setState({user: responseJson.data},this.updateConversation);
+
+      }
+      else{
+
+        console.log(responseJson.err);
+
+      }
+    })
+    .catch(err => console.log(err))
+  };
+
+
 
 
   //获取用户信息
   getUserInfo = () => {
-    const { token,uid } = this.state;
-    const url = Service.BaseUrl+`?a=user&m=info&token=${token}&uid=${uid}&id=${uid}&v=${Service.version}`;
-
+    console.log(this.state.uuid);
+    const { token,uuid } = this.state;
+    const url = Service.BaseUrl+Service.v+`/user/get-info-by-id?id=${uuid}`;
     fetch(url)
     .then(response => response.json())
     .then(responseJson => {
       console.log(responseJson);
       if(!responseJson.status){
-        this.setState({user: responseJson.data.user});
+        this.setState({uuser: responseJson.data},this.updateConversation);
       }
       else{
         console.log(responseJson.err);
@@ -146,100 +257,76 @@ class chatroom extends React.Component {
     .catch(err => console.log(err))
   };
 
-  //获取聊天记录
-  get_message = () => {
-    const { token,uid,uuid,page } = this.state;
-    const p = page*10;
-    if(!db){
-       db = sqLite.open();
-    }
-    this.setState({isLoadingEarlier: true})
-    db.transaction((tx)=>{
-    tx.executeSql("select * from "+TABLE_MSG+" Where uid="+uid+" And uuid="+uuid+" Order by t DESC LIMIT 10 OFFSET "+p, [],(tx,results)=>{
-      var len = results.rows.length;
 
-      var messages = [];
-      for(let i=0; i<len; i++){
-        var obj = results.rows.item(i);
-        //一般在数据查出来之后，  可能要 setState操作，重新渲染页面
-        console.log(obj);
-        let msg = {
-            //_id: this.state.messages.length+i+1,
-            _id: Math.round(Math.random() * 1000000),
-            text: obj.msg,
-            createdAt: new Date(obj.t*1000),
-            user: {
-              _id: obj.tp==0?obj.uid:obj.uuid,
-              name: this.state.uuname==''?'未知用户':this.state.uuname,
-              avatar: obj.tp==0?this.returnAvatarSource(this.state.user.face):this.returnAvatarSource(this.state.uuface),
-            },
-          };
+  onReceive(text) {
+  this.setState((previousState) => {
+    return {
+      messages: GiftedChat.append(previousState.messages, {
+        _id: Math.round(Math.random() * 1000000),
+        text: text,
+        createdAt: new Date(),
+        user: {
+          _id: this.state.uuid,
+          name: 'client',
+          avatar: require('../icon/person/default_avatar.png'),
+        },
+      }),
+    };
+  });
+}
 
-        messages.push(msg);
-      }
-
-      this.setState({messages: [...this.state.messages, ...messages],isLoadingEarlier: false})
-    });
-    },(error)=>{//打印异常信息
-      console.log(error);
-      this.setState({isLoadingEarlier: false})
-    })
-  };
 
 
 
   onSend = (messages = []) => {
 
-    var msg = {
-      "uid": this.state.uuid,
-      "msg": escape(messages[0].text),
-    };
-
-    var data = {
-      uid: parseInt(this.state.uid),
-      uuid: parseInt(this.state.uuid),
-      uuface: this.state.uuface,
-      uuname: this.state.uuname,
-      t: (Date.parse(new Date())/1000),
-      tp: 0, //0为发送出去的，1为接受到的
-      flag: 1 , //0为未读,1为已读
-      msg: messages[0].text,
+    if(!this.state.conversation){
+      return false;
     }
 
-    var da = {"o":3,"d":JSON.stringify(msg)};
+    let conv = this.state.conversation;
 
 
-    DeviceEventEmitter.emit('send_message', {da,data});
+    if(conv){
+
+      conv.send(new TextMessage(messages[0].text))
+      .then((message) => {
+        conv.set('last',message);
+        conv.save()
+
+
+      })
+      .catch(err => console.log(err));
+
+
+
+    }
+
+
+
+
 
     this.setState((previousState) => {
       return {
         messages: GiftedChat.append(previousState.messages, messages),
       };
     });
+
+    return true;
   };
 
   onLoadEarlier = () =>  {
-  this.setState((previousState) => {
-    return {
-      isLoadingEarlier: true,
-      page: this.state.page+1,
-    };
-  },
-  () => this.get_message()
-);
+
   };
 
   returnAvatarSource = (face) => {
-    var source = require('../icon/person/default_avatar.png');
-    if(face==''||face==null||face==undefined){
-
+    if(!face){
+      return require('../icon/person/default_avatar.png')
     }
-    else{
-      source =  Service.BaseUri+face;
-    }
+    let source =  Service.BaseUri+face;
 
 
-    return source;
+    return {uri: source};
   };
 
   renderBubble = (props)  => {
@@ -251,7 +338,7 @@ class chatroom extends React.Component {
           backgroundColor: '#FFFFFF',
         },
         right: {
-          backgroundColor: '#f1a073',
+          backgroundColor: '#fd586d',
         }
       }}
     />
@@ -274,12 +361,28 @@ renderSend = (props) => {
                 <View style={{marginRight: 10, marginBottom: 5}}>
                     <Icon
                       name='send'
-                      color='#f1a073'
+                      color='#fd586d'
                     />
                 </View>
             </Send>
         );
-    }
+  }
+
+  renderAvatar = (props) => {
+    return (
+      <Avatar
+        small
+        rounded
+        source={props.position=='left'?this.returnAvatarSource(this.state.uuser.face):this.returnAvatarSource(this.state.user.face)}
+        containerStyle={{backgroundColor: '#FFFFFF'}}
+        style={{backgroundColor: '#FFFFFF'}}
+        onPress={() => console.log("Works!")}
+        activeOpacity={0.7}
+      />
+    );
+
+  }
+
 
 
 
@@ -295,14 +398,14 @@ renderSend = (props) => {
             <Icon
               style={{marginLeft: 5}}
               name='chevron-left'
-              color='#f1a073'
+              color='#fd586d'
               size={32}
               onPress={() => this.props.navigation.goBack()}
             />
           </View>
           <View style={{flex: 1,flexDirection: 'column',justifyContent: 'center'}}>
             <Text style={{alignSelf: 'center',fontSize: 18,color: '#333333'}}>
-              {this.state.uuname}
+              {this.state.uuser.username?this.state.uuser.username: '?'}
             </Text>
           </View>
           <View style={{flex: 1,flexDirection: 'column',justifyContent: 'center'}}>
@@ -314,9 +417,10 @@ renderSend = (props) => {
             onSend={this.onSend}
             user={{
               _id: parseInt(this.state.uid),
-              name: this.state.user.name==''?'未命名': this.state.user.name,
+              name: 'me',
               avatar: this.returnAvatarSource(this.state.user.face),
             }}
+            renderAvatar={this.renderAvatar}
             showUserAvatar={true}
             renderAvatarOnTop={true}
             loadEarlier={true}
@@ -326,15 +430,9 @@ renderSend = (props) => {
             loadEarlier={this.state.loadEarlier}
             renderSend={this.renderSend}
             onLoadEarlier={() => this.onLoadEarlier()}
+            showAvatarForEveryMessage={true}
+            renderAvatarOnTop={true}
             onPressAvatar={(user) => {
-              console.log(user);
-              const params = {
-                token: this.state.token,
-                uid: this.state.uid,
-                islogin: this.state.islogin,
-                uuid: user._id,
-              };
-              navigate('user',params);
             }}
           />
         </View>
@@ -349,7 +447,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         //justifyContent: 'center',
         alignItems: 'stretch',
-        backgroundColor: '#f2f2f2',
+        backgroundColor: '#f3f3f3',
     },
     StatusBar:  {
       height:22,
@@ -370,7 +468,7 @@ const styles = StyleSheet.create({
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: '#f1a073',
+      backgroundColor: '#fd586d',
     },
     avatar: {
       height: 80,

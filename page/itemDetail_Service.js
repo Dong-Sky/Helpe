@@ -12,6 +12,7 @@ import {
   FlatList,
   Alert,
   CameraRoll,
+  Dimensions,
 } from 'react-native';
 import {
   StackNavigator,
@@ -24,7 +25,12 @@ import ViewPager from 'react-native-viewpager';
 import Modalbox from 'react-native-modalbox';
 import MapView from 'react-native-maps';
 import Service from '../common/service';
+import DropdownAlert from 'react-native-dropdownalert';
 
+
+
+const width = Dimensions.get('window').width;
+const height = Dimensions.get('window').height;
 
 //时间转化成字符
 function formatDate(t){
@@ -50,11 +56,15 @@ function formatDate(t){
       Swiper: [],
       item: {},
       user: {},
+      isfav: 0,
+      report: '',
       //窗口
       isDisabled1: false,
       isDisabled2: false,
       isDisabled3: false,
       isDisabled4: false,
+      isDisabled5: false,
+      reportModalVisible: false,
       contactModalVisible: false,
       contentModalVisible: false,
       markModalVisible: false,
@@ -76,34 +86,54 @@ function formatDate(t){
   };
 
   componentDidMount() {
-    console.log(this.state);
+
+    AnalyticsUtil.onEvent('serviceDetail');
+
     this.getItemInfo();
     this.getContent();
   };
 
+  AlertDropDown = (txt)=> {
+  if (txt) {
+    this.dropdown.alertWithType('success', 'success', txt);
+    }
+  };
+
+  // ...
+  onClose(data) {
+    // data = {type, title, message, action}
+    // action means how the alert was closed.
+    // returns: automatic, programmatic, tap, pan or cancel
+  }
+
+
+
   //获取商品详细数据
   getItemInfo = () => {
     const { token,uid,itemId } = this.state;
-    const url = Service.BaseUrl+`?a=item&m=info&v=${Service.version}&token=${token}&uid=${uid}&id=${itemId}`;
+
+    const url = Service.BaseUrl+Service.v+`/item/info?id=${itemId}`;
     this.setState({loading: true})
+    console.log(url);
     fetch(url)
     .then(response => response.json())
     .then(responseJson => {
       console.log(responseJson);
-      if(!responseJson.status){
+      if(!parseInt(responseJson.status)){
         this.setState({
           addr: responseJson.data.addr,
           category: responseJson.data.category,
-          detail: responseJson.data.detail,
-          img: responseJson.data.img,
-          item: responseJson.data.item,
-          user: responseJson.data.user,
+          detail: responseJson.data.itemdetail,
+          img: responseJson.data.itemimg,
+          item: responseJson.data,
+          user: responseJson.data.userInfo,
+          isfav: responseJson.data.isfav,
         });
       }
       else{
         alert(responseJson.err);
       }
-      return responseJson.data.img;
+      return responseJson.data.itemimg;
     })
     .then(img => {this.setState({loading: false});return img;})
     .then(img => {
@@ -129,18 +159,18 @@ function formatDate(t){
 
   getContent = () => {
     const { token,uid,itemId } = this.state;
-    const url = Service.BaseUrl+`?a=feedback&v=${Service.version}&token=${token}&uid=${uid}&itemid=${itemId}`;
+    const url = Service.BaseUrl+Service.v+`/feedback?itemid=${itemId}`;
     console.log(url);
 
     fetch(url)
     .then(response => response.json())
     .then(responseJson => {
       //console.log(responseJson);
-      if(!responseJson.status){
-        this.setState({content: responseJson.data});
+      if(!parseInt(responseJson.status)){
+        this.setState({content: responseJson.data.data});
       }
       else {
-        alert((I18n.t('err.fetch_failed')+'\n'+responseJson.err));
+        //alert((I18n.t('error.fetch_failed')+'\n'+responseJson.err));
       }
     })
     .catch(err => {console.log(err)})
@@ -148,11 +178,24 @@ function formatDate(t){
 
   //收藏
   fav = () =>{
+
+    AnalyticsUtil.onEvent('fav_Service');
+
     const { token,uid,itemId } = this.state;
-    const url = Service.BaseUrl+`?a=fav&m=save&token=${token}&uid=${uid}&id=${itemId}&v=${Service.version}`;
+    const url = Service.BaseUrl+Service.v+`/fav/save?t=${token}`;
+    const body = `id=${itemId}`;
+    console.log(url);
+    console.log(body);
+
 
     this.setState({loading: true})
-    fetch(url)
+    fetch(url,{
+      method: 'POST',
+      headers: {
+        'Content-Type':'application/x-www-form-urlencoded',
+      },
+      body: body,
+    })
     .then(response => response.json())
     .then(responseJson => {
       console.log(responseJson);
@@ -166,6 +209,46 @@ function formatDate(t){
     .then(() => this.setState({loading: false}))
     .catch(err => {console.log(err);this.setState({loading: false})})
   };
+
+  report = () => {
+    AnalyticsUtil.onEvent('report');
+
+    const { token,uid,itemId,report } = this.state;
+    if(!report){
+      alert('Number of words is not enough!(>10)');
+      return;
+    }
+
+    if (report.length<10){
+      alert('Number of words is not enough!(>10)');
+      return;
+    }
+    const url = Service.BaseUrl+Service.v+`/report/add?t=${token}`;
+    const body = `item_value=${itemId}&item_type=${0}&reason=${0}&info=${report}&t=${token}`;
+    console.log(body);
+    this.setState({loading: true})
+    fetch(url,{
+      method: 'POST',
+      headers: {
+        'Content-Type':'application/x-www-form-urlencoded',
+      },
+      body: body,
+    })
+    .then(response => response.json())
+    .then(responseJson => {
+      console.log(responseJson);
+      if(!parseInt(responseJson.status)){
+
+        this.setState({reportModalVisible: false});
+        this.AlertDropDown(I18n.t('success.report'))
+      }
+      else{
+        alert(I18n.t('error.report_failed')+'\n'+responseJson.err);
+      }
+    })
+    .then(() => this.setState({loading: false}))
+    .catch(err => {console.log(err);this.setState({loading: false})})
+  }
 
 
   saveImg = (img) =>  {
@@ -437,25 +520,26 @@ function formatDate(t){
 
   returnUserAvatarSource = () => {
     var source;
-    if(this.state.user.face==''){
+    if(!this.state.user.face){
       source = require('../icon/person/default_avatar.png');
     }
     else{
       source = {uri: Service.BaseUri+this.state.user.face};
     }
     return source;
+
   };
 
-  returnAvatarSource = (face) => {
-    var source;
-    if(face==''){
-      source = require('../icon/person/default_avatar.png');
+  returnUserAvatarStyle = () => {
+
+    if(!this.state.user.face){
+      return {backgroundColor: '#fd586d',tintColor: '#FFFFFF'};
     }
-    else{
-      source = {uri: Service.BaseUri+face};
-    }
-    return source;
+
+    return {};
   };
+
+
 
   returnWork = () => {
     var str = '';
@@ -485,23 +569,14 @@ function formatDate(t){
     return str;
   };
 
-  returnAvatarSource = (face) => {
-    var source;
-    if(face==''){
-      source = require('../icon/person/default_avatar.png');
-    }
-    else{
-      source = {uri: Service.BaseUri+face};
-    }
-    return source;
-  };
+
 
 
   //联系方式页面
   renderContactModal = () => {
     return(
       <Modalbox
-        style={{height: 240,width: 300,alignItems: 'center',}}
+        style={{height: 240,width: 300,alignItems: 'center',borderRadius: 20}}
         isOpen={this.state.contactModalVisible}
         isDisabled={this.state.isDisabled1}
         position='center'
@@ -520,15 +595,54 @@ function formatDate(t){
               multiline = {true}
               underlineColorAndroid="transparent"
               editable={false}
-              value={this.state.item.contact}
+              value={this.state.report}
             />
           </View>
           <Button
             style={styles.button1}
-            backgroundColor='#f1a073'
+            backgroundColor='#fd586d'
             borderRadius={5}
             title={I18n.t('common.back')}
             onPress={() => this.setState({contactModalVisible: false,})}
+          />
+      </Modalbox>
+    );
+  };
+
+
+  //举报页面
+  renderReportModal = () => {
+    return(
+      <Modalbox
+        style={{height: 260,width: 300,alignItems: 'center',borderRadius: 20}}
+        isOpen={this.state.reportModalVisible}
+        isDisabled={this.state.isDisabled5}
+        position='center'
+        backdrop={true}
+        backButtonClose={true}
+        onClosed={() => this.setState({reportModalVisible: false})}
+        >
+          <Text style={{marginTop: 10}}>
+
+            {'Reason'}
+          </Text>
+          <View style={{flex: 1,marginTop: 10, alignSelf: 'stretch'}}>
+            <TextInput
+              style={[styles.contactInput,{}]}
+              autoCapitalize='none'
+              multiline = {true}
+              underlineColorAndroid="transparent"
+              //editable={false}
+              value={this.state.report}
+              onChangeText={(report) => this.setState({report})}
+            />
+          </View>
+          <Button
+            style={styles.button1}
+            backgroundColor='#fd586d'
+            borderRadius={5}
+            title={I18n.t('common.report')}
+            onPress={() => this.report()}
           />
       </Modalbox>
     );
@@ -538,7 +652,7 @@ function formatDate(t){
   renderMarkModal = () => {
     return(
       <Modalbox
-        style={{height: '80%',width: '90%',alignItems: 'center',}}
+        style={{height: '80%',width: '90%',alignItems: 'center',borderRadius: 20}}
         isOpen={this.state.markModalVisible}
         isDisabled={this.state.isDisabled2}
         position='center'
@@ -561,7 +675,7 @@ function formatDate(t){
           </View>
           <Button
             style={styles.button1}
-            backgroundColor='#f1a073'
+            backgroundColor='#fd586d'
             borderRadius={5}
             title={I18n.t('common.back')}
             onPress={() => this.setState({markModalVisible: false,})}
@@ -574,7 +688,7 @@ function formatDate(t){
   renderMapModal = () => {
     return(
       <Modalbox
-        style={{height: 300,width: 300,alignItems: 'center',}}
+        style={{height: 300,width: width-40,alignItems: 'center',}}
         isOpen={this.state.mapModalVisible}
         isDisabled={this.state.isDisabled4}
         position='center'
@@ -611,7 +725,7 @@ function formatDate(t){
   renderAlbumModal = () => {
     return(
       <Modalbox
-        style={{height: 260,width: '100%',alignItems: 'center',}}
+        style={{height: 260,width: width-20,alignItems: 'center',}}
         isOpen={this.state.albumModalVisible}
         isDisabled={this.state.isDisabled3}
         position='center'
@@ -641,11 +755,12 @@ function formatDate(t){
             </View>
             <View style={styles.header}>
               <View style={{flex: 1,flexDirection: 'row',alignSelf: 'stretch',alignItems: 'center',}}>
+
                 <Icon
                   style={{marginLeft: 5}}
                   name='chevron-left'
-                  color='#f1a073'
-                  size={32}
+                  color='#fd586d'
+                  size={36}
                   onPress={() => this.setState({contentModalVisible: false})}
                 />
               </View>
@@ -677,14 +792,14 @@ function formatDate(t){
                     />
                     <View style={{marginLeft: 15,flexDirection: 'row',alignItems: 'center'}}>
                       <Rating
-                        type="bell"
+                        type="heart"
                         readonly
                         ratingCount={5}
                         fractions={1}
                         startingValue={(item.score/20)}
                         imageSize={20}
                       />
-                      <Text style={{marginLeft: 5,color: '#f1a073',fontSize: 14}}>
+                      <Text style={{marginLeft: 5,color: '#fd586d',fontSize: 14}}>
                         ({item.score/20})
                       </Text>
                     </View>
@@ -717,8 +832,8 @@ function formatDate(t){
             <Icon
               style={{marginLeft: 5}}
               name='keyboard-arrow-left'
-              color='#f1a073'
-              size={32}
+              color='#fd586d'
+              size={36}
               onPress={() => this.props.navigation.goBack()}
             />
           </View>
@@ -729,22 +844,6 @@ function formatDate(t){
           </View>
           <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
             <View style={{marginRight: 10}}>
-              <Icon
-                name='favorite-border'
-                color='#f1a073'
-                size={28}
-                onPress={() => {
-                  Alert.alert(
-                    I18n.t('itemDetail.fav'),
-                    I18n.t('itemDetail.is_fav'),
-                    [
-                      {text: I18n.t('common.no'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                      {text: I18n.t('common.yes'), onPress: () => this.fav()},
-                    ],
-                    { cancelable: false }
-                  )
-                }}
-              />
             </View>
           </View>
         </View>
@@ -752,16 +851,18 @@ function formatDate(t){
           <View style={styles.item_pic}>
             {this.returnSwiper()}
           </View>
+
           <ListItem
             roundAvatar
             component={TouchableOpacity}
-            title={this.state.user.name}
+
+            title={this.state.user.username?this.state.user.username:'???'}
             titleStyle={styles.title1}
-            subtitle={this.returnWork()}
+            //subtitle={this.returnWork()}
             avatar={this.returnUserAvatarSource()}
-            avatarContainerStyle={{height: 50,width: 50}}
-            avatarStyle={{height: 50,width: 50}}
-            containerStyle={[styles.listContainerStyle,{borderWidth: 1,borderColor: '#e5e5e5'}]}
+            avatarContainerStyle={[{height: 40,width: 40,},]}
+            avatarStyle={[{height: 40,width: 40,},this.returnUserAvatarStyle()]}
+            containerStyle={[styles.listContainerStyle,{borderWidth: 1,borderColor: '#e5e5e5', }]}
             onPress={() => {
               const params = {
                 token: this.state.token,
@@ -773,18 +874,21 @@ function formatDate(t){
             }}
           />
           <TouchableOpacity style={styles.item}>
-            <Text style={[styles.title,{fontSize: 16,marginTop: 10,color: '#333333'}]}>
+            <Text style={[styles.title,{fontSize: 20,marginTop: 10,color: '#333333'}]}>
               {this.state.item.name}
+
             </Text>
-            <Text style={[styles.title,{fontSize: 14,color: '#da695c'}]}>
-              {this.state.item.u? '￥'+this.state.item.price+'/'+this.state.item.u:'￥'+this.state.item.price+'圆'}
+            <Text style={[styles.title,{fontSize: 18,color: '#fd586d',marginTop: 10,marginBottom: 10}]}>
+
+              {this.state.item.unit&&this.state.item!=''? '￥'+parseInt(this.state.item.price).toString().replace(/(\d)(?=(?:\d{3})+$)/g, '$1,')+'/'+this.state.item.unit:'￥'+parseInt(this.state.item.price).toString().replace(/(\d)(?=(?:\d{3})+$)/g, '$1,')}
             </Text>
-            <Text style={[styles.title,{fontSize: 14,color: '#333333',marginBottom: 5}]}>
+            {/*
+            <Text style={[styles.title,{fontSize: 14,color: '#333333',marginBottom: 5,marginTop: 10}]}>
               {I18n.t('itemDetail.sale')+': '+this.state.item.salenum+I18n.t('itemDetail.e')}
-            </Text>
+            </Text>*/}
             {this.renderSeparator()}
             <Text style={[styles.title,styles.sub]}>
-              {I18n.t('itemDetail.S_cate')+': '+this.state.category.name}
+              {I18n.t('itemDetail.S_cate')+': '+this.state.category.jp_name}
             </Text>
             <Text style={[styles.title,styles.sub]}>
               {I18n.t('itemDetail.paytp')+': '+this.returnPayTp()}
@@ -813,6 +917,7 @@ function formatDate(t){
             </Text>
           </TouchableOpacity>
           <List containerStyle={styles.list}>
+            {/*
             <ListItem
               component={TouchableOpacity}
               titleStyle={styles.title}
@@ -828,6 +933,7 @@ function formatDate(t){
               }}
             />
             {this.renderSeparator()}
+            */}
             <ListItem
               component={TouchableOpacity}
               titleStyle={styles.title}
@@ -835,6 +941,7 @@ function formatDate(t){
               containerStyle={styles.listContainerStyle}
               onPress={() => this.setState({contactModalVisible: true})}
             />
+            {/*
             {this.renderSeparator()}
             <ListItem
               component={TouchableOpacity}
@@ -842,9 +949,9 @@ function formatDate(t){
               title={I18n.t('itemDetail.album')}
               containerStyle={styles.listContainerStyle}
               onPress={() => this.setState({albumModalVisible: true})}
-            />
+            />*/}
           </List>
-          <List containerStyle={styles.list}>
+          <List containerStyle={[styles.list,{marginBottom: 10}]}>
             <ListItem
               component={TouchableOpacity}
               titleStyle={styles.title}
@@ -853,14 +960,102 @@ function formatDate(t){
               containerStyle={styles.listContainerStyle}
               onPress={() => this.setState({contentModalVisible: true})}
             />
+            <ListItem
+              component={TouchableOpacity}
+              titleStyle={styles.title}
+              title={I18n.t('common.report')}
+              //rightTitle={'('+this.state.content.length+')'}
+              containerStyle={styles.listContainerStyle}
+              onPress={() => this.setState({reportModalVisible: true})}
+            />
           </List>
           {this.showLoading()}
         </ScrollView>
+        <View style={{height: 50,width: width,borderTopWidth: 1,borderColor: '#e5e5e5',backgroundColor: '#FFFFFF',flexDirection: 'row',marginTop: 0}}>
+          <View style={{height: 50,width: 50,alignItems: 'center',justifyContent: 'center'}}>
+            <Icon
+              name='location-on'
+              color='#999999'
+              size={24}
+
+              onPress={() => {
+                if(this.state.addr.lat==undefined||this.state.addr.lng==undefined){
+                  alert(I18n.t('itemDetail.getLocation_failed'));
+                }
+                else{
+                  this.setState({mapModalVisible: true});
+                }
+              }}
+            />
+          </View>
+          <View style={{height: 50,width: 50,alignItems: 'center',justifyContent: 'center'}}>
+            <Icon
+              name='photo-library'
+              color='#999999'
+              size={24}
+              onPress={() => this.setState({albumModalVisible: true})}
+            />
+          </View>
+          <View style={{height: 50,width: 50,alignItems: 'center',justifyContent: 'center'}}>
+            <Icon
+              name={this.state.isfav>0?'favorite':'favorite-border'}
+              color={this.state.isfav>0?'#fd586d':'#999999'}
+              size={24}
+
+              onPress={() => {
+                if(this.state.isfav>0){
+
+                }
+                else{
+                  Alert.alert(
+                    I18n.t('itemDetail.fav'),
+                    I18n.t('itemDetail.is_fav'),
+                    [
+                      {text: I18n.t('common.no'), onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                      {text: I18n.t('common.yes'), onPress: () => this.fav()},
+                    ],
+                    { cancelable: false }
+                  )
+                }
+              }}
+            />
+          </View>
+          <View style={{height: 50,width: 50,alignItems: 'center',justifyContent: 'center'}}>
+            <Icon
+              name='message'
+              color='#999999'
+              size={24}
+
+              onPress={() => {
+
+
+                if(!this.state.uid){
+                  return
+                }
+
+                if(!this.state.islogin){
+                  return
+                }
+
+                if(!this.state.user.id||this.state.user.id==this.state.uid){
+                  return
+                }
+
+                this.props.navigation.navigate('chatroom',{
+                  uid: this.state.uid,
+                  token: this.state.token,
+                  islogin: this.state.islogin,
+                  uuid: this.state.user.id,
+                  name: '?&?',
+                })
+              }}
+            />
+          </View>
           <Button
             style={styles.button}
-            buttonStyle={{marginTop:5,marginBottom:5,}}
-            borderRadius={5}
-            backgroundColor='#f1a073'
+            buttonStyle={{height: 50}}
+            borderRadius={0}
+            backgroundColor='#fd586d'
             onPress={() => {
               if(this.state.item.flag==1){
                 navigate('buy',{
@@ -878,11 +1073,15 @@ function formatDate(t){
               }
             }}
             title={I18n.t('itemDetail.buy')}/>
+        </View>
+            <DropdownAlert ref={ref => this.dropdown = ref} onClose={data => this.onClose(data)} />
+
             {this.renderContactModal()}
             {this.renderMarkModal()}
             {this.renderAlbumModal()}
             {this.renderContentModal()}
             {this.renderMapModal()}
+            {this.renderReportModal()}
       </View>
     );
   };
@@ -894,7 +1093,7 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         alignItems: 'stretch',
-        backgroundColor: '#f2f2f2',
+        backgroundColor: '#f3f3f3',
   },
   StatusBar:  {
       height:22,
@@ -902,6 +1101,7 @@ const styles = StyleSheet.create({
   },
   header: {
     height: 44,
+    width: width,
     alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'center',
@@ -963,7 +1163,8 @@ const styles = StyleSheet.create({
   button: {
     alignSelf:'center',
     //marginTop:15,
-    width:280,
+
+    width: width-60*4,
     height:50,
   },
   wrapper: {
@@ -1019,8 +1220,8 @@ const styles = StyleSheet.create({
   },
   button: {
     alignSelf: 'center',
-    marginTop :5,
-    width: 280,
+    marginTop :0,
+    width: width-50*4,
     height: 50,
   },
   button1: {
@@ -1034,7 +1235,7 @@ const styles = StyleSheet.create({
     height: 140,
     textAlignVertical: 'top',
     borderWidth: 1,
-    borderColor: '#f1a073',
+    borderColor: '#fd586d',
     alignSelf: 'center',
     color: '#666666',
     fontSize: 14,
@@ -1046,7 +1247,7 @@ const styles = StyleSheet.create({
     height: '100%',
     textAlignVertical: 'top',
     borderWidth: 2,
-    borderColor: '#f1a073',
+    borderColor: '#fd586d',
     alignSelf: 'center',
     color: '#666666',
     fontSize: 14,

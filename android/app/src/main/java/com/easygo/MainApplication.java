@@ -3,6 +3,7 @@ package com.easygo;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.cboy.rn.splashscreen.SplashScreenReactPackage;
 import com.wix.interactable.Interactable;
 import com.facebook.reactnative.androidsdk.FBSDKPackage;
 import com.AlexanderZaytsev.RNI18n.RNI18nPackage;
@@ -31,6 +32,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new SplashScreenReactPackage(),
             new Interactable(),
             new FBSDKPackage(),
             new RNI18nPackage(),

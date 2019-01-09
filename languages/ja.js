@@ -14,6 +14,7 @@ export default {
     update: '修正',
     service_ok: 'やりとりが完成した',
     ask_ok: 'やりとりが完成した',
+    report: '通報'
   },
   error: {
     getLocation_failed: '位置情報を取得できません',
@@ -33,6 +34,8 @@ export default {
     online_failed: 'エラー',
     underline_failed: 'エラー',
     feedback_failed: 'エラー',
+    publish_failed: 'エラー',
+    report_failed: 'エラー',
   },
   success: {
     fetch: '成功しました',
@@ -51,6 +54,8 @@ export default {
     underline: '成功しました',
     feedback: '成功しました',
     publish: '成功しました',
+    send: '認証コードはメールで送りました',
+    report: '成功しました',
   },
   home: {
       Search: 'さがす',
@@ -61,8 +66,8 @@ export default {
       distance: '距離',
       start_t: '開始時間',
       end_t: '終了時間',
-      all: '全部',
-      near: '附近',
+      all: 'すべて',
+      near: '近く',
       more_far: 'ちょっと遠い',
       sortByT: '時間順',
       sortByD: '距離順',
@@ -70,9 +75,11 @@ export default {
       default_txt: '名前で検索',
       salenum: '実績',
       e: '回',
+
   },
   comment: {
     list: 'メッセージ',
+    chat :'トーク',
 
   },
   send: {
@@ -202,8 +209,14 @@ export default {
     pass_null: 'パスワードの入力がありません',
     user_null: 'ユーザーIDの入力がありません',
     pass1_err: 'パスワードを確認してください',
+    email: 'メールアドレス',
+    code: '認証コード',
+    pass_short: '６桁以上のパスワードを使ってください',
+    send: '認証コードはメールで送りました',
+    no_code: '認証コードを入力してください',
   },
   setting: {
+    old_pass: 'パスワード',
     new_pass: '新しいパスワード',
     new_pass1: '確認のため再度入力してください',
     txt1: '新しいパスワードを入力してください',
@@ -251,6 +264,8 @@ export default {
     update: 'プロフィール編集',
     txt1: '280文字以内',
     txt2: '性別を変更しますか',
+    info: 'プロフィール',
+    pub: 'マイページ',
   },
   fav: {
     del: '削除',
@@ -310,6 +325,7 @@ export default {
     o1: '募集中',
     o2: '取引中',
     o3: '完了',
+    o4: '全部',
     tp: 'カテゴリ',
     tp0: 'サービス',
     tp1: 'リクエスト',
@@ -359,6 +375,10 @@ export default {
     t: '注文日',
     go: '詳細を見る',
     onwer: 'サービス提供者',
+    paytp: '支払方法',
+
+    online: 'ネット決済',
+    underline: '対面決済',
 
 
     oa0: '購入申請中',
@@ -424,6 +444,27 @@ export default {
     sdtxt10: '確認済みの支払い',
     sdtxt11: '取り消し済みの支払い',
 
+    title1: '依頼',
+    title2: '提供',
+
+    service_status0: '進行中',
+    service_status10: '取引中',
+    service_status40: '完了',
+    service_status50: 'やりとりを拒否しました',
+    service_status60: 'やりとりがキャンセルしました',
+
+    ask_status0: '進行中',
+    //ask_status10: '取引中',
+    ask_status50: 'やりとりを拒否しました',
+    ask_status40: '完了',
+    ask_status60: 'やりとりがキャンセルしました',
+
+    mark_edited: '已填写',
+    mark_notedited: '未填写',
+    do_finish: '确认完成',
+    go_mark: '表示',
+
+
 
   },
   online: {
@@ -450,10 +491,11 @@ export default {
     txt4: '100文字以内',
     add_photo: '写真を追加する',
 
+    txt5: 'タイトルを入力してください',
     choose: '選んでください',
-    S_title: 'サービス販売を開始',
+    S_title: 'サービスを作る',
     Service: 'サービス',
-    txt5: 'サービスの名前を教えてください',
+
     price: '価格',
     u: '単位',
     changeprice: 'チップ',
@@ -474,13 +516,21 @@ export default {
     from_album: '写真を選択',
     A_cate: 'カテゴリー',
     txt6: 'リクエスト内容を教えてください',
-    A_title: 'リクエストする',
+    A_title: 'リクエスト',
     txt7: 'リクエストの名前を教えてください',
     txt8: '６枚以内の写真を選択してください',
+
     Ask: 'リクエスト',
     price1: '報酬',
     deadline: '有効期間',
     t90: '90日',
     t30: '30日',
+
+
+
+
+
+
   }
+
 };

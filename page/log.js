@@ -71,24 +71,51 @@ class log extends Component {
   };
 
   componentWillMount() {
-    const { params } = this.props.navigation.state;
-    this.state.token = params.token;
-    this.state.uid = params.uid;
-    this.state.islogin = params.islogin;
-    this.getLog();
+
+    this.getLoginState();
+  };
+
+  getLoginState = () => {
+    storage.load({
+      key: 'loginState',
+    })
+    .then((ret) => {
+        //console.log(ret);
+      if(ret.token!=null&ret.uid!=null){
+        this.setState({ islogin: true });
+      }
+
+      this.setState(
+        {
+          token: ret.token,
+          uid: ret.uid,
+          islogin: ret.token!=null&ret.uid!=null?true: false,
+          ws: ret.ws,
+        },() => this.getLog())
+      }
+    )
+    .catch(error => {
+      console.log(error);
+    })
   };
 
   getLog = () => {
-    const { token,uid } = this.state;
-    const url = Service.BaseUrl+`?a=log&v=${Service.version}&token=${token}&uid=${uid}`;
+    console.log(123);
+    const { token,uid,islogin} = this.state;
 
+    if(!islogin){
+
+      return;
+    }
+    const url = Service.BaseUrl+Service.v+`/mlog?t=${token}&page=1&per-page=${50}`
     this.setState({loading: true});
     fetch(url)
     .then(res => res.json())
     .then(res => {
-      if(!res.status){
+      console.log(res);
+      if(!parseInt(res.status)){
         this.setState({
-          total: res.data.total,
+
           data: res.data.data,
         })
       }
@@ -123,7 +150,7 @@ class log extends Component {
         style={{
           height: 1,
           width: "95%",
-          backgroundColor: "#e5e5e5",
+          backgroundColor: "#f2f2f2",
           marginLeft: "5%"
         }}
       />
@@ -156,14 +183,13 @@ class log extends Component {
 
     let data = JSON.parse(log.data);
     result = Util.log(Number(log.tpid),data);
-    console.log(result);
+
     return result;
   }
 
   render() {
-    console.log(this.state);
     const { navigate } = this.props.navigation;
-    const { params } = this.props.navigation.state;
+    //const { params } = this.props.navigation.state;
     return (
       <View style={styles.container}>
         <View style={styles.StatusBar}>
@@ -173,44 +199,59 @@ class log extends Component {
             <Icon
               style={{marginLeft: 5}}
               name='keyboard-arrow-left'
-              color='#f1a073'
-              size={32}
+              color='#fd586d'
+              size={36}
               onPress={() => this.props.navigation.goBack()}
             />
           </View>
           <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'center'}}>
-            <Text style={{alignSelf: 'center',color: '#333333',fontSize: 18}}>
-
-            </Text>
           </View>
           <View style={{flex:1,flexDirection: 'row',alignItems: 'center',justifyContent: 'flex-end'}}>
           </View>
         </View>
-        <List containerStyle={{ borderTopWidth: 1,flex:1,backgroundColor: '#FFFFFF' ,marginTop: 0,borderColor: '#e5e5e5'}}>
+        <List containerStyle={{ backgroundColor: '#f2f2f2',borderTopWidth: 1,flex:1 ,marginTop: 0,borderColor: '#e5e5e5',marginLeft: 0,marginRight: 0,}}>
+
           <FlatList
-            style={{marginTop: 0,borderWidth: 0}}
+            style={{marginTop: 0,borderWidth: 0,}}
             data={this.state.data}
             renderItem={({ item }) => (
-              <ListItem
-                component={TouchableOpacity}
-                roundAvatar
-                key={item.id}
-                title={this.returnLogElement(item).title}
-                titleNumberOfLines={3}
-                //rightTitle={formatDate(Number(item.t))}
-                rightIcon={<View></View>}
-                subtitleNumberOfLines={3}
-                subtitle={this.returnLogElement(item).sub+'\n('+formatDate(Number(item.t))+')'}
-                avatar={{ uri:Service.BaseUri+item.img  }}
-                avatarContainerStyle={{height:60,width:60}}
-                avatarStyle={{height:60,width:60}}
-                containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF'}}
-                onPress={() => navigate(this.returnLogElement(item).next,{
-                  uid: this.state.uid,
-                  token: this.state.token,
-                  islogin: this.state.islogin,
-                })}
-              />
+              <View>
+                <ListItem
+                  component={TouchableOpacity}
+                  roundAvatar
+                  key={item.id}
+                  title={this.returnLogElement(item).sub}
+                  subtitle={formatDate(Number(item.ct))}
+                  titleNumberOfLines={3}
+                  //rightTitle={formatDate(Number(item.t))}
+                  rightIcon={<View></View>}
+                  subtitleNumberOfLines={3}
+                  titleStyle={{fontSize: 14}}
+                  subtitleStyle={{marginTop: 15}}
+                  //subtitle={this.returnLogElement(item).sub+'\n('+formatDate(Number(item.ct))+')'}
+                  //avatar={require('../icon/person/default_avatar.png')}
+                  leftIcon={
+                    <Icon
+                      name={this.returnLogElement(item).icon}
+                      size={20}
+                      color='#fd586d'
+                      reverse
+                    />
+                  }
+                  avatarContainerStyle={{height:40,width:40}}
+                  avatarStyle={{height:40,width:40,tintColor: '#FFFFFF',backgroundColor: '#fd586d'}}
+                  containerStyle={{ borderBottomWidth: 0,backgroundColor: '#FFFFFF',borderRadius: 0,marginBottom: 0}}
+                  onPress={() => navigate(this.returnLogElement(item).next,{
+                    uid: this.state.uid,
+                    token: this.state.token,
+                    islogin: this.state.islogin,
+                    status: '&status=0,10,20,30,40,50,60',
+                    title: I18n.t('myOrder.o4'),
+                  })}
+                />
+                {this.renderSeparator(true)}
+
+              </View>
             )}
             keyExtractor={item => item.id}
             ItemSeparatorComponent={this.renderSeparator}
@@ -221,8 +262,10 @@ class log extends Component {
             //onEndReached={this.handleLoadMore}
             onEndReachedThreshold={50}
           />
+
         </List>
       </View>
+
     );
   }
 }
@@ -234,7 +277,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         //justifyContent: 'center',
         alignItems: 'stretch',
-        backgroundColor: '#FFFFFF'
+        backgroundColor: '#f2f2f2'
   },
   map: {
     ...StyleSheet.absoluteFillObject,

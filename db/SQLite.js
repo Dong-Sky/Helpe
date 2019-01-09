@@ -49,10 +49,9 @@ export default class SQLite extends Component{
           'uuface VARCHAR,' +
           'uuname VARCHAR,' +
           't INTEGER,' +
-          'tp INTEGER,' +
-          'flag INTEGER,' +
-          'msg VARCHAR)'
-          , [], ()=> {
+          'count INTEGER,' +
+          'key VARCHAR )',
+           [], ()=> {
               this._successCB('executeSql');
           }, (err)=> {
               this._errorCB('executeSql', err);
@@ -110,8 +109,8 @@ export default class SQLite extends Component{
         let tp = data.tp;
         let flag = data.flag;
         let msg = data.msg;
-        let sql = "INSERT INTO "+TABLE_MSG+" (uid,uuid,uuface,uuname,t,tp,flag,msg)"+
-        "values(?,?,?,?,?,?,?,?)";
+        let sql = "INSERT INTO "+TABLE_MSG+" (uid,uuid,uuface,uuname,t,count,key)"+
+        "values(?,?,?,?,?,?,?)";
         tx.executeSql(sql,[uid,uuid,uuface,uuname,t,tp,flag,msg],()=>{
 
           },(err)=>{
@@ -126,49 +125,34 @@ export default class SQLite extends Component{
     });
   }
 
-  SelectAll(){
+  SelectConversationByUser(uid,func){
     if (!db) {
         this.open();
     }
 
 
     db.transaction((tx)=>{
-    tx.executeSql("select * from "+TABLE_MSG, [],(tx,results)=>{
+    tx.executeSql("select * from "+TABLE_MSG+" Where uid= "+uid+" Order by t DESC", [],(tx,results)=>{
       var len = results.rows.length;
+      var data = [];
       for(let i=0; i<len; i++){
         var u = results.rows.item(i);
-        //一般在数据查出来之后，  可能要 setState操作，重新渲染页面
-        console.log(u);
-      }
-    });
-    },(error)=>{//打印异常信息
-      console.log(error);
-    });
-  }
-
-  SelectByUser(uid,uuid){
-    if (!db) {
-        this.open();
-    }
-
-    var data = [];
-
-    db.transaction((tx)=>{
-    tx.executeSql("select * from "+TABLE_MSG+" Where uid = "+uid+" AND uuid = "+uuid+" Order By t DESC", [],(tx,results)=>{
-      var len = results.rows.length;
-
-      for(let i=0; i<len; i++){
-        var u = results.rows.item(i);
-        //一般在数据查出来之后，  可能要 setState操作，重新渲染页面
         data.push(u)
+        //一般在数据查出来之后，  可能要 setState操作，重新渲染页面
+
       }
+
+      func(data);
     });
     },(error)=>{//打印异常信息
       console.log(error);
     });
-    return data;
   }
 
+
+
+
+/*
   SelectNearAndGroup(uid){
 
 
@@ -197,7 +181,7 @@ export default class SQLite extends Component{
     })
     console.log(data);
 
-  }
+  }*/
 
   close(){
       if(db){
@@ -215,7 +199,8 @@ export default class SQLite extends Component{
     console.log("SQLiteStorage "+name);
     console.log(err);
   }
+
     render(){
         return null;
     }
-};
+  };

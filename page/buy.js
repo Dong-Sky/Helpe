@@ -82,7 +82,7 @@ function isRealNum(val){
       aid: null,
       mark: null,
       changeprice: '0',
-      paytp: 1,
+      paytp: -1,
       //
       loading: false
     };
@@ -99,21 +99,23 @@ function isRealNum(val){
   };
 
   componentDidMount() {
+
+
     this.getLocation();
     this.getItemInfo();
   };
 
   AlertDropDown = (txt)=> {
   if (txt) {
-    this.dropdown.alertWithType('success', 'success', '下单成功，请等待对方接受');
+    this.dropdown.alertWithType('success', 'success', txt);
+    }
+  };
+  // ...
+  onClose(data) {
+    // data = {type, title, message, action}
+    // action means how the alert was closed.
+    // returns: automatic, programmatic, tap, pan or cancel
   }
-};
-// ...
-onClose(data) {
-  // data = {type, title, message, action}
-  // action means how the alert was closed.
-  // returns: automatic, programmatic, tap, pan or cancel
-}
 
   //打开地址选择窗口
   setAddressModalVisible(visible) {
@@ -138,22 +140,22 @@ onClose(data) {
   //获取商品详细数据
   getItemInfo = () => {
     const { token,uid,itemId } = this.state;
-    const url = Service.BaseUrl+`?a=item&m=info&v=${Service.version}&token=${token}&uid=${uid}&id=${itemId}`;
+    const url = Service.BaseUrl+Service.v+`/item/info?t=${token}&uid=${uid}&id=${itemId}`;
     this.setState({loading: true})
+    console.log(url);
     fetch(url)
     .then(response => response.json())
     .then(responseJson => {
+      if(!parseInt(responseJson.status)){
 
-      var defaultImg = responseJson.data.img[0].url? Service.BaseUri+responseJson.data.img[0].url:null;
-      console.log(defaultImg);
-      this.setState({
-        detail: responseJson.data.detail,
-        img: responseJson.data.img,
-        item: responseJson.data.item,
-        defaultImg: defaultImg,
-      });
-
-      return responseJson.data.item.uid;
+        var defaultImg = responseJson.data.img? Service.BaseUri+responseJson.data.img:null;
+        this.setState({
+          detail: responseJson.data.itemdetail,
+          img: responseJson.data.itemimg,
+          item: responseJson.data,
+          defaultImg: defaultImg,
+        });
+      }
     })
     .then(() => this.setState({loading: false}))
     .catch(error => {console.log(error);this.setState({loading: false,})});
@@ -181,26 +183,22 @@ onClose(data) {
   //获取地址列表方法
   getAddress = () => {
       const {token,uid} = this.state;
-      fetch(Service.BaseUrl, {
-       method: 'POST',
-       headers: {
-         'Content-Type': 'application/x-www-form-urlencoded',
-       },
-       body: 'a=addr&token='+token+'&uid='+uid+'&v='+Service.version,
-     })
-     .then(response => response.json())
-     .then(responseJson => {
+      const url = Service.BaseUrl+Service.v+`/address?t=${token}&page=0&per-page=50`;
+      console.log(url);
+      fetch(url)
+      .then(response => response.json())
+      .then(responseJson => {
 
-       this.setState({ data: responseJson.data})
-     })
-     .catch(error => console.log(error))
+       this.setState({ data: responseJson.data.data})
+      })
+      .catch(error => console.log(error))
   };
 
   //添加地址方法
   addAddress = () => {
     const { token,uid,region,aid,info } = this.state;
-    const body = 'a=addr&m=add&v='+Service.version+'&token='+token+'&uid='+uid+'&aid='+aid+'&lat='+region.latitude+'&lng='+region.longitude+'&info='+info;
-    fetch(Service.BaseUrl, {
+    const body = 'token='+token+'&uid='+uid+'&aid='+aid+'&lat='+region.latitude+'&lng='+region.longitude+'&info='+info;
+    fetch(Service.BaseUrl+Service.v+`/address/add?t=${token}`, {
      method: 'POST',
      headers: {
        'Content-Type': 'application/x-www-form-urlencoded',
@@ -212,6 +210,7 @@ onClose(data) {
 
      if(!responseJson.status){
        alert(I18n.t('success.add'));
+
      }
      else {
        alert(I18n.t('error.add_failed'));
@@ -226,7 +225,7 @@ onClose(data) {
   renderMarkModal = () => {
     return(
       <Modalbox
-        style={{height: 240,width: 300,alignItems: 'center',}}
+        style={{height: 240,width: 300,alignItems: 'center',overflow: 'hidden',borderRadius: 20}}
         isOpen={this.state.markModalVisible}
         isDisabled={this.state.isDisabled}
         position='center'
@@ -250,7 +249,7 @@ onClose(data) {
           </View>
           <Button
             style={styles.button1}
-            backgroundColor='#f1a073'
+            backgroundColor='#fd586d'
             borderRadius={5}
             title={I18n.t('common.finish')}
             onPress={() => this.setState({markModalVisible: false,})}
@@ -263,7 +262,7 @@ onClose(data) {
   renderBackModal = () => {
     return(
       <Modalbox
-        style={{height: 180,width: 300,alignItems: 'center',}}
+        style={{height: 180,width: 300,alignItems: 'center',borderRadius: 20,overflow: 'hidden'}}
         isOpen={this.state.backModalVisible}
         isDisabled={this.state.isDisabled1}
         position='center'
@@ -273,7 +272,7 @@ onClose(data) {
         swipeToClose={false}
         onClosed={() => this.setState({backModalVisible: false})}
         >
-          <Text style={{marginTop: 10,fontSize: 18,color: '#f1a073'}}>
+          <Text style={{marginTop: 10,fontSize: 18,color: '#fd586d'}}>
             {I18n.t('success.submit')}
           </Text>
           <View style={{flex: 1,marginTop: 10, alignSelf: 'stretch',marginLeft: 10,marginRight: 10}}>
@@ -283,7 +282,7 @@ onClose(data) {
           </View>
           <Button
             style={styles.button1}
-            backgroundColor='#f1a073'
+            backgroundColor='#fd586d'
             borderRadius={5}
             title={I18n.t('common.finish')}
             onPress={() => {this.setState({backModalVisible: false,});this.props.navigation.goBack()}}
@@ -295,32 +294,35 @@ onClose(data) {
 
   //定义下单方法
   buy = () => {
+
+
+
     const { token,uid,aid,itemId,changeprice,num,mark,paytp } = this.state;
-    const url = Service.BaseUrl;
-    const url1 = Service.BaseUrl+`?a=buy&v=${Service.version}&token=${token}&uid=${uid}&id=${itemId}&aid=${aid}`;
-    body =  'a=buy&token='+token+'&uid='+uid+'&aid='+aid+'&id='+itemId+'&v='+Service.version+'&num='+Number(num)+'&changeprice='+Number(changeprice)+'&mark='+mark;
+    const url = Service.BaseUrl+Service.v+`/order/buy?t=${token}`;
+    body =  'aid='+aid+'&id='+itemId+'&num='+Number(num)+'&changeprice='+Number(changeprice)+'&remark='+mark+'&paytp='+paytp;
     console.log(body);
-    console.log(url1);
     this.setState({loading: true})
     fetch(url,{
         method:'POST',
         headers:{
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: 'a=buy&tp=0&token='+token+'&uid='+uid+'&aid='+aid+'&id='+itemId+'&v='+Service.version+'&num='+Number(num)+'&changeprice='+Number(changeprice)+'&mark='+mark+'&paytp='+paytp,
+        body: body,
       })
       .then(response => response.json())
       .then(responseJson =>{
         console.log(responseJson);
-        if(!responseJson.status){
+        if(!parseInt(responseJson.status)){
+          AnalyticsUtil.onEvent('buy');
+
           this.setState({backModalVisible: true});
+          this.AlertDropDown(I18n.t('buy.txt4'))
         }
         else {
           alert(responseJson.err);
         }
       })
       .then(() => this.setState({loading: false}))
-      .then(() => this.AlertDropDown('hello'))
       .catch(error => {console.log(error);this.setState({loading: false})});
   };
 
@@ -363,8 +365,8 @@ onClose(data) {
                 <Icon
                   style={{marginLeft: 5}}
                   name='keyboard-arrow-left'
-                  color='#f1a073'
-                  size={32}
+                  color='#fd586d'
+                  size={36}
                   onPress={() => this.setState({addressModalVisible: false})}
                 />
               </View>
@@ -377,7 +379,7 @@ onClose(data) {
                 <View style={{marginRight: 10}}>
                   <Icon
                     name='add'
-                    color='#f1a073'
+                    color='#fd586d'
                     size={28}
                     onPress={() => this.setState({newAddressModalVisible: true},this.getLocation)}
                   />
@@ -389,6 +391,7 @@ onClose(data) {
                 data={this.state.data}
                     renderItem={({ item }) => (
                       <CheckBox
+                        key={item.id}
                         containerStyle={{ borderBottomWidth: 0,borderWidth: 0,borderColor: '#FFFFFF',alignSelf: 'stretch',marginTop: 0,marginBottom: 0,backgroundColor: '#FFFFFF' }}
                         title={item.info}
                         titleStyle={styles.title}
@@ -405,6 +408,8 @@ onClose(data) {
                       });
                     }}
                 ItemSeparatorComponent={this.renderSeparator}
+                keyExtractor={item => item.id}
+
                 //ListHeaderComponent={this.renderHeader}
                 ListFooterComponent={this.renderFooter}
               />
@@ -433,8 +438,8 @@ onClose(data) {
               <Icon
                 style={{marginLeft: 5}}
                 name='keyboard-arrow-left'
-                color='#f1a073'
-                size={32}
+                color='#fd586d'
+                size={36}
                 onPress={() => {
                   this.setNewAddressModalVisible(!this.state.newAddressModalVisible);
                 }}
@@ -477,7 +482,7 @@ onClose(data) {
              <ListItem
                title={I18n.t('buy.info')}
                titleStyle={styles.title}
-               rightTitle={this.state.info}
+               rightTitle={this.state.info==''?I18n.t('myAddress.no_info'):this.state.info}
                containerStyle={styles.listContainerStyle}
                rightTitleNumberOfLines={3}
                onPress={() => this.setState({isInfoModalVisible: true})}
@@ -487,7 +492,7 @@ onClose(data) {
              style={styles.button}
              buttonStyle={{marginTop:5,marginBottom:5,}}
              borderRadius={5}
-             backgroundColor='#f1a073'
+             backgroundColor='#fd586d'
              onPress={() => {
                if(this.state.info==null){
                  alert(I18n.t('buy.no_info'));
@@ -506,7 +511,7 @@ onClose(data) {
    renderInfoModal = () => {
      return(
        <Modalbox
-         style={{height: 220,width: 300,alignItems: 'center',}}
+         style={{height: 220,width: 300,alignItems: 'center',borderRadius: 20,overflow: 'hidden'}}
          isOpen={this.state.isInfoModalVisible}
          isDisabled={this.state.isDisabled1}
          position='center'
@@ -532,7 +537,7 @@ onClose(data) {
            </View>
            <Button
              style={styles.button1}
-             backgroundColor='#f1a073'
+             backgroundColor='#fd586d'
              borderRadius={5}
              title={I18n.t('common.confirm')}
              onPress={() => this.setState({isInfoModalVisible: false,})}
@@ -621,8 +626,8 @@ onClose(data) {
             <Icon
               style={{marginLeft: 5}}
               name='keyboard-arrow-left'
-              color='#f1a073'
-              size={32}
+              color='#fd586d'
+              size={36}
               onPress={() => this.props.navigation.goBack()}
             />
           </View>
@@ -683,12 +688,12 @@ onClose(data) {
                 <Switch
                   value={this.state.paytp==1}
                   onValueChange={(online) => {
-                    if(this.state.item.paytp>=2){
+
                       this.setState({paytp: 1})
-                    }
+
 
                   }}
-                  onTintColor='#f1a073'
+                  onTintColor='#fd586d'
                 />
               }
             />
@@ -704,7 +709,7 @@ onClose(data) {
                       this.setState({paytp: 0})
                     }
                   }}
-                  onTintColor='#f1a073'
+                  onTintColor='#fd586d'
                 />
               }
 
@@ -742,12 +747,16 @@ onClose(data) {
           style={styles.button}
           buttonStyle={{marginTop:5,marginBottom:5,}}
           borderRadius={5}
+          backgroundColor='#fd586d'
           onPress={() => {
             if(this.state.aid==null){
               alert(I18n.t('buy.choose_addr'));
             }
             else if(this.total()<0){
               alert(I18n.t('buy.price_err'));
+            }
+            else if(this.state.paytp<0){
+              alert(I18n.t('publish.no_paytp'));
             }
             else {
               Alert.alert(
@@ -761,7 +770,7 @@ onClose(data) {
               )
             }
           }}
-          backgroundColor='#f1a073'
+          backgroundColor='#fd586d'
           title={I18n.t('common.submit')}/>
         {this.renderAddressModal()}
         {this.renderMarkModal()}
@@ -779,7 +788,7 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         alignItems: 'stretch',
-        backgroundColor: '#f2f2f2',
+        backgroundColor: '#f3f3f3',
   },
   StatusBar:  {
       height:22,
@@ -847,7 +856,7 @@ const styles = StyleSheet.create({
     height: 140,
     textAlignVertical: 'top',
     borderWidth: 1,
-    borderColor: '#f1a073',
+    borderColor: '#fd586d',
     alignSelf: 'center',
     color: '#666666',
     fontSize: 14,
@@ -864,7 +873,7 @@ const styles = StyleSheet.create({
     height: 120,
     textAlignVertical: 'top',
     borderWidth: 1,
-    borderColor: '#f1a073',
+    borderColor: '#fd586d',
     alignSelf: 'center',
     color: '#666666',
     fontSize: 14,

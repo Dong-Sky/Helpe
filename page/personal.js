@@ -15,6 +15,7 @@ import {
   CameraRoll,
   ActivityIndicator,
   DeviceEventEmitter,
+  Dimensions
 } from 'react-native';
 import {
   StackNavigator,
@@ -28,6 +29,12 @@ import Modalbox from 'react-native-modalbox';
 import ImagePicker from 'react-native-image-picker';
 import Service from '../common/service.js';
 import { I18n } from '../common/I18n';
+import Util from '../common/util';
+
+//获取屏幕尺寸
+const width = Dimensions.get('window').width;
+const height = Dimensions.get('window').height;
+
 //图片选择器参数设置
 var options = {
   title: I18n.t('user.nickname'),
@@ -46,23 +53,17 @@ var options = {
 };
 
 //图片选择器参数设置
-var options = {
-  title: '请选择',
-  cancelButtonTitle:'取消',
-  takePhotoButtonTitle:'拍摄头像',
-  chooseFromLibraryButtonTitle:'从相册中选择',
-  customButtons: [
-    {name: 'default', title: '默认头像'},
-    {name: 'look', title: '查看头像'},
-  ],
-  storageOptions: {
-    skipBackup: true,
-    path: 'images'
-  },
-  maxWidth: 2400,
-  maxHeight: 1600,
-};
 
+
+function dataURLtoFile(dataurl, filename) {
+    console.log(dataurl);
+    var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+    while(n--){
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, {type:mime});
+}
 
 export default class personal extends Component {
   static navigationOptions = {
@@ -113,14 +114,14 @@ export default class personal extends Component {
  //查询用户信息
  getUserInfo = () => {
    const { token,uid } = this.state;
-   const url = Service.BaseUrl+`?a=user&m=info&token=${token}&uid=${uid}&id=${uid}&v=${Service.version}`;
+   const url = Service.BaseUrl+Service.v+`/user/info?t=${token}`;
 
    this.setState({loading: true,});
    fetch(url)
    .then(response => response.json())
    .then(responseJson => {
      if(!responseJson.status){
-       this.setState({user: responseJson.data.user});
+       this.setState({user: responseJson.data});
      }
      else{
        alert(I18n.t('error.fetch_failed')+'\n'+responseJson.err);
@@ -139,31 +140,47 @@ export default class personal extends Component {
  UpdateInfo = () => {
    const { name,value } = this.state.Update;
    const { token ,uid } = this.state;
-   const url = Service.BaseUrl+`?a=user&m=update&token=${token}&uid=${uid}&v=${Service.version}&${name}=${value}`;
-
-   fetch(url)
+   const url = Service.BaseUrl+Service.v+`/user/update?t=${token}`;
+   const body = `${name}=${value}`;
+   console.log(body);
+   fetch(url,{
+     method: 'POST',
+     headers: {
+       'Content-Type':'application/x-www-form-urlencoded',
+     },
+     body: body,
+   })
    .then(response => response.json())
    .then(responseJson => {
      console.log(responseJson);
      if(!responseJson.status){
        alert(I18n.t('success.update'));
+       //this.setState({UpdateInfoModalVisible: false},() => this.getUserInfo())
+       this.getUserInfo()
      }
      else{
        alert(I18n.t('error.update_failed')+'\n'+responseJson.err);
      }
    })
-   .then(() => this.getUserInfo())
+   //.then(() => this.getUserInfo())
    .then(() => {DeviceEventEmitter.emit('update_user');})
-   .catch(err =>  console.log(err))
+   .catch(err =>  Util.Error(err))
  };
 
  UpdateSex = () => {
    const { name,value } = this.state.Update;
    const { token ,uid } = this.state;
    const gender = this.state.user.gender==0? 1:0;
-   const url = Service.BaseUrl+`?a=user&m=update&token=${token}&uid=${uid}&v=${Service.version}&gender=${gender}`;
+   const url = Service.BaseUrl+Service.v+`/user/update?t=${token}`;
+   const body = `gender=${gender}`
 
-   fetch(url)
+   fetch(url,{
+     method: 'POST',
+     headers: {
+       'Content-Type':'application/x-www-form-urlencoded',
+     },
+     body: body,
+   })
    .then(response => response.json())
    .then(responseJson => {
 
@@ -179,66 +196,10 @@ export default class personal extends Component {
    .catch(err =>  console.log(err))
  };
 
- ChooseFace = () => {
-   ImagePicker.showImagePicker(options, (response) => {
-     console.log('Response = ', response);
-
-     if (response.didCancel) {
-
-     }
-     else if (response.error) {
-       alert("ImagePickerError: " + response.error);
-     }
-     else if (response.customButton=='look') {
-       alert(I18n.t('user.look'));
-     }
-     else {
-
-       let file = {uri: response.uri, type: 'multipart/form-data', name: 'face'};
-       this.updateFace(file);
-     }
-   });
- };
-
-
- updateFace = (file) => {
-
-
-   const { token,uid } = this.state;
-   const url = Service.BaseUrl+`?a=user&m=face&v=${Service.version}&token=${token}&uid=${uid}`;
-
-   let formData = new FormData();
-   formData.append('face',file);
-
-   this.setState({loading: true,})
-   fetch(url,{
-       method:'POST',
-       headers:{
-           'Content-Type':'multipart/form-data',
-       },
-       body: formData,
-     })
-     .then(response => response.json())
-     .then(responseJson => {
-       console.log(responseJson);
-       this.setState({ loading: false });
-       if(!responseJson.status){
-         alert(I18n.t('success.update'));
-       }
-       else {
-         alert(I18n.t('error.update_failed'));
-       }
-     })
-     .then(() => this.setState({loading: false}))
-     .then(() => this.getUserInfo())
-     .then(() => {DeviceEventEmitter.emit('update_user');})
-     .catch(error => console.log(error));
-
-
- };
 
  ChooseFace = () => {
    ImagePicker.showImagePicker(options, (response) => {
+     console.log(options);
      console.log('Response = ', response);
 
      if (response.didCancel) {
@@ -255,7 +216,7 @@ export default class personal extends Component {
      }
      else {
        console.log(response);
-       let file = {uri: response.uri, type: 'multipart/form-data', name: 'face'};
+       let file = {uri: response.uri, type: 'multipart/form-data', name: 'face.jpg'};
        this.updateFace(file);
      }
    });
@@ -263,23 +224,24 @@ export default class personal extends Component {
 
 
  updateFace = (file) => {
-   console.log(file);
+   var form = new FormData();
+   form.append('face',file);
 
+   console.log(form);
    const { token,uid } = this.state;
-   const url = Service.BaseUrl+`?a=user&m=face&v=${Service.version}&token=${token}&uid=${uid}`;
+   const url = Service.BaseUrl+Service.v+`/user/avatar?t=${token}`;
 
-   let formData = new FormData();
-   formData.append('face',file);
-   console.log(formData);
    this.setState({loading: true,})
    fetch(url,{
        method:'POST',
        headers:{
-           'Content-Type':'multipart/form-data',
+         'Content-Type':'multipart/form-data',
+         'Content-disposition': 'form-data;name=face;filename='+file.name
        },
-       body: formData,
+       body: form,
      })
-     .then(response => response.json())
+     .then(res => console.log(res))
+     /*
      .then(responseJson => {
        console.log(responseJson);
        this.setState({ loading: false });
@@ -289,10 +251,10 @@ export default class personal extends Component {
        else {
          alert('上传失败!');
        }
-     })
+     })*/
      .then(() => this.setState({loading: false}))
      .then(() => this.getUserInfo())
-     .catch(error => alert('发生错误: '+err.name+'\n详情: '+err.message));
+     .catch(error => alert('发生错误: '+error.name+'\n详情: '+error.message));
 
 
  };
@@ -303,10 +265,16 @@ export default class personal extends Component {
    const { token ,uid } = this.state;
 
    const birthdate = date.getFullYear()+'-'+(date.getMonth()+1)+'-'+date.getDate();
-   const url = Service.BaseUrl+`?a=user&m=update&token=${token}&uid=${uid}&v=${Service.version}&birthdate=${birthdate}`;
+   const url = Service.BaseUrl+Service.v+`user/update?t=${token}`;
+   const body = `birthday=${birthdate}`;
 
-
-   fetch(url)
+   fetch(url,{
+     method: 'POST',
+     headers: {
+       'Content-Type':'application/x-www-form-urlencoded',
+     },
+     body: body,
+   })
    .then(response => response.json())
    .then(responseJson => {
      console.log(responseJson);
@@ -329,11 +297,16 @@ export default class personal extends Component {
  renderUpdateInfoModal = () => {
 
    return(
-     <Modal
-       animationType={"slide"}
-       transparent={false}
-       visible={this.state.UpdateInfoModalVisible}
-       onRequestClose={() => {console.log("Modal has been closed.")}}
+     <Modalbox
+       isDisabled={false}
+       //animationType={"slide"}
+       //transparent={false}
+       isOpen={this.state.UpdateInfoModalVisible}
+       onClosed={() => {
+         this.setState({
+           UpdateInfoModalVisible: false
+         })}}
+       //onRequestClose={() => {console.log("Modal has been closed.")}}
       >
         <View style={styles.container}>
           <View style={styles.StatusBar}>
@@ -343,8 +316,8 @@ export default class personal extends Component {
             <Icon
               style={{marginLeft: 5}}
               name='chevron-left'
-              color='#f1a073'
-              size={32}
+              color='#fd586d'
+              size={36}
               onPress={() => {
                 this.setState({
                   UpdateInfoModalVisible: false,
@@ -367,13 +340,13 @@ export default class personal extends Component {
             <Icon
               style={{alignSelf: 'center'}}
               name='mode-edit'
-              color='#f1a073'
+              color='#fd586d'
               size={28}
               onPress={() => this.UpdateInfo()}
             />
           </View>
         </View>
-        <View style={{height: 40,marginRight: 5,marginLeft: 5, borderColor: '#f1a073', borderBottomWidth: 1,padding: 0}}>
+        <View style={{height: 40,marginRight: 5,marginLeft: 5, borderColor: '#fd586d', borderBottomWidth: 1,padding: 0}}>
           <TextInput
             style={{flex: 1}}
             onChangeText={(value) => {
@@ -385,7 +358,7 @@ export default class personal extends Component {
           />
         </View>
         </View>
-    </Modal>
+    </Modalbox>
    );
  };
 
@@ -432,7 +405,7 @@ export default class personal extends Component {
          </View>
          <Button
            style={styles.button1}
-           backgroundColor='#f1a073'
+           backgroundColor='#fd586d'
            borderRadius={5}
            title={I18n.t('common.submit')}
            onPress={() => this.UpdateInfo()}
@@ -508,15 +481,15 @@ export default class personal extends Component {
  render() {
    const { navigate } = this.props.navigation;
    const { params } = this.props.navigation.state;
-   console.log(this.state);
+   //console.log(this.state);
    const list1 = [
      {
        id: 1,
        title: I18n.t('user.nickname'),
-       value: this.state.user.name==''?I18n.t('user.none'):this.state.user.name,
+       value: this.state.user.username==''?I18n.t('user.none'):this.state.user.username,
        rightIcon: false,
        press: () => {
-         var Update = {title: I18n.t('user.nickname'),name: 'name',value: this.state.user.name};
+         var Update = {title: I18n.t('user.nickname'),name: 'username',value: this.state.user.username};
          this.setState({Update: Update, UpdateInfoModalVisible: true});
        }
      },
@@ -538,16 +511,17 @@ export default class personal extends Component {
           );
        }
      },
+     /*
      {
        id: 3,
        title: I18n.t('user.birthdate'),
-       value: this.state.user.birthdate==''?I18n.t('user.none'):this.state.user.birthdate,
+       value: this.state.user.birthday==''?I18n.t('user.none'):this.state.user.birthday,
        rightIcon: false,
        press: () => {
-         var Update = {title: I18n.t('user.birthdate'),name: 'birthdate',value: this.state.user.birthdate};
+         var Update = {title: I18n.t('user.birthdate'),name: 'birthday',value: this.state.user.birthday};
          this.setState({Update: Update, isDateTimePickerVisible: true});
        }
-     }
+     }*/
    ]
 
    const list2 = [
@@ -564,10 +538,10 @@ export default class personal extends Component {
      {
        id: 2,
        title:I18n.t('user.occ'),
-       value: this.state.user.occ==''?I18n.t('user.none'):this.state.user.occ,
+       value: this.state.user.occ==''?I18n.t('user.none'):this.state.user.career,
        rightIcon: false,
        press: () => {
-         var Update = {title: I18n.t('user.occ'),name: 'occ',value: this.state.user.occ};
+         var Update = {title: I18n.t('user.occ'),name: 'career',value: this.state.user.career};
          this.setState({Update: Update, UpdateInfoModalVisible: true});
        }
      },
@@ -584,28 +558,19 @@ export default class personal extends Component {
    ]
 
    const list3 = [
+
      {
        id: 1,
-       title:I18n.t('user.phone'),
-       value: this.state.user.phone==''?I18n.t('user.none'):this.state.user.phone,
-       rightIcon: false,
-       press: () => {
-         var Update = {title: I18n.t('user.phone'),name: 'phone',value: this.state.user.phone};
-         this.setState({Update: Update, UpdateInfoModalVisible: true});
-       }
-     },
-     {
-       id: 2,
        title:I18n.t('user.mail'),
        value: this.state.user.email==''?I18n.t('user.none'):this.state.user.email,
        rightIcon: false,
        press: () => {
-         var Update = {title: I18n.t('user.none'),name: 'email',value: this.state.user.email};
-         this.setState({Update: Update, UpdateInfoModalVisible: true});
+         /*var Update = {title: I18n.t('user.none'),name: 'email',value: this.state.user.email};
+         this.setState({Update: Update, UpdateInfoModalVisible: true});*/
        }
      },
      {
-       id: 3,
+       id: 2,
        title: I18n.t('user.mark'),
        value: I18n.t('user.go'),
        rightIcon: false,
@@ -617,36 +582,37 @@ export default class personal extends Component {
    ];
    return (
      <View style={styles.container}>
-       <View style={styles.StatusBar}>
+       <View style={[styles.StatusBar,{backgroundColor: '#fd586d'}]}>
        </View>
-       <View style={styles.header}>
-       <View style={{flex: 1,flexDirection: 'row',alignSelf: 'stretch',alignItems: 'center',}}>
-         <Icon
-           style={{marginLeft: 5}}
-           name='chevron-left'
-           color='#f1a073'
-           size={32}
-           onPress={() => this.props.navigation.goBack()}
-         />
-       </View>
-       <View style={{flex: 1,flexDirection: 'column',justifyContent: 'center'}}>
-         <Text style={{alignSelf: 'center',fontSize: 18,color: '#333333'}}>
-           {I18n.t('user.user')}
-         </Text>
-       </View>
-       <View style={{flex: 1,flexDirection: 'column',justifyContent: 'center'}}>
-       </View>
-     </View>
-     <ScrollView>
-       <View style={styles.banner}>
-         <TouchableOpacity onPress={() => this.ChooseFace()}>
-           <Image
-             style={styles.avatar}
-             source={this.returnAvatarSource()}
+
+     <Image style={styles.banner} source={require('../icon/account/bg.png')}>
+        <View style={styles.header1}>
+         <View style={{flex: 1,flexDirection: 'row',alignItems: 'center',}}>
+           <Icon
+             style={{marginLeft: 5}}
+             name='chevron-left'
+             color='#FFFFFF'
+             size={36}
+             onPress={() => this.props.navigation.goBack()}
            />
-         </TouchableOpacity>
+         </View>
+         <View style={{flex: 1,flexDirection: 'column',justifyContent: 'center'}}>
+           <Text style={{alignSelf: 'center',fontSize: 18,color: '#FFFFFF'}}>
+             {I18n.t('user.user')}
+           </Text>
+         </View>
+         <View style={{flex: 1,flexDirection: 'column',justifyContent: 'center'}}>
+         </View>
        </View>
-       <List containerStyle={[styles.list,{marginTop: 0}]}>
+       <TouchableOpacity onPress={() => this.ChooseFace()}>
+         <Image
+           style={styles.avatar}
+           source={this.returnAvatarSource()}
+         />
+      </TouchableOpacity>
+     </Image>
+     <ScrollView>
+       <List containerStyle={[styles.list,{marginTop: 10}]}>
          <FlatList
            roundAvatar
            data={list1}
@@ -695,6 +661,7 @@ export default class personal extends Component {
                rightTitle={item.value}
                titleStyle={styles.title}
                containerStyle={styles.listContainerStyle}
+               rightIcon={<View></View>}
                onPress={() => item.press()}
              />
            )}
@@ -725,7 +692,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         //justifyContent: 'center',
         alignItems: 'stretch',
-        backgroundColor: '#f2f2f2',
+        backgroundColor: '#f3f3f3',
     },
     StatusBar:  {
       height:22,
@@ -738,23 +705,32 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       backgroundColor: '#FFFFFF',
     },
-    banner: {
-      height: 120,
+    header1: {
+      height: 36,
       alignSelf: 'stretch',
+      flexDirection: 'row',
+      alignItems: 'center',
+      //backgroundColor: '#FFFFFF',
+      marginBottom: 8,
+    },
+    banner: {
+      height: 164,
+      width: width,
+      alignSelf: 'center',
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: '#f1a073',
+      backgroundColor: '#fd586d',
     },
     avatar: {
-      height: 80,
-      width: 80,
-      borderRadius: 40,
-      borderWidth: 1,
+      height: 74,
+      width: 74,
+      borderRadius: 37,
+      borderWidth: 2,
       borderColor: '#FFFFFF',
+      backgroundColor: '#FFFFFF',
     },
     title: {
-      fontWeight: '500',
       marginLeft: 10,
       marginTop: 5,
     },
@@ -778,7 +754,7 @@ const styles = StyleSheet.create({
       height: 140,
       textAlignVertical: 'top',
       borderWidth: 1,
-      borderColor: '#f1a073',
+      borderColor: '#fd586d',
       alignSelf: 'center',
       color: '#666666',
       fontSize: 14,

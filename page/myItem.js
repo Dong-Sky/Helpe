@@ -12,6 +12,7 @@ import {
   FlatList,
   ActivityIndicator,
   DeviceEventEmitter,
+  Dimensions,
 } from 'react-native';
 import {
   StackNavigator,
@@ -23,6 +24,9 @@ import { Icon,Button,Avatar } from 'react-native-elements';
 import MapView, { marker,Callout,} from 'react-native-maps';
 import ScrollableTabView from 'react-native-scrollable-tab-view';
 import Service from '../common/service';
+
+const width = Dimensions.get('window').width;
+const height = Dimensions.get('window').height;
 
 //时间戳转换字符
 function formatDate(t){
@@ -50,8 +54,8 @@ class myItem extends Component {
            <Icon
              style={{marginLeft: 5}}
              name='keyboard-arrow-left'
-             color='#f1a073'
-             size={32}
+             color='#fd586d'
+             size={36}
              onPress={() => this.props.navigation.goBack()}
            />
          </View>
@@ -64,8 +68,8 @@ class myItem extends Component {
          </View>
        </View>
        <ScrollableTabView
-         tabBarUnderlineStyle={{backgroundColor:'#f1a073'}}
-         tabBarActiveTextColor='#f1a073'
+         tabBarUnderlineStyle={{backgroundColor:'#fd586d'}}
+         tabBarActiveTextColor='#fd586d'
          style={{backgroundColor: '#FFFFFF'}}
          >
         <ServicePage
@@ -122,14 +126,14 @@ class ServicePage extends Component {
 
   makeRemoteRequest = () => {
     const { token,uid,page,seed,tp } = this.state;
-    const url = Service.BaseUrl+`?a=user&m=item&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&tp=${tp}`;
-
+    const url = Service.BaseUrl+Service.v+`/item/myitem?t=${token}&page=${page}&per-page=10&type=${tp}`;
+    console.log(url);
     this.setState({ loading: true, });
     fetch(url)
       .then(res => res.json())
       .then(
         res => {
-          console.log(res.data);
+          console.log(res);
         this.setState({
           data: page === 1 ? res.data.data : [...this.state.data, ...res.data.data],
           error: res.error || null,
@@ -200,7 +204,7 @@ class ServicePage extends Component {
   render() {
     const { navigate } = this.props.navigation;
     return (
-      <List containerStyle={{ borderTopWidth: 0, borderBottomWidth: 0,flex:1,marginTop: 0 }}>
+      <List containerStyle={{ backgroundColor: '#f3f3f3',borderTopWidth: 0, borderBottomWidth: 0,flex:1,marginTop: 0 }}>
         <FlatList
           data={this.state.data}
           renderItem={({ item }) => (
@@ -210,12 +214,12 @@ class ServicePage extends Component {
               key={item.id}
               title={item.name}
               subtitleNumberOfLines={2}
-              subtitle={formatDate(item.t)+'\n'+I18n.t('myItem.salenum')+': '+item.salenum+I18n.t('myItem.e')}
+              subtitle={formatDate(item.pt)+'\n'+I18n.t('myItem.salenum')+': '+item.salenum+I18n.t('myItem.e')}
               rightTitle={item.flag==1? I18n.t('myItem.online'):I18n.t('myItem.underline')}
               avatar={{ uri:Service.BaseUri+item.img  }}
               avatarContainerStyle={{height:60,width:60}}
               avatarStyle={{height:60,width:60}}
-              containerStyle={{ borderBottomWidth: 0 }}
+              containerStyle={[{ backgroundColor: '#FFFFFF',borderBottomWidth: 0,marginTop: 20,borderRadius: 15,overflow: 'hidden',width: width-20,marginLeft: 10,marginRight: 10 },styles.shadow]}
               onPress={() => {
                 const params = {
                   token: this.state.token,
@@ -223,17 +227,17 @@ class ServicePage extends Component {
                   islogin: this.state.uid,
                   itemId: item.id,
                 };
-                if(item.tp==0){
+                if(item.type==0){
                   navigate('myItemDetail_Service',params);
                 }
-                else if(item.tp==1){
+                else if(item.type==1){
                   navigate('myItemDetail_Ask',params)
                 }
               }}
             />
           )}
           keyExtractor={item => item.id}
-          ItemSeparatorComponent={this.renderSeparator}
+          //ItemSeparatorComponent={this.renderSeparator}
           ListFooterComponent={this.renderFooter}
           onRefresh={this.handleRefresh}
           refreshing={this.state.refreshing}
@@ -277,12 +281,12 @@ class AskPage extends Component {
 
     this.subscription = DeviceEventEmitter.addListener('refresh_myAsk',() => this.makeRemoteRequest());
 
-    
+
   };
 
   makeRemoteRequest = () => {
     const { token,uid,page,seed,tp } = this.state;
-    const url = Service.BaseUrl+`?a=user&m=item&v=${Service.version}&token=${token}&uid=${uid}&p=${page}&ps=10&tp=${tp}`;
+    const url = Service.BaseUrl+Service.v+`/item/myitem?t=${token}&page=${page}&per-page=10&type=${tp}`;
     console.log(url);
     this.setState({ loading: true, });
     fetch(url)
@@ -360,7 +364,7 @@ class AskPage extends Component {
   render() {
     const { navigate } = this.props.navigation;
     return (
-      <List containerStyle={{ borderTopWidth: 0, borderBottomWidth: 0,flex:1,marginTop: 0  }}>
+      <List containerStyle={{ backgroundColor: '#f3f3f3',borderTopWidth: 0, borderBottomWidth: 0,flex:1,marginTop: 0  }}>
         <FlatList
           data={this.state.data}
           renderItem={({ item }) => (
@@ -369,12 +373,13 @@ class AskPage extends Component {
               roundAvatar
               key={item.id}
               title={item.name}
-              subtitle={I18n.t('myItem.start')+': '+formatDate(item.t)}
-              rightTitle={item.flag==1? 'online':'not online'}
+              subtitleNumberOfLines={2}
+              subtitle={formatDate(item.pt)+'\n'+I18n.t('myItem.salenum')+': '+item.salenum+I18n.t('myItem.e')}
+              rightTitle={item.flag==1? I18n.t('myItem.online'):I18n.t('myItem.underline')}
               avatar={{ uri:Service.BaseUri+item.img  }}
               avatarContainerStyle={{height:60,width:60}}
               avatarStyle={{height:60,width:60}}
-              containerStyle={{ borderBottomWidth: 0 }}
+              containerStyle={[{ backgroundColor: '#FFFFFF',borderBottomWidth: 0,marginTop: 20,borderRadius: 15,overflow: 'hidden',width: width-20,marginLeft: 10,marginRight: 10 },styles.shadow]}
               onPress={() => {
                 const params = {
                   token: this.state.token,
@@ -382,17 +387,17 @@ class AskPage extends Component {
                   islogin: this.state.uid,
                   itemId: item.id,
                 };
-                if(item.tp==0){
+                if(item.type==0){
                   navigate('myItemDetail_Service',params);
                 }
-                else if(item.tp==1){
+                else if(item.type==1){
                   navigate('myItemDetail_Ask',params)
                 }
               }}
             />
           )}
           keyExtractor={item => item.id}
-          ItemSeparatorComponent={this.renderSeparator}
+          //ItemSeparatorComponent={this.renderSeparator}
           ListFooterComponent={this.renderFooter}
           onRefresh={this.handleRefresh}
           refreshing={this.state.refreshing}
@@ -412,7 +417,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'stretch',
-        backgroundColor: '#f2f2f2',
+        backgroundColor: '#f3f3f3',
   },
   StatusBar:  {
       height:22,
@@ -436,10 +441,15 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   account_icon: {
-      tintColor:'#f1a073',
+      tintColor:'#fd586d',
       width:25,
       height:25,
   },
-
+  shadow: {
+    shadowColor:'black',
+    shadowOffset:{height:0,width:0},
+    shadowRadius: 1,
+    shadowOpacity: 0.4,
+  }
 });
 export default myItem;

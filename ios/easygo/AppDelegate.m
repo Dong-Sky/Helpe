@@ -8,13 +8,14 @@
  */
 
 #import "AppDelegate.h"
+#import "SplashScreen.h"
 #import "RNUMConfigure.h"
 #import <UMCommon/UMCommon.h>           // 公共组件是所有友盟产品的基础组件，必选
 #import <UMAnalytics/MobClick.h>        // 统计组件
 #import <UMPush/UMessage.h>             // Push组件
 #import <UserNotifications/UserNotifications.h>  // Push组件必须的系统库
 
-#import <FBSDKCoreKit/FBSDKCoreKit.h>
+//#import <FBSDKCoreKit/FBSDKCoreKit.h>
 
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
@@ -32,8 +33,12 @@
                                                initialProperties:nil
                                                    launchOptions:launchOptions];
   rootView.backgroundColor = [[UIColor alloc] initWithRed:1.0f green:1.0f blue:1.0f alpha:1];
+  /*
   [[FBSDKApplicationDelegate sharedInstance] application:application
                            didFinishLaunchingWithOptions:launchOptions];
+  
+  [FBSDKProfile enableUpdatesOnAccessTokenChange:YES];*/
+  
 
   self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
   UIViewController *rootViewController = [UIViewController new];
@@ -62,12 +67,15 @@
       // 用户选择了接收Push消息
     }else{
       // 用户拒绝接收Push消息
+      
     }
   }];
   
+ [SplashScreen show];
   return YES;
 }
 
+/*
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url
   sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
   
@@ -76,11 +84,12 @@
                                                       sourceApplication:sourceApplication
                                                              annotation:annotation
                   ];
+  
   // Add any custom logic here.
   
   
   return handled;
-}
+}*/
 
 //iOS10以下使用这个方法接收通知
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
@@ -122,7 +131,7 @@
 }
 
 //iOS10新增：处理后台点击通知的代理方法
--(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)())completionHandler{
+-(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler{
   NSDictionary * userInfo = response.notification.request.content.userInfo;
   if([response.notification.request.trigger isKindOfClass:[UNPushNotificationTrigger class]]) {
     //应用处于后台时的远程推送接受

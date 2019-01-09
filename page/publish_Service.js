@@ -100,7 +100,7 @@ function isRealNum(val){
          //发布信息
          name: null,
          tp: 0,
-         cid: 0,
+         cid: -1,
          aid : null,
          price: null,
          u: null,
@@ -202,6 +202,7 @@ function isRealNum(val){
         alert("customButton: " + response.customButton);
       }
       else {
+        console.log(response);
         let source = { uri: response.uri };
         // You can also display the image using data:
         // let source = { uri: 'data:image/jpeg;base64,' + response.data };
@@ -227,6 +228,7 @@ function isRealNum(val){
         alert("customButton:" + response.customButton);
       }
       else {
+        console.log(response);
         let source = { uri: response.uri };
         var img = this.state.img;
         img[i] = response.uri;
@@ -257,21 +259,13 @@ function isRealNum(val){
 
   //获取商品类型
   getItemCategory = () => {
-    const url = Service.BaseUrl+`?a=category&v=${Service.version}`;
+    const url = Service.BaseUrl+Service.v+`/category`;
+    console.log(url);
     fetch(url)
     .then(response => response.json())
     .then(responseJson => {
       console.log(responseJson);
-      if(!responseJson.status){
-        var category = this.state.category;
-        var arr = responseJson.data.data;
-        console.log(arr);
-        var newCategory = category.concat(arr);
-        console.log(newCategory);
-        this.setState({category: newCategory});
-      }
-      else {
-      }
+        this.setState({category: responseJson.data.data});
     })
     .catch(err => console.log(error))
   };
@@ -280,17 +274,13 @@ function isRealNum(val){
   //获取地址列表方法
   getAddress = () => {
       const {token,uid} = this.state;
-      fetch(Service.BaseUrl, {
-       method: 'POST',
-       headers: {
-         'Content-Type': 'application/x-www-form-urlencoded',
-       },
-       body: 'a=addr&token='+token+'&uid='+uid+'&v='+Service.version,
-     })
+      const url = Service.BaseUrl+Service.v+`/address?t=${token}`;
+      console.log(url);
+      fetch(url)
      .then(response => response.json())
      .then(responseJson => {
        console.log(responseJson);
-       this.setState({ data: responseJson.data });
+       this.setState({ data: responseJson.data.data });
      })
      .catch(error => console.log(error))
   };
@@ -298,8 +288,9 @@ function isRealNum(val){
   //添加地址方法
   addAddress = () => {
     const { token,uid,region,aid,info } = this.state;
-    const body = 'a=addr&m=add&v='+Service.version+'&token='+token+'&uid='+uid+'&aid='+aid+'&lat='+region.latitude+'&lng='+region.longitude+'&info='+info;
-    fetch(Service.BaseUrl, {
+    const url = Service.BaseUrl+Service.v+`/address/add?t=${token}`
+    const body = 'lat='+region.latitude+'&lng='+region.longitude+'&info='+info;
+    fetch(url, {
      method: 'POST',
      headers: {
        'Content-Type': 'application/x-www-form-urlencoded',
@@ -322,6 +313,9 @@ function isRealNum(val){
 
   //发布方法
   publish = () => {
+
+    AnalyticsUtil.onEvent('publish_Service');
+
       this.setState({ loading: true });
       const { name,token,aid,uid,tp,cid,price,mark,defaultImgSouce,img,underline,online,u,contact,deadline } = this.state;
 
@@ -340,31 +334,32 @@ function isRealNum(val){
       }
 
       let formData = new FormData();
+      let itemfile = [];
+
       for(i=0;i<6;i++){
-        if(img[i]!=null){
-          let file = {uri: img[i], type: 'multipart/form-data', name: 'img0'};
-          formData.append('itemfile'+i,file);
+        if(!!img[i]){
+          let file = {uri: img[i], type: 'multipart/form-data', name: 'itemfile'+i+'.jpg'};
+          formData.append('itemfile[]',file);
         }
       }
       //const body = `a=itempub&v=${Service.version}&token=${token}&uid=${uid}&aid=${aid}&name=${name}&tp=${tp}&cid=${cid}&price=${price}&mark=${mark}`;
-      const url = Service.BaseUrl;
-
+      const url = Service.BaseUrl+Service.v+`/item/pub?t=${token}`;
       //添加参数
       formData.append('a','itempub');
-      formData.append('v',Service.version);
+      //formData.append('itemfile[]',itemfile);
       formData.append('token',token);
       formData.append('uid',uid);
       formData.append('aid',aid);
       formData.append('name',name);
-      formData.append('tp',tp);
+      formData.append('type',tp);
       formData.append('cid',cid);
       formData.append('price',price);
-      formData.append('u',u);
+      formData.append('unit',u);
       formData.append('contact',contact);
       formData.append('mark',mark);
       formData.append('paytp',paytp);
-      formData.append('deadline',deadline);
-
+      //formData.append('deadline',deadline);
+      console.log(formData);
       fetch(url,{
           method:'POST',
           headers:{
@@ -374,11 +369,12 @@ function isRealNum(val){
         })
         .then(response => response.json())
         .then(responseJson => {
-
+          console.log(responseJson);
           this.setState({ loading: false });
           if(!responseJson.status){
+
             alert(I18n.t('success.publish'));
-            console.log(this.state);
+
             this.props.navigation.dispatch(
               NavigationActions.reset({
                index: 0,
@@ -397,7 +393,7 @@ function isRealNum(val){
            );
           }
           else {
-            alert(I18n.t('error.add_failed'));
+            alert(I18n.t('error.publish_failed'));
           }
         })
         .catch(error => {console.log(error);this.setState({loading: false})})
@@ -460,8 +456,8 @@ function isRealNum(val){
                <Icon
                  style={{marginLeft: 5}}
                  name='keyboard-arrow-left'
-                 color='#f1a073'
-                 size={32}
+                 color='#fd586d'
+                 size={36}
                  onPress={() => {
                    this.setAddressModalVisible(!this.state.addressModalVisible);
                  }}
@@ -476,7 +472,7 @@ function isRealNum(val){
                <View style={{marginRight: 10}}>
                  <Icon
                    name='add'
-                   color='#f1a073'
+                   color='#fd586d'
                    size={28}
                    onPress={() => this.setState({newAddressModalVisible: true},this.getLocation)}
                  />
@@ -534,8 +530,8 @@ function isRealNum(val){
              <Icon
                style={{marginLeft: 5}}
                name='keyboard-arrow-left'
-               color='#f1a073'
-               size={32}
+               color='#fd586d'
+               size={36}
                onPress={() => {
                  this.setNewAddressModalVisible(!this.state.newAddressModalVisible);
                }}
@@ -590,7 +586,7 @@ function isRealNum(val){
             style={styles.button}
             buttonStyle={{marginTop:5,marginBottom:5,}}
             borderRadius={5}
-            backgroundColor='#f1a073'
+            backgroundColor='#fd586d'
             onPress={() => {
               if(this.state.info==null){
                 alert(I18n.t('publish.no_info'));
@@ -610,7 +606,7 @@ function isRealNum(val){
   renderInfoModal = () => {
     return(
       <Modalbox
-        style={{height: 220,width: 300,alignItems: 'center',}}
+        style={{height: 220,width: 300,alignItems: 'center',borderRadius: 20,overflow: 'hidden'}}
         isOpen={this.state.isInfoModalVisible}
         isDisabled={this.state.isDisabled1}
         position='center'
@@ -636,7 +632,7 @@ function isRealNum(val){
           </View>
           <Button
             style={styles.button1}
-            backgroundColor='#f1a073'
+            backgroundColor='#fd586d'
             borderRadius={5}
             title={I18n.t('common.submit')}
             onPress={() => this.setState({isInfoModalVisible: false,})}
@@ -662,7 +658,7 @@ function isRealNum(val){
                <Icon
                  style={{marginLeft: 5}}
                  name='keyboard-arrow-left'
-                 color='#f1a073'
+                 color='#fd586d'
                  size={32}
                  onPress={() => {
                    this.setCategoryModalVisible(!this.state.categoryMoalVisible);
@@ -679,11 +675,11 @@ function isRealNum(val){
            </View>
            <View style={{flex: 1,marginTop: 0,backgroundColor: '#FFFFFF'}}>
              <FlatList
-               data={this.state.category.slice(1)}
+               data={this.state.category.slice(0)}
                renderItem={({ item }) => (
                  <CheckBox
                    containerStyle={{backgroundColor: '#FFFFFF',borderColor: '#FFFFFF',borderWidth: 0,marginTop: 0,marginBottom: 0,}}
-                   title={item.name}
+                   title={item.jp_name}
                    iconRight={true}
                    right={false}
                    textStyle={styles.title}
@@ -719,7 +715,7 @@ function isRealNum(val){
                <Icon
                  style={{marginLeft: 5}}
                  name='chevron-left'
-                 color='#f1a073'
+                 color='#fd586d'
                  size={32}
                  onPress={() => this.setMarkModalVisible(!this.state.markModalVisible)}
                />
@@ -787,7 +783,7 @@ function isRealNum(val){
           </View>
           <Button
             style={styles.button1}
-            backgroundColor='#f1a073'
+            backgroundColor='#fd586d'
             borderRadius={5}
             title={I18n.t('common.finish')}
             onPress={() => this.setState({contactModalVisible: false,})}
@@ -814,7 +810,7 @@ function isRealNum(val){
                style={{marginLeft: 5}}
                name='keyboard-arrow-left'
                color='#f1a073'
-               size={32}
+               size={36}
                onPress={() => {
                  this.setAddPhotoModalVisible(!this.state.addPhotoModalVisible);
                }}
@@ -949,8 +945,8 @@ function isRealNum(val){
               <Icon
                 style={{marginLeft: 5}}
                 name='keyboard-arrow-left'
-                color='#f1a073'
-                size={32}
+                color='#fd586d'
+                size={36}
                 onPress={() => this.props.navigation.goBack()}
               />
             </View>
@@ -1018,20 +1014,20 @@ function isRealNum(val){
                   <Switch
                     value={this.state.underline}
                     onValueChange={(underline) => this.setState({underline})}
-                    onTintColor='#f1a073'
+                    onTintColor='#fd586d'
                   />
                 }
                 containerStyle={styles.listContainerStyle}
               />
               {this.renderSeparator()}
               <ListItem
-                titleStyle={styles.title}
+                titleStyle={[styles.title,{color: '#999999'}]}
                 title={I18n.t('publish.online')}
                 rightIcon={
                   <Switch
                     value={this.state.online}
-                    onValueChange={(online) => this.setState({online})}
-                    onTintColor='#f1a073'
+                    onValueChange={(online) => {}}
+                    onTintColor='#fd586d'
                   />
                 }
                 containerStyle={styles.listContainerStyle}
@@ -1041,7 +1037,7 @@ function isRealNum(val){
               <ListItem
                 titleStyle={styles.title}
                 title={I18n.t('publish.S_cate')}
-                rightTitle={this.state.category[this.state.cid].name}
+                rightTitle={this.state.cid>0?this.state.category[this.state.cid-1].jp_name:'?'}
                 onPress={() => this.setCategoryModalVisible(true)}
                 containerStyle={styles.listContainerStyle}
               />
@@ -1100,11 +1096,11 @@ function isRealNum(val){
         </ScrollView>
         <Button
         style={styles.button}
-        backgroundColor='#f1a073'
+        backgroundColor='#fd586d'
         borderRadius={5}
         title={I18n.t('common.submit')}
         onPress={() => {
-          console.log((this.state.online||this.state.underline));
+          console.log(this.state.img);
           if(this.state.img[0]==null||this.state.img[0]==''){
             alert(I18n.t('publish.no_img'));
           }
@@ -1117,7 +1113,7 @@ function isRealNum(val){
           else if(!(this.state.online||this.state.underline)){
             alert(I18n.t('publish.no_paytp'));
           }
-          else if (!this.state.cid) {
+          else if (this.state.cid<0) {
             alert(I18n.t('publish.no_cate'));
           }
           else if(this.state.aid==null||this.state.aid==''){
@@ -1155,7 +1151,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     //justifyContent: 'center',
     alignItems: 'stretch',
-    backgroundColor: '#f2f2f2',
+    backgroundColor: '#f3f3f3',
   },
   StatusBar:  {
       height: 22,
@@ -1259,7 +1255,7 @@ const styles = StyleSheet.create({
     height: 140,
     textAlignVertical: 'top',
     borderWidth: 1,
-    borderColor: '#f1a073',
+    borderColor: '#fd586d',
     alignSelf: 'center',
     color: '#666666',
     fontSize: 14,
@@ -1267,7 +1263,7 @@ const styles = StyleSheet.create({
   },
   modal_body: {
     flex: 1,
-    backgroundColor: '#f2f2f2'
+    backgroundColor: '#f3f3f3'
     //flexDirection: 'column',
     //alignItems: 'center',
   },
@@ -1276,7 +1272,7 @@ const styles = StyleSheet.create({
     height: 120,
     textAlignVertical: 'top',
     borderWidth: 1,
-    borderColor: '#f1a073',
+    borderColor: '#fd586d',
     alignSelf: 'center',
     color: '#666666',
     fontSize: 14,

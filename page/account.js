@@ -11,6 +11,8 @@ import {
   TouchableHightlight,
   FlatList,
   DeviceEventEmitter,
+  Dimensions,
+  TouchableWithoutFeedback
 } from 'react-native';
 import {
   StackNavigator,
@@ -21,6 +23,15 @@ import { List, ListItem } from 'react-native-elements';
 import { Icon,Button,Avatar } from 'react-native-elements';
 import QRCode from 'react-native-qrcode';
 import Service from '../common/service';
+
+import Modalbox from 'react-native-modalbox';
+
+
+//获取屏幕尺寸
+const width = Dimensions.get('window').width;
+const height = Dimensions.get('window').height;
+
+console.log(height);
 
 
 
@@ -63,7 +74,7 @@ class account1 extends Component {
           uid: null,
           islogin: false,
           user: {},
-        },this.getUserInfo)
+        })
       }
       }
     );
@@ -107,13 +118,14 @@ class account1 extends Component {
 
   getUserInfo = () => {
     const { token,uid } = this.state;
-    const url = Service.BaseUrl+`?a=user&m=info&token=${token}&uid=${uid}&id=${uid}&v=${Service.version}`;
+    if(!token){ return }
+    const url = Service.BaseUrl+Service.v+`/user/info?t=${token}`;
     console.log(url);
     fetch(url)
     .then(response => response.json())
     .then(responseJson => {
       if(!responseJson.status){
-        this.setState({user: responseJson.data.user});
+        this.setState({user: responseJson.data});
       }
       else{
 
@@ -169,29 +181,155 @@ class account1 extends Component {
     else{
       source = {uri: Service.BaseUri+this.state.user.face};
     }
-    return(
-      <TouchableOpacity
-        style={{marginTop: 10,marginLeft: 15}}
-        onPress={() => {
-          if(!this.state.islogin){
-            navigate('login',{
-            token:this.state.token,
-            uid:this.state.uid,
-            islogin:this.state.islogin,
-            })
-          }
-          else{
-            alert('已经登录!');
-          }
-        }}
-        >
-        <Image
-          style={styles.avatar}
-          source={source}
-        />
-      </TouchableOpacity>
-      );
+
+    return source;
   };
+
+  renderOrderModal = () => {
+    return (
+      <Modalbox
+        style={[styles.shadow,{width:width-40,height: 113,marginTop: 155,borderWidth: 0,borderColor: '#e5e5e5',borderRadius: 15,backgroundColor: '#FFFFFF',alignItems: 'center'}]}
+        isOpen={true}
+        isDisabled={false}
+        position='Top'
+        backdrop={false}
+        backButtonClose={false}
+        swipeToClose={false}
+        //backdropOpacity={0.1}
+        //backdropColor='#FFFFFF'
+        //onClosed={() => this.setState({modalVisible: false})}
+        >
+
+            <View style={{flexDirection: 'row',height: 30,marginTop: 15,width: width-40-20,marginLeft: 10,marginRight: 10,alignItems: 'flex-start',}}>
+              <Image
+                style={{height: 24,width: 24,tintColor: '#fd586d'}}
+                source={require('../icon/account/order.png')}
+              />
+              <View style={{height: 30,alignItems: 'center',justifyContent: 'center',marginLeft: 5}}>
+                <Text style={{fontSize: 14,color:'#999999',height: 24 }}>
+                  {I18n.t('myOrder.myOrder')}
+                </Text>
+              </View>
+
+            </View>
+            <View style={{flexDirection: 'row',height: 113-30-30,width: width-10-40,marginLeft: 5,marginRight: 5,}}>
+              <View style={{flex: 1,height: 113-60,alignItems: 'center',justifyContent: 'center',}}>
+
+                <TouchableWithoutFeedback onPress={() => {
+                  if(this.state.islogin){
+                    this.props.navigation.navigate('myOrder',{
+                      uid: this.state.uid,
+                      token: this.state.token,
+                      islogin: this.state.islogin,
+                      status: '&status=0',
+                      title: I18n.t('myOrder.o1'),
+                    })
+                  }
+                  else{
+                    alert(I18n.t('account.noLogin'))
+                  }
+                }}>
+                  <View style={{alignItems: 'center',justifyContent: 'center'}}>
+                    <Image
+                      style={{height: 28,width: 28}}
+                      source={require('../icon/account/order1.png')}
+                      resizeMode='contain'
+                    />
+                    <Text style={{fontSize: 14,color: '#999999',marginTop: 10}}>
+                      {I18n.t('myOrder.o1')}
+                    </Text>
+                  </View>
+                </TouchableWithoutFeedback>
+              </View>
+              <View style={{flex: 1,height: 113-60,alignItems: 'center',justifyContent: 'center'}}>
+                <TouchableWithoutFeedback onPress={() => {
+                  if(this.state.islogin){
+                    this.props.navigation.navigate('myOrder',{
+                      uid: this.state.uid,
+                      token: this.state.token,
+                      islogin: this.state.islogin,
+                      status: '&status=10,20,30',
+                      title: I18n.t('myOrder.o2'),
+                    })
+                  }
+                  else{
+                    alert(I18n.t('account.noLogin'))
+                  }
+                }}>
+                  <View style={{alignItems: 'center',justifyContent: 'center'}}>
+                    <Image
+                      style={{height: 28,width: 28}}
+                      source={require('../icon/account/order2.png')}
+                      resizeMode='contain'
+                    />
+                    <Text style={{fontSize: 14,color: '#999999',marginTop: 10}}>
+                      {I18n.t('myOrder.o2')}
+                    </Text>
+                  </View>
+                </TouchableWithoutFeedback>
+
+              </View>
+              <View style={{flex: 1,height: 113-60,alignItems: 'center',justifyContent: 'center'}}>
+                <TouchableWithoutFeedback onPress={() => {
+                  if(this.state.islogin){
+                    this.props.navigation.navigate('myOrder',{
+                      uid: this.state.uid,
+                      token: this.state.token,
+                      islogin: this.state.islogin,
+                      status: '&status=40,50,60',
+                      title: I18n.t('myOrder.o3'),
+                    })
+                  }
+                  else{
+                    alert(I18n.t('account.noLogin'))
+                  }
+                }}>
+                  <View style={{alignItems: 'center',justifyContent: 'center'}}>
+                    <Image
+                      style={{height: 28,width: 28}}
+                      source={require('../icon/account/order3.png')}
+                      resizeMode='contain'
+                    />
+                    <Text style={{fontSize: 14,color: '#999999',marginTop: 10}}>
+                      {I18n.t('myOrder.o3')}
+                    </Text>
+                  </View>
+                </TouchableWithoutFeedback>
+              </View>
+              <View style={{flex: 1,height: 113-60,alignItems: 'center',justifyContent: 'center'}}>
+                <TouchableWithoutFeedback onPress={() => {
+                  if(this.state.islogin){
+                    this.props.navigation.navigate('myOrder',{
+                      uid: this.state.uid,
+                      token: this.state.token,
+                      islogin: this.state.islogin,
+                      status: '&status=0,10,20,30,40,50,60',
+                      title: I18n.t('myOrder.o4'),
+                    })
+                  }
+                  else{
+                    alert(I18n.t('account.noLogin'))
+                  }
+                }}>
+                  <View style={{alignItems: 'center',justifyContent: 'center'}}>
+                    <Image
+                      style={{height: 28,width: 28}}
+                      source={require('../icon/account/order4.png')}
+                      resizeMode='contain'
+                    />
+                    <Text style={{fontSize: 14,color: '#999999',marginTop: 10}}>
+                      {I18n.t('myOrder.o4')}
+                    </Text>
+                  </View>
+                </TouchableWithoutFeedback>
+              </View>
+            </View>
+
+
+      </Modalbox>
+    );
+  }
+
 
  render() {
     const {params} = this.props.navigation.state;
@@ -209,7 +347,7 @@ class account1 extends Component {
     //定义列表
 
     const list1 = [
-    /*  {
+      /*{
         id: 1,
         title: '我的钱包',
         icon : (
@@ -226,7 +364,7 @@ class account1 extends Component {
         },
       },*/
       {
-        id: 2,
+        id: 1,
         title: I18n.t('account.pub'),
         icon : (
           <Image
@@ -249,10 +387,8 @@ class account1 extends Component {
           }
         },
       },
-    ];
-    const list2 =[
       {
-        id: 1,
+        id: 2,
         title: I18n.t('account.fav'),
         icon : (
           <Image
@@ -274,7 +410,47 @@ class account1 extends Component {
         },
       },
       {
-        id: 2,
+        id: 3,
+        title: I18n.t('account.myFollow'),
+        icon: (
+          <Image
+          source={require('../icon/account/ord.png')}
+          style={styles.account_icon}
+        />
+      ),
+        icon_color:'#f1a073',
+        x:5,
+        press(state){
+          if(state.islogin){
+            navigate('follow',state);
+          }
+          else {
+            alert(I18n.t('account.noLogin'));
+          }
+        },
+      },
+      {
+        id: 4,
+        title: I18n.t('account.myContent'),
+        icon: (
+          <Image
+          source={require('../icon/account/content.png')}
+          style={styles.account_icon}
+        />
+      ),
+        icon_color:'#f1a073',
+        x:7,
+        press(state){
+          if(state.islogin){
+            navigate('myFeedback',state);
+          }
+          else {
+            alert(I18n.t('account.noLogin'));
+          }
+        },
+      },
+      {
+        id: 5,
         title: I18n.t('account.myAddress'),
         icon: (
           <Image
@@ -293,6 +469,27 @@ class account1 extends Component {
           }
         },
       },
+    ];
+
+    const list2 =[
+      {
+        id: 1,
+        title: I18n.t('account.setting'),
+        icon: (
+          <Image
+          source={require('../icon/account/setting.png')}
+          style={styles.account_icon}
+        />
+      ),
+        icon_color:'#f1a073',
+        x:5,
+        press(state){
+
+              navigate('setting',{
+              })
+          },
+      },
+
 
     ];
 
@@ -393,190 +590,150 @@ class account1 extends Component {
           }
         },
       },
-      {
-        id: 5,
-        title: I18n.t('account.myFollow'),
-        icon: (
-          <Image
-          source={require('../icon/account/ord.png')}
-          style={styles.account_icon}
-        />
-      ),
-        icon_color:'#f1a073',
-        x:5,
-        press(state){
-          if(state.islogin){
-            navigate('follow',state);
-          }
-          else {
-            alert(I18n.t('account.noLogin'));
-          }
-        },
-      },
-      {
-        id: 6,
-        title: I18n.t('account.myContent'),
-        icon: (
-          <Image
-          source={require('../icon/account/content.png')}
-          style={styles.account_icon}
-        />
-      ),
-        icon_color:'#f1a073',
-        x:7,
-        press(state){
-          if(state.islogin){
-            navigate('myFeedback',state);
-          }
-          else {
-            alert(I18n.t('account.noLogin'));
-          }
-        },
-      },
+
+
     ];
 
-   const list4 = [
-     {
-       id: 1,
-       title: I18n.t('account.setting'),
-       icon: (
-         <Image
-         source={require('../icon/account/setting.png')}
-         style={styles.account_icon}
-       />
-     ),
-       icon_color:'#f1a073',
-       x:5,
-       press(state){
-
-             navigate('setting',{
-             })
-         },
-     },
-   ];
    return (
+
      <View style={styles.container}>
-       <View style={styles.StatusBar}>
+       <ScrollView scrollEnabled={height<650} style={{height: 2000}}>
+       <View style={[styles.StatusBar,{backgroundColor: '#fd586d'}]}>
        </View>
-       <View style={styles.header}>
-         <View style={{flex: 1,}}>
-         </View>
-         <View style={{flex: 1,}}>
 
-           <Text style={{alignSelf: 'center',fontSize: 18,color: '#333333'}}>
-             {I18n.t('account.me')}
-           </Text>
-         </View>
-         <View style={{flex: 1,}}>
-         </View>
-       </View>
-       <ScrollView>
-         <View style={styles.userInfo}>
-            <TouchableOpacity style={styles.user} onPress={() => this.onPressHeader(this.state.islogin)}>
-              {this.returnAvatar()}
-              <Text style={{alignSelf: 'center',marginTop: 10,marginLeft: 15,fontSize: 16,color: '#333333'}}>
-                {this.state.islogin?this.state.user.name:I18n.t('account.goLogin')}
-              </Text>
-            </TouchableOpacity>
-           <View style={styles.order}>
-             <TouchableOpacity
-               style={{flex:1,borderRightWidth:1,borderColor: '#e5e5e5',flexDirection: 'column',justifyContent: 'center', alignItems: 'center',}}
-
-               onPress={() => alert(I18n.t('account.not_open'))}
-               >
-              <Image
-                   source={require('../icon/account/getmoney.png')}
-                   style={{width:40,height:40}}
-                  />
-              <Text
-                style={{color:'#333333',fontWeight:'500',fontSize:14,}}
-                >
-                {I18n.t('account.getmoney')}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{flex:1,borderLeftWidth:1,borderColor: '#e5e5e5',flexDirection: 'column', justifyContent: 'center',alignItems: 'center',}}
-              onPress={() => alert(I18n.t('account.not_open'))}
-              >
+       <View>
+         <Image style={styles.userInfo} source={require('../icon/account/bg.png')}>
+           <View style={styles.user}>
+             <View  style={{width: 40,justifyContent: 'flex-end',alignItems: 'center'}}>
                <Image
-               source={require('../icon/account/qrcode.png')}
-               style={{width:40,height:40}}
-             />
-               <Text  style={{color:'#333333',fontWeight:'500',fontSize:14,}}>
+                 source={require('../icon/account/good.png')}
+                 style={{height: 24,width: 24,marginBottom: 20}}
+                 resizeMode="cover"
+               />
+             </View>
+             <View style={{flex: 1,alignItems: 'center'}}>
+               <TouchableOpacity
+                 style={styles.avatarTouch}
+                 onPress={() => {
+                   if(!this.state.islogin){
+                     navigate('login',{
+                     token:this.state.token,
+                     uid:this.state.uid,
+                     islogin:this.state.islogin,
+                     })
+                   }
+                   else{
+                     //alert('已经登录!');
+                     navigate('personal',{
+                     token:this.state.token,
+                     uid:this.state.uid,
+                     islogin:this.state.islogin,
+                     })
+                   }
+                 }}>
+                 <Image
+                   style={styles.avatar}
+                   source={this.returnAvatar()}
 
-                 {I18n.t('account.pay')}
-
-               </Text>
-             </TouchableOpacity>
+                 />
+               </TouchableOpacity>
+               <TouchableOpacity style={{width: width-180-50,height: 44,justifyContent: 'center',alignItems: 'center'}}>
+                 <Text
+                   numberOfLines={2}
+                   style={{fontSize: 16,color: '#FFFFFF'}}
+                   onPress={() => {
+                     if(!this.state.islogin){
+                       navigate('login',{
+                       token:this.state.token,
+                       uid:this.state.uid,
+                       islogin:this.state.islogin,
+                       })
+                     }
+                     else{
+                       //alert('已经登录!');
+                       navigate('personal',{
+                       token:this.state.token,
+                       uid:this.state.uid,
+                       islogin:this.state.islogin,
+                       })
+                     }
+                   }}
+                   >
+                   {this.state.islogin?this.state.user.username:I18n.t('account.goLogin')}
+                 </Text>
+               </TouchableOpacity>
+             </View>
+             <View style={{width: 40,justifyContent: 'flex-end',alignItems: 'center'}}>
+               <Image
+                 source={require('../icon/account/fav1.png')}
+                 style={{height: 24,width: 24,marginBottom: 20}}
+               />
+             </View>
            </View>
-         </View>
-         <List containerStyle={styles.list}>
-           <ListItem
-             component={TouchableOpacity}
-             title={list1[0].title}
-             leftIcon={list1[0].icon}
-             onPress={() => list1[0].press(this.state)}
-             titleStyle={styles.title}
-             containerStyle={styles.listContainerStyle}
-           />
+         </Image>
+       </View>
+       {this.renderOrderModal()}
 
-         </List>
-         <List containerStyle={styles.list}>
-           {
-            list2.map((item, i) => (
-              <View key={i}>
-                <ListItem
-                  component={TouchableOpacity}
-                  key={i}
-                  title={item.title}
-                  leftIcon={item.icon}
-                  onPress={() => item.press(this.state)}
-                  titleStyle={styles.title}
-                  containerStyle={styles.listContainerStyle}
-                />
-                {this.renderSeparator(i==list2.length-1)}
-              </View>
-            ))
-          }
-         </List>
-         <List containerStyle={styles.list} >
-           {
-            list3.map((item, i) => (
-              <View key={i}>
-                <ListItem
-                  component={TouchableOpacity}
-                  key={i}
-                  title={item.title}
-                  leftIcon={item.icon}
-                  onPress={() => item.press(this.state)}
-                  titleStyle={styles.title}
-                  containerStyle={styles.listContainerStyle}
-                />
-                {this.renderSeparator(i==list3.length-1)}
-              </View>
-            ))
-          }
-         </List>
-         <List containerStyle={styles.list}>
-           {
-            list4.map((item, i) => (
-              <View key={i}>
-                <ListItem
-                  component={TouchableOpacity}
-                  key={i}
-                  title={item.title}
-                  leftIcon={item.icon}
-                  onPress={() => item.press(this.state)}
-                  titleStyle={styles.title}
-                  containerStyle={styles.listContainerStyle}
-                />
-                {this.renderSeparator(i==list4.length-1)}
-              </View>
-            ))
-          }
-         </List>
-        </ScrollView>
-      </View>
+       {
+         list1.map((item,i) => (
+           <Modalbox
+             key={i}
+             style={[styles.shadow,{width:width-40,height: 50,justifyContent: 'center',marginTop: 155+10+113+i*50,borderWidth: 0,borderColor: '#e5e5e5',borderRadius: 15,backgroundColor: '#FFFFFF'}]}
+             isOpen={true}
+             isDisabled={false}
+             position='Top'
+             backdrop={false}
+             backButtonClose={false}
+             swipeToClose={false}
+             //backdropOpacity={0.1}
+             //backdropColor='#FFFFFF'
+             //onClosed={() => this.setState({modalVisible: false})}
+             >
+               <ListItem
+                 containerStyle={styles.listContainerStyle}
+                 //rightIcon={{name: 'chevron-right',color: '#999999',size: 12}}
+                 title={item.title}
+                 leftIcon={item.icon}
+                 onPress={() => item.press(this.state)}
+                 titleStyle={styles.title}
+               />
+           </Modalbox>
+         ))
+       }
+       {
+         list2.map((item,i) => (
+           <Modalbox
+             key={i}
+             style={[styles.shadow,{width:width-40,justifyContent: 'center',height: 50,marginTop: 155+20+113+list1.length*50+10,borderWidth: 0,borderColor: '#e5e5e5',borderRadius: 15,backgroundColor: '#FFFFFF',}]}
+             isOpen={true}
+             isDisabled={false}
+             position='Top'
+             backdrop={false}
+             backButtonClose={false}
+             swipeToClose={false}
+             //backdropOpacity={0.1}
+             //backdropColor='#FFFFFF'
+             //onClosed={() => this.setState({modalVisible: false})}
+             >
+               <ListItem
+                 containerStyle={styles.listContainerStyle}
+
+                 title={item.title}
+                 leftIcon={item.icon}
+                 onPress={() => item.press(this.state)}
+                 titleStyle={styles.title}
+               />
+           </Modalbox>
+         ))
+       }
+       <View style={{height: 500}}>
+       </View>
+
+
+     </ScrollView>
+     </View>
+
+
    );
  }
 }
@@ -636,12 +793,13 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         //justifyContent: 'center',
-        alignItems: 'stretch',
-        backgroundColor: '#f2f2f2',
+        //alignItems: 'stretch',
+        backgroundColor: '#f3f3f3',
   },
   StatusBar:  {
       height:22,
       backgroundColor:'#FFFFFF',
+      width: width
   },
   header: {
     height: 44,
@@ -655,26 +813,25 @@ const styles = StyleSheet.create({
 
   },
   userInfo: {
-        height: 160,
-        backgroundColor: '#f2f2f2',
+        height: 200,
+        width: width,
+        backgroundColor: '#fd586d',
         flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'stretch',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
         borderWidth: 0,
-        borderBottomWidth: 1,
-        borderColor: '#e5e5e5',
-        marginTop: 10,
+        //borderBottomWidth: 1,
+        //borderColor: '#e5e5e5',
+        marginTop: 0
     },
     //header内元素
   user: {
-        flex: 1,
-        backgroundColor: '#FFFFFF',
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
-        borderBottomWidth: 1,
-        borderColor:'#e1e8e2',
-    },
+    width: width-100,
+    height: 155-22,
+    //backgroundColor: 'blue',
+    flexDirection: 'row',
+    alignItems: 'stretch'
+  },
   order: {
         flex: 1,
         backgroundColor: '#FFFFFF',
@@ -710,12 +867,14 @@ const styles = StyleSheet.create({
   },
   listContainerStyle:{
     borderBottomWidth: 0,
-    backgroundColor: '#FFFFFF'
+    backgroundColor: '#FFFFFF',
+    height: 48,
+    borderRadius: 15
   },
   title: {
     fontSize: 16,
     marginLeft: 8,
-    color: '#333333',
+    color: '#666666',
   },
   account_icon: {
     //  tintColor: '#5c492b',
@@ -737,11 +896,28 @@ const styles = StyleSheet.create({
         padding: 5,
   },
   avatar: {
-    height: 60,
-    width: 60,
-    borderRadius: 30,
-    borderWidth: 1,
+    height: 64,
+    width: 64,
+    //marginTop: 20,
+    borderRadius: 32,
+    borderWidth: 2,
     borderColor: '#FFFFFF',
+    backgroundColor: '#FFFFFF'
   },
+  avatarTouch: {
+    height: 64,
+    width: 64,
+    marginTop: 20,
+    borderRadius: 32,
+    //borderWidth: 2,
+    //borderColor: '#FFFFFF'
+  },
+  shadow: {
+    shadowColor:'black',
+    shadowOffset:{height:0,width:0},
+    shadowRadius: 1,
+    shadowOpacity: 0.4,
+    //backgroundColor: '#f3f3f3'
+  }
 });
 export default account;
